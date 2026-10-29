@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "AICTE Grievance",
+    "slug": "aicte-citizen-mobile",
+    "version": "1.0.0",
+    "sdkVersion": "58.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs camera access to capture evidence photos.",
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access to attach complaint evidence.",
+        "NSLocationWhenInUseUsageDescription": "This app uses location to geotag incident photos for verification."
+      }
+    },
+    "android": {
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    }
+  }
+}

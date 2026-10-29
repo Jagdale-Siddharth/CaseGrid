@@ -1,0 +1,624 @@
+{
+  "config": {
+    "sla_days": {
+      "High": 7,
+      "Medium": 15,
+      "Low": 30
+    },
+    "warn_days": 3,
+    "escalation_days": 7,
+    "overlap_threshold": 0.3,
+    "overlap_window_days": 60,
+    "categories": [
+      "Infrastructure",
+      "Faculty",
+      "Fees",
+      "Admissions",
+      "Affiliation",
+      "Academic Quality",
+      "Other"
+    ],
+    "related_categories": {
+      "Fees": [
+        "Admissions"
+      ],
+      "Admissions": [
+        "Fees"
+      ],
+      "Faculty": [
+        "Affiliation",
+        "Academic Quality"
+      ],
+      "Affiliation": [
+        "Faculty",
+        "Academic Quality"
+      ],
+      "Academic Quality": [
+        "Faculty",
+        "Affiliation",
+        "Infrastructure"
+      ],
+      "Infrastructure": [
+        "Academic Quality"
+      ]
+    }
+  },
+  "roles": [
+    {
+      "name": "admin",
+      "description": "Full administration, configuration and user management",
+      "all_bureaus": true,
+      "permissions": [
+        "dashboard:view",
+        "case:read",
+        "institution:read",
+        "report:view",
+        "case:create",
+        "case:update",
+        "case:status",
+        "case:reopen",
+        "case:assign",
+        "case:note",
+        "document:upload",
+        "link:review",
+        "overlap:scan",
+        "report:export",
+        "institution:write",
+        "alerts:run",
+        "audit:read",
+        "config:manage",
+        "routing:manage",
+        "user:manage"
+      ]
+    },
+    {
+      "name": "supervisor",
+      "description": "Oversees all bureaus: reassigns, reviews routing and overlaps",
+      "all_bureaus": true,
+      "permissions": [
+        "dashboard:view",
+        "case:read",
+        "institution:read",
+        "report:view",
+        "case:create",
+        "case:update",
+        "case:status",
+        "case:reopen",
+        "case:assign",
+        "case:note",
+        "document:upload",
+        "link:review",
+        "overlap:scan",
+        "report:export",
+        "institution:write",
+        "alerts:run",
+        "audit:read"
+      ]
+    },
+    {
+      "name": "bureau_officer",
+      "description": "Works cases of their own bureau/cell only",
+      "all_bureaus": false,
+      "permissions": [
+        "dashboard:view",
+        "case:read",
+        "institution:read",
+        "report:view",
+        "case:create",
+        "case:update",
+        "case:status",
+        "case:note",
+        "document:upload",
+        "link:review"
+      ]
+    },
+    {
+      "name": "management",
+      "description": "Read-only consolidated view and report export",
+      "all_bureaus": true,
+      "permissions": [
+        "dashboard:view",
+        "case:read",
+        "institution:read",
+        "report:view",
+        "report:export"
+      ]
+    }
+  ],
+  "bureaus": [
+    {
+      "code": "TECH",
+      "name": "Technical Bureau",
+      "is_review_queue": false
+    },
+    {
+      "code": "APPR",
+      "name": "Approval Bureau",
+      "is_review_queue": false
+    },
+    {
+      "code": "SGC",
+      "name": "Student Grievance Cell",
+      "is_review_queue": false
+    },
+    {
+      "code": "REVIEW",
+      "name": "Manual Review Queue",
+      "is_review_queue": true
+    }
+  ],
+  "routing_rules": [
+    {
+      "category": "Infrastructure",
+      "state": null,
+      "bureau": "TECH",
+      "is_verified": false,
+      "source_note": "Prototype rule - not verified against official AICTE procedure"
+    },
+    {
+      "category": "Faculty",
+      "state": null,
+      "bureau": "APPR",
+      "is_verified": false,
+      "source_note": "Prototype rule - not verified against official AICTE procedure"
+    },
+    {
+      "category": "Affiliation",
+      "state": null,
+      "bureau": "APPR",
+      "is_verified": false,
+      "source_note": "Prototype rule - not verified against official AICTE procedure"
+    },
+    {
+      "category": "Academic Quality",
+      "state": null,
+      "bureau": "APPR",
+      "is_verified": false,
+      "source_note": "Prototype rule - not verified against official AICTE procedure"
+    },
+    {
+      "category": "Fees",
+      "state": null,
+      "bureau": "SGC",
+      "is_verified": false,
+      "source_note": "Prototype rule - not verified against official AICTE procedure"
+    },
+    {
+      "category": "Admissions",
+      "state": null,
+      "bureau": "SGC",
+      "is_verified": false,
+      "source_note": "Prototype rule - not verified against official AICTE procedure"
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "full_name": "Anita Rao (Admin)",
+      "role": "admin",
+      "bureau": null
+    },
+    {
+      "username": "supervisor",
+      "full_name": "Suresh Sharma",
+      "role": "supervisor",
+      "bureau": null
+    },
+    {
+      "username": "iyer",
+      "full_name": "M. Iyer",
+      "role": "bureau_officer",
+      "bureau": "SGC"
+    },
+    {
+      "username": "deshmukh",
+      "full_name": "S. Deshmukh",
+      "role": "bureau_officer",
+      "bureau": "APPR"
+    },
+    {
+      "username": "patil",
+      "full_name": "N. Patil",
+      "role": "bureau_officer",
+      "bureau": "TECH"
+    },
+    {
+      "username": "kulkarni",
+      "full_name": "R. Kulkarni",
+      "role": "bureau_officer",
+      "bureau": "TECH"
+    },
+    {
+      "username": "management",
+      "full_name": "Dr. Verma (Management)",
+      "role": "management",
+      "bureau": null
+    }
+  ],
+  "institutions": [
+    {
+      "code": "INS-0001",
+      "name": "Sahyadri Institute of Technology",
+      "state": "Maharashtra",
+      "city": "Pune",
+      "type": "Engineering"
+    },
+    {
+      "code": "INS-0002",
+      "name": "Konkan College of Management",
+      "state": "Maharashtra",
+      "city": "Ratnagiri",
+      "type": "Management"
+    },
+    {
+      "code": "INS-0003",
+      "name": "Deccan Polytechnic",
+      "state": "Maharashtra",
+      "city": "Nagpur",
+      "type": "Diploma"
+    },
+    {
+      "code": "INS-0004",
+      "name": "Western Ghats School of Pharmacy",
+      "state": "Maharashtra",
+      "city": "Kolhapur",
+      "type": "Pharmacy"
+    },
+    {
+      "code": "INS-0005",
+      "name": "Narmada Engineering College",
+      "state": "Madhya Pradesh",
+      "city": "Indore",
+      "type": "Engineering"
+    },
+    {
+      "code": "INS-0006",
+      "name": "Lakeview Institute of Design",
+      "state": "Maharashtra",
+      "city": "Mumbai",
+      "type": "Design"
+    },
+    {
+      "code": "INS-0007",
+      "name": "Gangetic Institute of Management Studies",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "type": "Management"
+    },
+    {
+      "code": "INS-0008",
+      "name": "Thar Desert College of Engineering",
+      "state": "Rajasthan",
+      "city": "Jodhpur",
+      "type": "Engineering"
+    },
+    {
+      "code": "INS-0009",
+      "name": "Malabar Institute of Technology",
+      "state": "Kerala",
+      "city": "Kozhikode",
+      "type": "Engineering"
+    },
+    {
+      "code": "INS-0010",
+      "name": "Cauvery Institute of Engineering",
+      "state": "Karnataka",
+      "city": "Mysuru",
+      "type": "Engineering"
+    }
+  ],
+  "complaints": [
+    {
+      "case_id": "CMP-2026-000026",
+      "institution": "INS-0003",
+      "category": "Fees",
+      "subject": "Mid-session fee hike",
+      "description": "A sudden fee hike was announced mid-session without notice to students.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "SGC",
+      "registered_on": "2026-10-16",
+      "due_date": "2026-10-31"
+    },
+    {
+      "case_id": "CMP-2026-000025",
+      "institution": "INS-0005",
+      "category": "Admissions",
+      "subject": "Admission without eligibility",
+      "description": "Students were admitted without meeting the eligibility criteria and entrance requirement.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "SGC",
+      "registered_on": "2026-10-02",
+      "due_date": "2026-10-17"
+    },
+    {
+      "case_id": "CMP-2026-000022",
+      "institution": "INS-0010",
+      "category": "Fees",
+      "subject": "Capitation fee demanded",
+      "description": "Management demands a capitation fee for confirming an admission seat.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "SGC",
+      "registered_on": "2026-10-13",
+      "due_date": "2026-10-28"
+    },
+    {
+      "case_id": "CMP-2026-000021",
+      "institution": "INS-0010",
+      "category": "Admissions",
+      "subject": "Seat blocking",
+      "description": "Seats are blocked and sold for capitation outside the official counselling process.",
+      "status": "Open",
+      "priority": "High",
+      "bureau": "SGC",
+      "registered_on": "2026-10-21",
+      "due_date": "2026-10-28"
+    },
+    {
+      "case_id": "CMP-2026-000018",
+      "institution": "INS-0008",
+      "category": "Fees",
+      "subject": "Excess exam fees",
+      "description": "Students are being charged excess fees for examinations beyond the approved fee structure.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "SGC",
+      "registered_on": "2026-10-09",
+      "due_date": "2026-10-24"
+    },
+    {
+      "case_id": "CMP-2026-000017",
+      "institution": "INS-0008",
+      "category": "Fees",
+      "subject": "Hidden charges",
+      "description": "Institute levies hidden charges for exams and labs that are not disclosed in the fee structure.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "SGC",
+      "registered_on": "2026-09-25",
+      "due_date": "2026-10-10"
+    },
+    {
+      "case_id": "CMP-2026-000014",
+      "institution": "INS-0002",
+      "category": "Fees",
+      "subject": "Refund delayed",
+      "description": "Fee refund after admission cancellation was not processed for months.",
+      "status": "Resolved",
+      "priority": "Low",
+      "bureau": "SGC",
+      "registered_on": "2026-08-14",
+      "due_date": "2026-09-13"
+    },
+    {
+      "case_id": "CMP-2026-000009",
+      "institution": "INS-0004",
+      "category": "Fees",
+      "subject": "Fee refund not processed",
+      "description": "Fee refund after admission cancellation has not been processed for months despite repeated requests.",
+      "status": "Open",
+      "priority": "Low",
+      "bureau": "SGC",
+      "registered_on": "2026-09-18",
+      "due_date": "2026-10-18"
+    },
+    {
+      "case_id": "CMP-2026-000008",
+      "institution": "INS-0004",
+      "category": "Admissions",
+      "subject": "Donation demanded for admission",
+      "description": "Management demanded a donation for admission seats and issued no receipt.",
+      "status": "Resolved",
+      "priority": "Medium",
+      "bureau": "SGC",
+      "registered_on": "2026-07-15",
+      "due_date": "2026-07-30"
+    },
+    {
+      "case_id": "CMP-2026-000002",
+      "institution": "INS-0001",
+      "category": "Fees",
+      "subject": "Excess tuition collected",
+      "description": "Institute is collecting tuition above the approved fee structure from first year students and refusing receipts.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "SGC",
+      "registered_on": "2026-10-05",
+      "due_date": "2026-10-20"
+    },
+    {
+      "case_id": "CMP-2026-000023",
+      "institution": "INS-0001",
+      "category": "Faculty",
+      "subject": "Visiting faculty not paid",
+      "description": "Visiting faculty have not been paid for two semesters.",
+      "status": "Pending Information",
+      "priority": "Low",
+      "bureau": "APPR",
+      "registered_on": "2026-09-08",
+      "due_date": "2026-10-08"
+    },
+    {
+      "case_id": "CMP-2026-000020",
+      "institution": "INS-0009",
+      "category": "Affiliation",
+      "subject": "Affiliation renewal pending",
+      "description": "Institute continues admitting students although its affiliation renewal is pending.",
+      "status": "In Progress",
+      "priority": "High",
+      "bureau": "APPR",
+      "registered_on": "2026-10-12",
+      "due_date": "2026-10-19"
+    },
+    {
+      "case_id": "CMP-2026-000016",
+      "institution": "INS-0007",
+      "category": "Faculty",
+      "subject": "Faculty shortage",
+      "description": "Department has too few faculty members for the sanctioned intake and classes are cancelled.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "APPR",
+      "registered_on": "2026-10-17",
+      "due_date": "2026-11-01"
+    },
+    {
+      "case_id": "CMP-2026-000015",
+      "institution": "INS-0007",
+      "category": "Academic Quality",
+      "subject": "Syllabus not covered",
+      "description": "Syllabus is not being covered in time and many classes are cancelled without replacement.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "APPR",
+      "registered_on": "2026-10-18",
+      "due_date": "2026-11-02"
+    },
+    {
+      "case_id": "CMP-2026-000010",
+      "institution": "INS-0005",
+      "category": "Faculty",
+      "subject": "Salaries unpaid",
+      "description": "Teaching staff salaries have been pending for four months and several faculty are resigning.",
+      "status": "Open",
+      "priority": "Low",
+      "bureau": "APPR",
+      "registered_on": "2026-10-03",
+      "due_date": "2026-11-02"
+    },
+    {
+      "case_id": "CMP-2026-000007",
+      "institution": "INS-0004",
+      "category": "Affiliation",
+      "subject": "Course run without approval",
+      "description": "Pharmacy seats were admitted beyond the approved intake without affiliation approval for the new batch.",
+      "status": "Under Review",
+      "priority": "High",
+      "bureau": "APPR",
+      "registered_on": "2026-08-29",
+      "due_date": "2026-09-05"
+    },
+    {
+      "case_id": "CMP-2026-000005",
+      "institution": "INS-0003",
+      "category": "Academic Quality",
+      "subject": "Practicals not conducted",
+      "description": "Students are unable to perform practical experiments because the lab machines are faulty and no repair is done.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "APPR",
+      "registered_on": "2026-10-14",
+      "due_date": "2026-10-29"
+    },
+    {
+      "case_id": "CMP-2026-000003",
+      "institution": "INS-0002",
+      "category": "Faculty",
+      "subject": "Unqualified faculty appointed",
+      "description": "Faculty without the required qualifications are teaching MBA courses and approvals were not displayed.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "bureau": "APPR",
+      "registered_on": "2026-09-13",
+      "due_date": "2026-09-28"
+    },
+    {
+      "case_id": "CMP-2026-000024",
+      "institution": "INS-0002",
+      "category": "Infrastructure",
+      "subject": "Classrooms leaking",
+      "description": "Classrooms are leaking during the monsoon and the building is unsafe for students.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "bureau": "TECH",
+      "registered_on": "2026-10-07",
+      "due_date": "2026-10-22"
+    },
+    {
+      "case_id": "CMP-2026-000019",
+      "institution": "INS-0009",
+      "category": "Infrastructure",
+      "subject": "Fire safety missing",
+      "description": "Campus buildings lack functioning fire safety equipment and emergency exits are blocked.",
+      "status": "Open",
+      "priority": "High",
+      "bureau": "TECH",
+      "registered_on": "2026-10-19",
+      "due_date": "2026-10-26"
+    },
+    {
+      "case_id": "CMP-2026-000013",
+      "institution": "INS-0006",
+      "category": "Infrastructure",
+      "subject": "Studio equipment missing",
+      "description": "Design studio equipment is missing and facilities are not as promised during admission.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "TECH",
+      "registered_on": "2026-10-15",
+      "due_date": "2026-10-30"
+    },
+    {
+      "case_id": "CMP-2026-000011",
+      "institution": "INS-0005",
+      "category": "Infrastructure",
+      "subject": "Library lacks books",
+      "description": "Library holds outdated books and has no digital access for students preparing for exams.",
+      "status": "In Progress",
+      "priority": "Low",
+      "bureau": "TECH",
+      "registered_on": "2026-10-10",
+      "due_date": "2026-11-09"
+    },
+    {
+      "case_id": "CMP-2026-000006",
+      "institution": "INS-0003",
+      "category": "Infrastructure",
+      "subject": "Hostel drinking water unavailable",
+      "description": "Hostel has no clean drinking water and sanitation facilities are broken for residents.",
+      "status": "Open",
+      "priority": "High",
+      "bureau": "TECH",
+      "registered_on": "2026-10-03",
+      "due_date": "2026-10-10"
+    },
+    {
+      "case_id": "CMP-2026-000004",
+      "institution": "INS-0003",
+      "category": "Infrastructure",
+      "subject": "Electronics lab equipment broken",
+      "description": "Laboratory equipment in the electronics lab is broken and outdated, and students cannot complete practical experiments.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "bureau": "TECH",
+      "registered_on": "2026-10-11",
+      "due_date": "2026-10-26"
+    },
+    {
+      "case_id": "CMP-2026-000001",
+      "institution": "INS-0001",
+      "category": "Infrastructure",
+      "subject": "Computer lab machines outdated",
+      "description": "Computer lab machines are outdated and many are not working for students. Practical sessions are being affected.",
+      "status": "In Progress",
+      "priority": "High",
+      "bureau": "TECH",
+      "registered_on": "2026-09-29",
+      "due_date": "2026-10-06"
+    },
+    {
+      "case_id": "CMP-2026-000012",
+      "institution": "INS-0006",
+      "category": "Other",
+      "subject": "Fee refund and hostel seat cancelled",
+      "description": "Complaint mentions a fee refund and a cancelled hostel seat together and is unclear which authority should act.",
+      "status": "Open",
+      "priority": "Medium",
+      "bureau": "REVIEW",
+      "registered_on": "2026-10-20",
+      "due_date": "2026-11-04"
+    }
+  ]
+}

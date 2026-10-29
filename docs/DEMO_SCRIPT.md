@@ -1,0 +1,15 @@
+# Live demonstration (matches section J of the problem statement)
+
+Setup: `python -m app.seed --reset`, start API, web frontend and Expo mobile app (`npx expo start -c --tunnel`). Demo password for every account: `Demo@1234`.
+The demo clock is fixed to 23 Oct 2026 (`FIXED_TODAY`) so overdue numbers are stable.
+
+1. **Citizen Mobile App**: Open the Expo mobile app, authenticate via email OTP (powered by Resend API). File a new complaint for *Sahyadri Institute of Technology (INS-0001)*, category *Infrastructure*, attach a geotagged photo (captures live GPS coordinates & physical address), attach a PDF document, and check the *Urgent Priority* toggle. Submit and note the generated Case ID.
+2. **Public Mobile Tracking**: Switch to the *Track Complaint* tab on mobile, enter the Case ID, and show the real-time status, handling bureau, urgent indicator, and timeline.
+3. **Sign in as Supervisor on Web**: Open **Institutions**, then *Sahyadri Institute of Technology (INS-0001)*. The **profile** shows the consolidated complaint history across bureaus/cells (Technical Bureau, Approval Bureau, Student Grievance Cell), including the mobile-submitted case. Note that internal staff UI has no manual "Register" button, preserving clean data provenance.
+4. **Overlap Detection & Advisory Banner**: Open **Related cases** (`/overlaps`) to see the prominent warning banner: `"⚠️ Potential Overlapping Cases – Coordination Required"`. Review the match score and the 4 explainable signals: same institution, related categories, similar descriptions with shared conceptual topics, close in time, handled by different units.
+5. **Role-based Scoping**: Sign out and sign in as **Technical Bureau officer** (`kulkarni`): the other bureau's case is shown **redacted** (`[Restricted cross-bureau case]`). Link the cases with a reason (or dismiss with a reason). Both records stay separate and unchanged; the decision appears in both case histories and in the audit trail.
+6. **Case Workflow & Assignment**: As Supervisor open a case: **reassign** it (reason required), **change status** (only permitted transitions), add a note, and review the history and assignment history. **Alerts** shows pending (due soon) vs overdue vs escalated; press *Run alert check* twice: the second run creates 0 and reports duplicates suppressed.
+7. **Dashboard**: Check totals (registered, pending, under process, transferred, disposed), bureau lanes with interactive SLA dots, status breakdown, ageing, officer workload, institution-wise and monthly trend. Switch **dark/light** theme.
+8. **Reports & Regional Filters**: Sign in as **Management** (read-only): **Reports**, filter by State/Region, institution, bureau, category, status, date, and **Export CSV**. Try the same as the Technical officer: export is denied (403) and the report only contains that bureau's cases.
+
+Bonus: *Routing* page shows prototype rules, the manual-review queue, and how a multi-subject complaint lands there. See `docs/VIDEO_DEMO_SCRIPT.md` for a full minute-by-minute recording script.

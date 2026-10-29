@@ -1,0 +1,362 @@
+[
+ {
+  "id": 1,
+  "category_a": "Infrastructure",
+  "text_a": "Computer lab machines are outdated and many are not working for students.",
+  "category_b": "Infrastructure",
+  "text_b": "Workshop equipment is broken and unsafe, students cannot use the machines.",
+  "days_apart": 5,
+  "related": true
+ },
+ {
+  "id": 2,
+  "category_a": "Infrastructure",
+  "text_a": "Laboratory apparatus in the physics lab is damaged and unusable.",
+  "category_b": "Academic Quality",
+  "text_b": "Practical classes are not held because the lab instruments do not work.",
+  "days_apart": 10,
+  "related": true
+ },
+ {
+  "id": 3,
+  "category_a": "Fees",
+  "text_a": "Institute charges tuition above the approved fee structure.",
+  "category_b": "Fees",
+  "text_b": "Students are asked to pay excess fees beyond the sanctioned amount.",
+  "days_apart": 8,
+  "related": true
+ },
+ {
+  "id": 4,
+  "category_a": "Fees",
+  "text_a": "Refund after admission cancellation has not been paid for months.",
+  "category_b": "Admissions",
+  "text_b": "Management refuses to return the money paid for a cancelled admission seat.",
+  "days_apart": 12,
+  "related": true
+ },
+ {
+  "id": 5,
+  "category_a": "Admissions",
+  "text_a": "Donation is demanded for confirming an admission seat.",
+  "category_b": "Fees",
+  "text_b": "Capitation fee is demanded by management for a seat.",
+  "days_apart": 6,
+  "related": true
+ },
+ {
+  "id": 6,
+  "category_a": "Faculty",
+  "text_a": "Teachers have not received salaries for four months.",
+  "category_b": "Faculty",
+  "text_b": "Teaching staff wages are pending and staff are resigning.",
+  "days_apart": 15,
+  "related": true
+ },
+ {
+  "id": 7,
+  "category_a": "Faculty",
+  "text_a": "Faculty without required qualifications are teaching degree courses.",
+  "category_b": "Affiliation",
+  "text_b": "Institute appointed unqualified lecturers and has no approval for the course.",
+  "days_apart": 20,
+  "related": true
+ },
+ {
+  "id": 8,
+  "category_a": "Affiliation",
+  "text_a": "Course is running without affiliation approval.",
+  "category_b": "Affiliation",
+  "text_b": "Seats were filled beyond the approved intake without recognition.",
+  "days_apart": 4,
+  "related": true
+ },
+ {
+  "id": 9,
+  "category_a": "Infrastructure",
+  "text_a": "Hostel has no clean drinking water.",
+  "category_b": "Infrastructure",
+  "text_b": "Residents of the hostel face broken sanitation and no safe water.",
+  "days_apart": 3,
+  "related": true
+ },
+ {
+  "id": 10,
+  "category_a": "Infrastructure",
+  "text_a": "Library has outdated books and no digital access.",
+  "category_b": "Academic Quality",
+  "text_b": "Students cannot find reference books in the library for their subjects.",
+  "days_apart": 9,
+  "related": true
+ },
+ {
+  "id": 11,
+  "category_a": "Academic Quality",
+  "text_a": "Classes are cancelled without replacement and syllabus is not covered.",
+  "category_b": "Faculty",
+  "text_b": "There are too few teachers so lectures are cancelled regularly.",
+  "days_apart": 7,
+  "related": true
+ },
+ {
+  "id": 12,
+  "category_a": "Infrastructure",
+  "text_a": "Classrooms leak during rain and the building is unsafe.",
+  "category_b": "Infrastructure",
+  "text_b": "The campus building is damaged and classrooms are unsafe for students.",
+  "days_apart": 14,
+  "related": true
+ },
+ {
+  "id": 13,
+  "category_a": "Fees",
+  "text_a": "Hidden charges are collected for exams that were not disclosed.",
+  "category_b": "Fees",
+  "text_b": "Extra payment for examinations beyond the published fee structure.",
+  "days_apart": 11,
+  "related": true
+ },
+ {
+  "id": 14,
+  "category_a": "Admissions",
+  "text_a": "Students admitted without meeting eligibility criteria.",
+  "category_b": "Admissions",
+  "text_b": "Seats given to candidates who do not satisfy the entrance requirements.",
+  "days_apart": 2,
+  "related": true
+ },
+ {
+  "id": 15,
+  "category_a": "Infrastructure",
+  "text_a": "Computer lab has outdated machines.",
+  "category_b": "Academic Quality",
+  "text_b": "Practical sessions affected as lab computers are faulty.",
+  "days_apart": 18,
+  "related": true
+ },
+ {
+  "id": 16,
+  "category_a": "Fees",
+  "text_a": "Fee hike announced mid-session without notice.",
+  "category_b": "Fees",
+  "text_b": "Sudden increase in tuition charges during the year.",
+  "days_apart": 5,
+  "related": true
+ },
+ {
+  "id": 17,
+  "category_a": "Faculty",
+  "text_a": "Visiting faculty have not been paid for two semesters.",
+  "category_b": "Faculty",
+  "text_b": "Unpaid wages for guest lecturers over two terms.",
+  "days_apart": 25,
+  "related": true
+ },
+ {
+  "id": 18,
+  "category_a": "Infrastructure",
+  "text_a": "Design studio equipment is missing.",
+  "category_b": "Infrastructure",
+  "text_b": "Promised workshop machinery was never installed in the studio.",
+  "days_apart": 6,
+  "related": true
+ },
+ {
+  "id": 19,
+  "category_a": "Admissions",
+  "text_a": "Seat blocking and sale of seats outside counselling.",
+  "category_b": "Fees",
+  "text_b": "Management takes capitation fee to give admission seats.",
+  "days_apart": 4,
+  "related": true
+ },
+ {
+  "id": 20,
+  "category_a": "Affiliation",
+  "text_a": "Institute continues admitting students though affiliation renewal is pending.",
+  "category_b": "Faculty",
+  "text_b": "Faculty are teaching in a course that has no recognition.",
+  "days_apart": 30,
+  "related": false
+ },
+ {
+  "id": 21,
+  "category_a": "Infrastructure",
+  "text_a": "Computer lab machines are outdated and not working.",
+  "category_b": "Fees",
+  "text_b": "Excess tuition collected beyond the approved structure.",
+  "days_apart": 5,
+  "related": false
+ },
+ {
+  "id": 22,
+  "category_a": "Faculty",
+  "text_a": "Teachers have not received salaries for four months.",
+  "category_b": "Infrastructure",
+  "text_b": "Hostel has no clean drinking water.",
+  "days_apart": 9,
+  "related": false
+ },
+ {
+  "id": 23,
+  "category_a": "Fees",
+  "text_a": "Refund after cancellation has not been paid.",
+  "category_b": "Infrastructure",
+  "text_b": "Classrooms leak during monsoon.",
+  "days_apart": 3,
+  "related": false
+ },
+ {
+  "id": 24,
+  "category_a": "Admissions",
+  "text_a": "Donation demanded for admission seat.",
+  "category_b": "Faculty",
+  "text_b": "Faculty shortage in the mechanical department.",
+  "days_apart": 12,
+  "related": false
+ },
+ {
+  "id": 25,
+  "category_a": "Affiliation",
+  "text_a": "Course runs without affiliation approval.",
+  "category_b": "Fees",
+  "text_b": "Hidden examination charges are collected.",
+  "days_apart": 7,
+  "related": false
+ },
+ {
+  "id": 26,
+  "category_a": "Infrastructure",
+  "text_a": "Library lacks books.",
+  "category_b": "Admissions",
+  "text_b": "Students admitted without eligibility.",
+  "days_apart": 8,
+  "related": false
+ },
+ {
+  "id": 27,
+  "category_a": "Academic Quality",
+  "text_a": "Syllabus not covered in time.",
+  "category_b": "Fees",
+  "text_b": "Fee hike without notice.",
+  "days_apart": 4,
+  "related": false
+ },
+ {
+  "id": 28,
+  "category_a": "Infrastructure",
+  "text_a": "Fire safety equipment is missing in the campus buildings.",
+  "category_b": "Faculty",
+  "text_b": "Visiting faculty have not been paid.",
+  "days_apart": 10,
+  "related": false
+ },
+ {
+  "id": 29,
+  "category_a": "Fees",
+  "text_a": "Excess fee collected for exams.",
+  "category_b": "Infrastructure",
+  "text_b": "Hostel sanitation is broken.",
+  "days_apart": 6,
+  "related": false
+ },
+ {
+  "id": 30,
+  "category_a": "Faculty",
+  "text_a": "Unqualified faculty appointed.",
+  "category_b": "Fees",
+  "text_b": "Refund not processed after cancellation.",
+  "days_apart": 16,
+  "related": false
+ },
+ {
+  "id": 31,
+  "category_a": "Infrastructure",
+  "text_a": "Studio equipment missing.",
+  "category_b": "Admissions",
+  "text_b": "Seat blocking for capitation.",
+  "days_apart": 2,
+  "related": false
+ },
+ {
+  "id": 32,
+  "category_a": "Affiliation",
+  "text_a": "Affiliation renewal pending.",
+  "category_b": "Infrastructure",
+  "text_b": "Library has few books.",
+  "days_apart": 13,
+  "related": false
+ },
+ {
+  "id": 33,
+  "category_a": "Admissions",
+  "text_a": "Admission without eligibility.",
+  "category_b": "Infrastructure",
+  "text_b": "Computer lab machines are outdated.",
+  "days_apart": 20,
+  "related": false
+ },
+ {
+  "id": 34,
+  "category_a": "Fees",
+  "text_a": "Refund delayed for months.",
+  "category_b": "Faculty",
+  "text_b": "Teachers unpaid for four months.",
+  "days_apart": 11,
+  "related": false
+ },
+ {
+  "id": 35,
+  "category_a": "Infrastructure",
+  "text_a": "Hostel drinking water unavailable.",
+  "category_b": "Admissions",
+  "text_b": "Donation demanded for seat.",
+  "days_apart": 5,
+  "related": false
+ },
+ {
+  "id": 36,
+  "category_a": "Academic Quality",
+  "text_a": "Practical classes not conducted.",
+  "category_b": "Fees",
+  "text_b": "Mid-session fee hike.",
+  "days_apart": 9,
+  "related": false
+ },
+ {
+  "id": 37,
+  "category_a": "Faculty",
+  "text_a": "Faculty salaries pending.",
+  "category_b": "Affiliation",
+  "text_b": "Course approval missing.",
+  "days_apart": 40,
+  "related": false
+ },
+ {
+  "id": 38,
+  "category_a": "Infrastructure",
+  "text_a": "Library has no digital access.",
+  "category_b": "Fees",
+  "text_b": "Extra charges for labs.",
+  "days_apart": 3,
+  "related": false
+ },
+ {
+  "id": 39,
+  "category_a": "Infrastructure",
+  "text_a": "Fire exits are blocked in the campus.",
+  "category_b": "Infrastructure",
+  "text_b": "Hostel kitchen is unhygienic and food quality is poor.",
+  "days_apart": 8,
+  "related": false
+ },
+ {
+  "id": 40,
+  "category_a": "Fees",
+  "text_a": "Tuition fee collected in cash without receipts.",
+  "category_b": "Fees",
+  "text_b": "Students are not given receipts for fee payments.",
+  "days_apart": 5,
+  "related": true
+ }
+]

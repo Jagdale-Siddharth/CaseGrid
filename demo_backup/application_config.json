@@ -1,0 +1,44 @@
+{
+  "sla_days": {
+    "High": 7,
+    "Medium": 15,
+    "Low": 30
+  },
+  "warn_days": 3,
+  "escalation_days": 7,
+  "overlap_threshold": 0.3,
+  "overlap_window_days": 60,
+  "categories": [
+    "Infrastructure",
+    "Faculty",
+    "Fees",
+    "Admissions",
+    "Affiliation",
+    "Academic Quality",
+    "Other"
+  ],
+  "related_categories": {
+    "Fees": [
+      "Admissions"
+    ],
+    "Admissions": [
+      "Fees"
+    ],
+    "Faculty": [
+      "Affiliation",
+      "Academic Quality"
+    ],
+    "Affiliation": [
+      "Faculty",
+      "Academic Quality"
+    ],
+    "Academic Quality": [
+      "Faculty",
+      "Affiliation",
+      "Infrastructure"
+    ],
+    "Infrastructure": [
+      "Academic Quality"
+    ]
+  }
+}
