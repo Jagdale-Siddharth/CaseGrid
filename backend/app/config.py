@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     smtp_from_email: str = ""          # defaults to SMTP_USER when blank
     smtp_use_ssl: bool = False         # True for port 465 (implicit SSL); False = STARTTLS (587)
     # Dev only: if real delivery fails, still return the OTP in the API response.
-    otp_debug_fallback: bool = False
+    otp_debug_fallback: bool = True
 
 
 settings = Settings()
