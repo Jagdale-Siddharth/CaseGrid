@@ -21,7 +21,13 @@
         "WRITE_EXTERNAL_STORAGE",
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
-      ]
+      ],
+      "package": "com.rishidembla.aictecitizenmobile"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5f507099-510b-491d-af0a-ec9c75c43426"
+      }
     }
   }
 }
