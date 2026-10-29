@@ -3,9 +3,9 @@ import { ExternalLink, Info, QrCode, RefreshCw, Smartphone } from "lucide-react"
 import { Card, H, Tag } from "../ui";
 
 export default function MobileDemo() {
-  // Can be configured with your Appetize.io public key once uploaded
+  const defaultAppetize = "https://appetize.io/embed/ykacqpc5al7fdtsaqoflpkhefi?device=pixel7&osVersion=13.0&scale=75";
   const [appetizeUrl, setAppetizeUrl] = useState(
-    import.meta.env.VITE_APPETIZE_URL || ""
+    import.meta.env.VITE_APPETIZE_URL || defaultAppetize
   );
   const [inputUrl, setInputUrl] = useState("");
 
@@ -125,6 +125,17 @@ export default function MobileDemo() {
                 <span className="font-bold text-ink">Data Integrity</span>
                 <p className="text-muted mt-0.5">Clean citizen-to-bureau provenance</p>
               </div>
+            </div>
+
+            <div className="mt-4 border-t border-line pt-3">
+              <a
+                href="https://expo.dev/artifacts/eas/LsWb9ZMLO7SYpTgSCYs9dw-hrOmZ428Zv5PNzvErYd4.apk"
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-primary w-full text-center text-xs flex items-center justify-center gap-2"
+              >
+                <ExternalLink size={14} /> Download Standalone Android APK
+              </a>
             </div>
           </Card>
         </div>
