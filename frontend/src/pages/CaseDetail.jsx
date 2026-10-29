@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Paperclip } from "lucide-react";
+import { Paperclip, X } from "lucide-react";
 import api, { download, errText } from "../api";
 import { useAuth } from "../auth";
-import { Card, Field, ReasonModal, Select, SlaTag, Spinner, StatusTag, Tag, fmtDT, fmtDate, useToast } from "../ui";
+import { Card, Field, Modal, ReasonModal, Select, SlaTag, Spinner, StatusTag, Tag, fmtDT, fmtDate, useToast } from "../ui";
 
 export default function CaseDetail() {
   const { id } = useParams();
@@ -13,6 +13,7 @@ export default function CaseDetail() {
   const [hist, setHist] = useState([]);
   const [asg, setAsg] = useState([]);
   const [docs, setDocs] = useState([]);
+  const [rmDoc, setRmDoc] = useState(null);
   const [links, setLinks] = useState([]);
   const [meta, setMeta] = useState(null);
   const [bureaus, setBureaus] = useState([]);
@@ -112,8 +113,14 @@ export default function CaseDetail() {
           <Card>
             <h2 className="mb-3 font-display text-xl font-bold">Supporting documents</h2>
             {docs.length === 0 && <p className="text-sm text-muted">No documents attached yet.</p>}
-            <ul className="space-y-1.5">{docs.map((d) => (
-              <li key={d.id}><button className="flex w-full items-center gap-2 rounded-lg border border-line p-2 text-left text-sm hover:border-brand" onClick={() => download(`/complaints/${id}/documents/${d.id}/download`, {}, d.filename)}><Paperclip size={14} /><span className="flex-1 truncate">{d.filename}</span><span className="text-xs text-muted">{Math.max(1, Math.round(d.size_bytes / 1024))} KB</span></button></li>))}</ul>
+            <ul className="space-y-3 pt-1">{docs.map((d) => (
+              <li key={d.id} className="relative">
+                <button className="flex w-full items-center gap-2 rounded-lg border border-line p-2 pr-3 text-left text-sm hover:border-brand" onClick={() => download(`/complaints/${id}/documents/${d.id}/download`, {}, d.filename)}><Paperclip size={14} /><span className="flex-1 truncate">{d.filename}</span><span className="text-xs text-muted">{Math.max(1, Math.round(d.size_bytes / 1024))} KB</span></button>
+                {can("document:upload") && (
+                  <button type="button" onClick={() => setRmDoc(d)} aria-label={`Remove ${d.filename}`} title="Remove this document"
+                    className="absolute -right-2 -top-2.5 grid h-6 w-6 place-items-center rounded-full border-2 border-surface bg-danger text-white shadow transition hover:scale-110 hover:brightness-110"><X size={14} strokeWidth={3} /></button>
+                )}
+              </li>))}</ul>
             {can("document:upload") && <><input ref={file} type="file" className="sr-only" id="up" onChange={(e) => { const fd = new FormData(); fd.append("file", e.target.files[0]); act(() => api.post(`/complaints/${id}/documents`, fd), "Document attached"); e.target.value = ""; }} />
               <label htmlFor="up" className="btn mt-3 w-full cursor-pointer">Attach a document</label></>}
           </Card>
@@ -135,6 +142,15 @@ export default function CaseDetail() {
             <Field label="Officer" hint="Leave empty to use the default officer of that unit."><Select value={target.officer_id} onChange={(v) => setTarget({ ...target, officer_id: v })} placeholder="Default officer" options={officersFor.map((u) => ({ value: u.id, label: u.full_name }))} /></Field>
           </div>
         </ReasonModal>)}
+          {rmDoc && (
+        <Modal title="Remove this document?" onClose={() => setRmDoc(null)}>
+          <p className="text-sm">You are about to remove <b>{rmDoc.filename}</b> from this case. Use this if it was attached by mistake. The removal is recorded in the case history.</p>
+          <div className="mt-5 flex justify-end gap-2">
+            <button className="btn" onClick={() => setRmDoc(null)}>Keep document</button>
+            <button className="btn btn-danger" onClick={() => { const d = rmDoc; setRmDoc(null); act(() => api.delete(`/complaints/${id}/documents/${d.id}`), "Document removed"); }}>Remove document</button>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

@@ -1,0 +1,146 @@
+[
+ {
+  "id": 1,
+  "text_a": "The computer lab machines are not working",
+  "text_b": "कंप्यूटर प्रयोगशाला की मशीनें काम नहीं कर रही हैं",
+  "related": true,
+  "category_a": "Infrastructure",
+  "category_b": "Infrastructure",
+  "days_apart": 2
+ },
+ {
+  "id": 2,
+  "text_a": "Hostel drinking water is dirty",
+  "text_b": "वसतिगृहातील पिण्याचे पाणी अस्वच्छ आहे",
+  "related": true,
+  "category_a": "Infrastructure",
+  "category_b": "Infrastructure",
+  "days_apart": 3
+ },
+ {
+  "id": 3,
+  "text_a": "कॉलेज बहुत ज्यादा फीस ले रहा है",
+  "text_b": "महाविद्यालय खूप जास्त शुल्क घेत आहे",
+  "related": true,
+  "category_a": "Fees",
+  "category_b": "Fees",
+  "days_apart": 1
+ },
+ {
+  "id": 4,
+  "text_a": "Faculty salaries have not been paid for three months",
+  "text_b": "शिक्षकों को तीन महीने से वेतन नहीं मिला है",
+  "related": true,
+  "category_a": "Faculty",
+  "category_b": "Faculty",
+  "days_apart": 4
+ },
+ {
+  "id": 5,
+  "text_a": "ग्रंथालयात पुरेशी पुस्तके नाहीत",
+  "text_b": "The library does not have enough books",
+  "related": true,
+  "category_a": "Infrastructure",
+  "category_b": "Infrastructure",
+  "days_apart": 2
+ },
+ {
+  "id": 6,
+  "text_a": "Admission was given without checking eligibility",
+  "text_b": "बिना पात्रता जांच के प्रवेश दिया गया",
+  "related": true,
+  "category_a": "Admissions",
+  "category_b": "Admissions",
+  "days_apart": 5
+ },
+ {
+  "id": 7,
+  "text_a": "प्रयोगशाळेतील संगणक बंद आहेत",
+  "text_b": "प्रयोगशाळेतील यंत्रे काम करत नाहीत",
+  "related": true,
+  "category_a": "Infrastructure",
+  "category_b": "Infrastructure",
+  "days_apart": 1
+ },
+ {
+  "id": 8,
+  "text_a": "छात्रावास में पानी की समस्या है",
+  "text_b": "छात्रावास में पीने का पानी गंदा है",
+  "related": true,
+  "category_a": "Infrastructure",
+  "category_b": "Infrastructure",
+  "days_apart": 2
+ },
+ {
+  "id": 9,
+  "text_a": "Lab equipment is broken and unusable",
+  "text_b": "कॉलेज बहुत ज्यादा फीस ले रहा है",
+  "related": false,
+  "category_a": "Infrastructure",
+  "category_b": "Fees",
+  "days_apart": 2
+ },
+ {
+  "id": 10,
+  "text_a": "वसतिगृहातील पिण्याचे पाणी अस्वच्छ आहे",
+  "text_b": "Faculty salaries have not been paid for three months",
+  "related": false,
+  "category_a": "Infrastructure",
+  "category_b": "Faculty",
+  "days_apart": 3
+ },
+ {
+  "id": 11,
+  "text_a": "पुस्तकालय में पर्याप्त किताबें नहीं हैं",
+  "text_b": "प्रवेश प्रक्रियेत गैरव्यवहार झाला",
+  "related": false,
+  "category_a": "Infrastructure",
+  "category_b": "Admissions",
+  "days_apart": 2
+ },
+ {
+  "id": 12,
+  "text_a": "Classrooms have leaking roofs",
+  "text_b": "शिक्षकों को वेतन नहीं मिला",
+  "related": false,
+  "category_a": "Infrastructure",
+  "category_b": "Faculty",
+  "days_apart": 1
+ },
+ {
+  "id": 13,
+  "text_a": "महाविद्यालयाने मान्यतेशिवाय अभ्यासक्रम सुरू केला",
+  "text_b": "वसतिगृहात जेवण खराब आहे",
+  "related": false,
+  "category_a": "Affiliation",
+  "category_b": "Infrastructure",
+  "days_apart": 4
+ },
+ {
+  "id": 14,
+  "text_a": "Hostel food quality is poor",
+  "text_b": "प्रयोगशाला में उपकरण टूटे हुए हैं",
+  "related": false,
+  "category_a": "Infrastructure",
+  "category_b": "Infrastructure",
+  "days_apart": 2
+ },
+ {
+  "id": 15,
+  "text_a": "Fees were collected twice from students",
+  "text_b": "विद्यार्थ्यांकडून दोनदा शुल्क घेतले",
+  "related": true,
+  "category_a": "Fees",
+  "category_b": "Fees",
+  "days_apart": 3
+ },
+ {
+  "id": 16,
+  "text_a": "Unqualified teachers appointed in the department",
+  "text_b": "विभागात अपात्र शिक्षकांची नियुक्ती केली आहे",
+  "related": true,
+  "category_a": "Faculty",
+  "category_b": "Faculty",
+  "days_apart": 2
+ }
+]

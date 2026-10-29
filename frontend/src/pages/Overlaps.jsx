@@ -4,6 +4,7 @@ import api, { errText } from "../api";
 import { useAuth } from "../auth";
 import { Card, Empty, Field, H, Modal, ReasonModal, Spinner, StatusTag, Tag, fmtDT, useToast } from "../ui";
 
+const METHOD = { "multilingual-ai": "AI language model", "rules+tfidf": "word matching", manual: "manual link" };
 const TABS = [["suggested", "To review"], ["linked", "Linked"], ["dismissed", "Dismissed"], ["unlinked", "Unlinked"]];
 
 function Side({ c }) {
@@ -26,6 +27,8 @@ export default function Overlaps() {
   const [items, setItems] = useState(null);
   const [ask, setAsk] = useState(null);
   const [manual, setManual] = useState(false);
+  const [engine, setEngine] = useState(null);
+  useEffect(() => { api.get("/overlaps/engine").then((r) => setEngine(r.data)).catch(() => {}); }, []);
   const load = () => api.get("/overlaps", { params: { status: tab } }).then((r) => setItems(r.data));
   useEffect(() => { setItems(null); load(); }, [tab]);
   const decide = (l, decision) => setAsk({ l, decision });
@@ -40,6 +43,12 @@ export default function Overlaps() {
         {can("link:review") && <button className="btn" onClick={() => setManual(true)}>Link two cases manually</button>}
         {can("overlap:scan") && <button className="btn" onClick={async () => { const r = await api.post("/overlaps/scan"); toast(`${r.data.new_suggestions} new suggestion(s)`); load(); }}>Scan all cases</button>}
       </H>
+      {engine && (
+        <div className={`mb-4 flex items-start gap-3 rounded-lg border px-4 py-2.5 text-sm ${engine.engine === "multilingual-ai" ? "border-good/40 bg-good/10" : "border-accent/60 bg-accent/10"}`}>
+          <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${engine.engine === "multilingual-ai" ? "bg-good" : "bg-accent"}`} aria-hidden />
+          <p><b>Matching engine: {engine.engine === "multilingual-ai" ? "AI language model (active)" : "basic word matching"}.</b> {engine.languages}.
+            {engine.engine !== "multilingual-ai" && <span className="text-muted"> {engine.state === "loading" ? "The multilingual model is loading and will switch on automatically." : "The multilingual model is not available on this server yet, so complaints in different languages may not be linked."}</span>}</p>
+        </div>)}
       <div className="mb-5 flex flex-wrap gap-2" role="tablist">{TABS.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`rounded-full border px-4 py-1.5 text-sm font-semibold ${tab === k ? "border-transparent bg-brand text-onbrand" : "border-line hover:border-brand"}`}>{l}</button>)}</div>
       {tab === "suggested" && items && items.length > 0 && (
         <div className="mb-4 rounded-xl border border-accent/70 bg-accent/10 p-4">
@@ -55,7 +64,7 @@ export default function Overlaps() {
         <div className="space-y-4">{items.map((l) => (
           <Card key={l.id}>
             <div className="mb-3 flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-3"><div className="font-display text-4xl font-bold">{Math.round(l.score * 100)}%</div><div className="text-xs text-muted">match<br />{l.method}</div></div>
+              <div className="flex items-center gap-3"><div className="font-display text-4xl font-bold">{Math.round(l.score * 100)}%</div><div className="text-xs text-muted">match<br />{METHOD[l.method] || l.method}</div></div>
               <div className="h-2 min-w-[120px] flex-1 overflow-hidden rounded-full bg-raised"><div className="h-full bg-brand" style={{ width: `${Math.round(l.score * 100)}%`, boxShadow: "inset 0 0 0 1px rgb(var(--ink))" }} /></div>
               {l.origin === "manual" && <Tag>Linked manually</Tag>}
             </div>

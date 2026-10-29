@@ -243,6 +243,28 @@ async def upload_document(case_ref: str, file: UploadFile = File(...), user: Use
     return doc
 
 
+@router.delete("/{case_ref}/documents/{doc_id}")
+def remove_document(case_ref: str, doc_id: int, user: User = Depends(require("document:upload")), db: Session = Depends(get_db)):
+    """Remove a document that was attached by mistake. The removal is recorded in the case history and audit trail."""
+    c = get_case_or_404(db, user, case_ref)
+    doc = db.get(Document, doc_id)
+    if not doc or doc.complaint_id != c.id:
+        raise HTTPException(404, "Document not found")
+    path = os.path.join(settings.upload_dir, os.path.basename(doc.stored_name))
+    name = doc.filename
+    if c.photo_url and doc.stored_name in c.photo_url:
+        c.photo_url = None
+    db.delete(doc)
+    history(db, c, "document", f"Document removed: {name}", user)
+    audit(db, "case.document.remove", user, "complaint", c.case_id, name)
+    db.commit()
+    try:  # delete the stored file only after the database change is safely committed
+        os.remove(path)
+    except OSError:
+        pass
+    return {"ok": True, "removed": name}
+
+
 @router.get("/documents/{stored_name}")
 def get_raw_document(stored_name: str):
     clean_name = os.path.basename(stored_name)

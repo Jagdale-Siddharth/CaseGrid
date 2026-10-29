@@ -1,9 +1,7 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Bell, BarChart3, Building2, ChevronRight, GitCompareArrows, Home, LayoutDashboard, ListChecks, LogOut, Route, ScrollText, UserRound, Users } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useAuth } from "./auth";
 import { Brand, Footer, Tricolor, UtilityBar } from "./Gov";
-import api from "./api";
 
 const NAV = [
   ["/", "Dashboard", LayoutDashboard, "dashboard:view"],
@@ -38,8 +36,6 @@ function Crumbs({ links }) {
 export default function Layout() {
   const { user, logout, can } = useAuth();
   const nav = useNavigate();
-  const [unread, setUnread] = useState(0);
-  useEffect(() => { api.get("/notifications", { params: { unread_only: true } }).then((r) => setUnread(r.data.length)).catch(() => {}); }, []);
   const links = NAV.filter((n) => can(n[3]));
   const roleLabel = `${user.role.name.replace("_", " ")}${user.bureau ? `, ${user.bureau.name}` : ""}`;
   return (
@@ -49,10 +45,6 @@ export default function Layout() {
         <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-8">
           <Brand />
           <div className="flex items-center gap-3">
-            <Link to="/alerts" className="relative rounded-full border border-line p-2 text-brand transition hover:bg-raised" aria-label={`Alerts, ${unread} unread`}>
-              <Bell size={18} />
-              {unread > 0 && <span className="absolute -right-1 -top-1 grid min-w-[1.1rem] place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">{unread}</span>}
-            </Link>
             <div className="flex items-center gap-2.5 rounded-lg border border-line bg-bg py-1.5 pl-2 pr-3">
               <div className="grid h-9 w-9 place-items-center rounded-full bg-brand text-onbrand"><UserRound size={18} /></div>
               <div className="leading-tight">
@@ -71,7 +63,6 @@ export default function Layout() {
             <NavLink key={to} to={to} end={to === "/"}
               className={({ isActive }) => `relative flex shrink-0 items-center gap-2 border-b-4 px-3.5 py-3 text-sm font-semibold transition ${isActive ? "border-accent bg-white/10 text-white" : "border-transparent text-white/80 hover:bg-white/10 hover:text-white"}`}>
               <Icon size={16} />{label}
-              {label === "Alerts" && unread > 0 && <span className="rounded-full bg-accent px-1.5 text-[11px] font-bold text-onaccent">{unread}</span>}
             </NavLink>
           ))}
         </nav>

@@ -72,19 +72,34 @@ def send_otp(req: SendOtpRequest, db: Session = Depends(get_db)):
     db.add(otp_record)
     db.commit()
 
-    # Send via Resend service
-    resend_result = send_otp_email(email, otp_code)
+    # Send via configured provider (SMTP -> Resend -> local simulation)
+    result = send_otp_email(email, otp_code)
+    status_ = result.get("status")
 
-    resp = {
-        "success": True,
-        "message": f"Verification code sent to {email}",
-    }
-    # Provide debug OTP if simulated or developer testing
-    if resend_result.get("status") in ("simulated", "error", "exception"):
-        resp["debug_otp"] = otp_code
-        resp["note"] = "Resend API key not set or returned error; OTP included for quick testing."
+    if status_ == "sent":
+        return {"success": True, "message": f"Verification code sent to {email}"}
 
-    return resp
+    if status_ == "simulated":
+        # No email provider configured: local dev only
+        return {
+            "success": True,
+            "message": f"Verification code generated for {email}",
+            "debug_otp": otp_code,
+            "note": "No email provider configured; OTP included for local testing.",
+        }
+
+    # Real delivery failed. Do NOT leak the OTP unless explicitly enabled for dev.
+    if settings.otp_debug_fallback:
+        return {
+            "success": True,
+            "message": f"Email delivery failed; using dev fallback for {email}",
+            "debug_otp": otp_code,
+            "note": "Email delivery failed; OTP included because OTP_DEBUG_FALLBACK=true.",
+        }
+    raise HTTPException(
+        status.HTTP_502_BAD_GATEWAY,
+        "Could not send the verification email right now. Please try again in a moment.",
+    )
 
 
 @router.post("/auth/verify-otp")

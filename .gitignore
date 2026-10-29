@@ -1,9 +1,38 @@
+# Dependencies
 node_modules/
+.venv/
+venv/
+
+# Build output
 dist/
+build/
+
+# Python
 __pycache__/
 *.pyc
+.pytest_cache/
+
+# Secrets - NEVER push these
 .env
-.venv/
+*.env.local
+
+# Local databases (recreate with: python -m app.seed --reset)
+*.db
+*.sqlite3
+
+# Uploaded files (keep the folder, ignore the contents)
 backend/uploads/*
 !backend/uploads/.gitkeep
-.pytest_cache/
+
+# Downloaded AI model (~220 MB, auto-downloaded on first run)
+backend/models_cache/
+
+# Expo / mobile local files
+.expo/
+.expo-shared/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

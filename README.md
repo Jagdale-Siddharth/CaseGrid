@@ -1,103 +1,143 @@
 # AICTE Integrated Complaint Monitoring Dashboard (PS 26264)
 
-One institution-wise view of complaint cases across AICTE bureaus and cells, with role-based access, configurable routing,
-explainable overlap detection, deadline alerts, audit trail, dashboards and exports, plus an Expo mobile application for citizen grievance lodging and real-time tracking. **All demo data is synthetic.**
+One institution-wise view of complaint cases across AICTE bureaus and cells, with role-based access,
+configurable routing, explainable overlap detection, deadline alerts, audit trail, dashboards and exports,
+plus an Expo mobile app for citizens to lodge and track grievances. **All demo data is synthetic.**
 
 | Layer | Technology |
 |---|---|
-| Web Frontend | React 18, React Router 6, Tailwind CSS 3, Axios, Recharts, Vite (light and dark themes) |
-| Mobile App | React Native 0.88, Expo SDK 58, Expo Location (GPS geotagging), Image Picker, Document Picker, Lucide/Ionicons |
-| Backend | Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2, JWT (python-jose), bcrypt, Resend Email API |
-| Database | SQLite / PostgreSQL 16 (tests run on SQLite and PostgreSQL) |
-| Overlap detection | Rules + TF-IDF with a synonym vocabulary; optional sentence embeddings |
-| Testing | Pytest (43 tests), Postman collection, labelled overlap evaluation |
+| Web Frontend | React 18, React Router 6, Tailwind CSS 3, Recharts, Vite |
+| Mobile App | React Native, Expo, Expo Location, Image Picker, Document Picker |
+| Backend | Python, FastAPI, Pydantic v2, SQLAlchemy 2, JWT, bcrypt, SMTP / Resend email |
+| Database | SQLite (default) / PostgreSQL 16 |
+| Overlap detection | Rules + TF-IDF + optional multilingual sentence embeddings |
 
-## Quick start (Docker)
+## Prerequisites
+- Python 3.10+
+- Node.js 18+ and npm
+- Expo Go app on your phone (for the mobile app)
+- A Gmail account with 2-Step Verification (for OTP emails)
+
+## 1. Clone
 ```bash
-docker compose up --build        # PostgreSQL + API (auto-seeded) + frontend
-# Web: http://localhost:5173     API docs: http://localhost:8000/docs
+git clone <your-repo-url>
+cd aicte-complaint-platform
 ```
 
-## Quick start (manual)
-```bash
-# 1. database
-createdb aicte_complaints         # or: docker run -e POSTGRES_USER=aicte -e POSTGRES_PASSWORD=aicte -e POSTGRES_DB=aicte_complaints -p 5432:5432 postgres:16
-# (or use SQLite by setting DATABASE_URL=sqlite:///./aicte.db in backend/.env)
-
-# 2. backend
+## 2. Backend
+```powershell
 cd backend
-python -m venv .venv && source .venv/bin/activate # (on Windows: .venv\Scripts\Activate.ps1)
-pip install -r requirements.txt
-cp .env.example .env              # edit DATABASE_URL / SECRET_KEY / RESEND_API_KEY if needed
-python -m app.seed --reset        # synthetic institutions, users, complaints
-uvicorn app.main:app --reload --reload-dir app     # http://localhost:8000/docs
+python -m venv .venv
 
-# 3. web frontend (new terminal)
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+# Mac / Linux
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+copy .env.example .env          # Mac/Linux: cp .env.example .env
+```
+
+Edit `backend/.env` (see section 5 for the email settings), then:
+
+```powershell
+python -m app.seed --reset                  # creates demo data
+python -m scripts.download_model            # optional: downloads the ~220 MB model once
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app
+```
+- API docs: http://localhost:8000/docs
+- `--host 0.0.0.0` is required so a physical phone can reach the backend.
+- Restart the backend after any change to `.env`.
+
+## 3. Web dashboard (new terminal)
+```bash
 cd frontend
 npm install
-npm run dev                       # http://localhost:5173
+npm run dev
+```
+Open http://localhost:5173
 
-# 4. mobile application (new terminal)
+Demo accounts (password `Demo@1234`):
+
+| Username | Role |
+|---|---|
+| `admin` | Admin |
+| `supervisor` | Supervisor |
+| `kulkarni`, `patil` | Technical Bureau officers |
+| `deshmukh` | Approval Bureau officer |
+| `iyer` | Student Grievance Cell officer |
+| `management` | Management (read-only) |
+
+## 4. Mobile app (new terminal)
+```bash
 cd mobile
 npm install
-npx expo start -c --tunnel        # scan the generated QR code in Expo Go app on your phone
+npx expo start -c
+```
+Scan the QR code with **Expo Go**. Your phone and computer must be on the **same Wi-Fi**.
+
+Set the backend address the phone should use:
+1. Find your computer's Wi-Fi IP: run `ipconfig` (Windows) or `ifconfig` (Mac/Linux) and copy the IPv4 address.
+2. In the app, tap the gear icon, enter `http://YOUR_IP:8000` and tap **Save URL**.
+3. Check from the phone's browser: `http://YOUR_IP:8000/docs` should load.
+
+Windows only, if the phone can't connect, run once in PowerShell **as Administrator**:
+```powershell
+New-NetFirewallRule -DisplayName "AICTE API 8000" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow
+New-NetFirewallRule -DisplayName "Expo 8081" -Direction Inbound -Protocol TCP -LocalPort 8081 -Action Allow
 ```
 
-## Mobile Application (Citizen Grievance Portal)
-The `mobile/` directory contains an Expo SDK 58 mobile app built for citizens, students, and faculty:
-* **Passwordless Email OTP Authentication**: Citizen identity verification via Resend Email API (with console preview fallback in offline/dev mode).
-* **Geotagged Photo Evidence**: Optional field photo capture with automatic GPS coordinates (latitude/longitude) and reverse-geocoded physical address.
-* **Document Attachment**: Optional PDF/document upload support using Base64 JSON encoding.
-* **Urgent Priority Flag**: Allows flagging critical complaints directly from the field.
-* **Real-time Case Tracking**: Any citizen can input a Case ID (`CMP-YYYY-XXXXXX`) to view handling bureau, urgent status, and full chronological lifecycle without logging in.
-* **Data Provenance**: Public complaints originate exclusively from authenticated citizens; internal staff (Admin, Supervisor, Officers) review, route, investigate, and resolve cases without tampering with original complaint intake.
+## 5. Email OTP setup (mobile login)
+The OTP is emailed to whatever address the user enters. The account in `.env` is only the **sender**.
 
-## Demo accounts (password `Demo@1234`)
-| Username | Role | Scope |
-|---|---|---|
-| `admin` | Admin | everything, configuration, users, routing rules |
-| `supervisor` | Supervisor | all bureaus, reassign, review routing and overlaps, export |
-| `kulkarni`, `patil` | Technical Bureau officers | Technical Bureau cases only |
-| `deshmukh` | Approval Bureau officer | Approval Bureau cases only |
-| `iyer` | Student Grievance Cell officer | Grievance Cell cases only |
-| `management` | Management | all data, read-only, can export |
+1. Sign in to the Gmail account you want to send from.
+2. Turn on 2-Step Verification: https://myaccount.google.com/security
+3. Create an App Password: https://myaccount.google.com/apppasswords
+4. Put this in `backend/.env` (no spaces, no quotes):
+```
+DATABASE_URL=sqlite:///./aicte.db
+SECRET_KEY=any-long-random-string
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+FIXED_TODAY=2026-10-23
+ENABLE_SCHEDULER=false
 
-`FIXED_TODAY=2026-10-23` in `.env` freezes the clock so ageing and overdue figures are the same at every demo. Remove it to use the real date.
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-account@gmail.com
+SMTP_PASSWORD=your16characterapppassword
+SMTP_FROM_EMAIL=your-account@gmail.com
+
+# Dev only: show the OTP in the app if email sending fails
+OTP_DEBUG_FALLBACK=false
+```
+If no SMTP or Resend settings are present, the OTP is printed in the backend terminal for local testing.
+**Never commit `.env` or share your App Password.**
+
+## Run everything with Docker (alternative)
+```bash
+docker compose up --build
+```
+Web: http://localhost:5173 , API docs: http://localhost:8000/docs
 
 ## Tests
 ```bash
 cd backend
-pytest                                                       # SQLite, ~20 s
-TEST_DATABASE_URL=postgresql+psycopg2://aicte:aicte@localhost/aicte_test pytest   # real PostgreSQL
-python -m scripts.eval_overlap                               # overlap precision/recall on the labelled set
+pytest
+python -m scripts.eval_overlap
 ```
-Import `postman/AICTE_Complaint_Monitor.postman_collection.json`, run one of the **Login** requests first (the token is stored automatically).
-
-## Offline backup for the demo
-`demo_backup/` holds a JSON export of the seeded data and configuration. `python -m app.seed --reset` rebuilds the identical dataset from
-code with no network access. `python -m scripts.backup` refreshes the export; `GET /admin/export` (admin) returns the same JSON.
 
 ## Project layout
 ```
-backend/app/        models.py schemas.py deps.py (authorisation) routers/ (complaints, citizen, dashboard, reports, etc.) services/ (routing, overlap, sla, alerts, resend_svc) seed.py
-backend/tests/      43 tests + labelled overlap pairs        backend/scripts/  eval_overlap, backup, make_postman
-frontend/src/       pages/ (Dashboard, Cases, CaseDetail, Institutions, Overlaps, Routing, Alerts, Reports, Audit, Admin) ui.jsx theme.jsx
-mobile/             React Native / Expo SDK 58 app (AuthScreen, NewComplaintScreen, TrackCaseScreen, MyComplaintsScreen, ProfileScreen)
-docs/               TRACEABILITY.md  OVERLAP_EVALUATION.md  DEMO_SCRIPT.md  MOBILE_APP.md
+backend/    FastAPI app (app/), tests, scripts
+frontend/   React web dashboard
+mobile/     Expo mobile app for citizens
+docs/       Traceability, demo scripts, mobile guide
 ```
 
-## How the key requirements are met
-* **Backend-enforced access.** Every route depends on `require(permission)`; case access is also scoped by bureau (`deps.py`). Out-of-scope cases return 404, so their existence is not leaked. Denied attempts are written to the audit trail. Hiding buttons in the UI is only cosmetic.
-* **Routing never guesses.** Rules are data (`routing_rules`), flagged *Prototype* until an admin marks them *Verified*. Multiple subjects, no matching rule, or conflicting rules send the case to the Manual Review queue.
-* **Overlap is advisory.** Same institution ID is a hard gate, then category, text and timing signals build an explained score. Link/dismiss/unlink need a reason, are recorded in both case histories and the audit trail, and never merge or close cases. Dismissed pairs do not resurface.
-* **History is append-only.** Edits, status changes, reassignments, notes, links and alerts add rows to `case_history` with actor, role and timestamp; assignments keep every previous row.
-* **Alerts are de-duplicated** by a unique `(case, kind, due date)` key, so repeated checks cannot spam. Pending (due soon), overdue and escalated are distinct states with configurable thresholds.
-
-## Known limitations (be upfront in the demo)
-* Routing rules are demonstration rules and must be verified against official AICTE procedure before real use.
-* Overlap quality: see `docs/OVERLAP_EVALUATION.md` (small developer-written test set; embeddings option is untested here).
-* No Alembic migrations (tables are created at start-up), no refresh tokens, no password reset, and only login lock-out for brute-force protection.
-* Alerts are in-app only (no email/SMS). A scheduler exists (`ENABLE_SCHEDULER=true`) but is off by default; the check can be run on demand.
-* Uploaded documents are stored on the local disk of the API server.
-* Dashboards are computed in Python over the caller's scoped cases, which is fine for a prototype but would move to SQL aggregates at scale.
-* The Docker files were written but not built in the authoring environment (no Docker daemon there); the manual route was run and tested.
+## Troubleshooting
+| Problem | Fix |
+|---|---|
+| App says "Cannot reach server" | Backend must run with `--host 0.0.0.0`; check the IP, same Wi-Fi, firewall |
+| "Could not send the verification email" | Check the `[SMTP ERROR]` line in the backend terminal; verify `SMTP_USER` and App Password belong to the same Gmail account; restart the backend |
+| `npx expo start --tunnel` asks for login | Use `npx expo start` (LAN) instead |
+| PowerShell blocks activating the venv | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |

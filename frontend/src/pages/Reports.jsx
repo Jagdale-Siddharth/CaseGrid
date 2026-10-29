@@ -1,8 +1,42 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Braces, ChevronDown, FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import api, { download, errText } from "../api";
 import { useTheme } from "../theme";
 import { Card, Empty, H, Select, SlaTag, Spinner, StatusTag, Tag, useToast } from "../ui";
+
+const FORMATS = [
+  ["pdf", "PDF report", "Official format with analytics and case register", FileText],
+  ["csv", "CSV spreadsheet", "Open in Excel or Google Sheets", FileSpreadsheet],
+  ["json", "JSON data", "For other systems and integrations", Braces],
+];
+
+function ExportMenu({ onPick, busy }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e) => { if (box.current && !box.current.contains(e.target)) setOpen(false); };
+    const esc = (e) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", away); document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("mousedown", away); document.removeEventListener("keydown", esc); };
+  }, [open]);
+  return (
+    <div className="relative" ref={box}>
+      <button className="btn btn-primary" onClick={() => setOpen((o) => !o)} disabled={busy} aria-haspopup="menu" aria-expanded={open}>
+        {busy ? <Loader2 size={16} className="animate-spin" /> : null}{busy ? "Preparing..." : "Export"}<ChevronDown size={16} />
+      </button>
+      {open && (
+        <div role="menu" className="absolute right-0 z-40 mt-2 w-72 overflow-hidden rounded-lg border border-line border-t-4 border-t-accent bg-surface shadow-2xl">
+          {FORMATS.map(([fmt, name, hint, Icon]) => (
+            <button key={fmt} role="menuitem" onClick={() => { setOpen(false); onPick(fmt); }} className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-raised">
+              <Icon size={20} className="mt-0.5 shrink-0 text-brand" />
+              <span><span className="block text-sm font-bold text-heading">{name}</span><span className="block text-xs text-muted">{hint}</span></span>
+            </button>))}
+        </div>)}
+    </div>
+  );
+}
 
 export default function Reports() {
   const toast = useToast();
@@ -12,10 +46,16 @@ export default function Reports() {
   const [insts, setInsts] = useState([]);
   const [bureaus, setBureaus] = useState([]);
   const [r, setR] = useState(null);
+  const [busy, setBusy] = useState(false);
   useEffect(() => { api.get("/meta").then((x) => setMeta(x.data)); api.get("/institutions", { params: { size: 200 } }).then((x) => setInsts(x.data.items)); api.get("/bureaus").then((x) => setBureaus(x.data)); }, []);
   const params = Object.fromEntries(Object.entries(f).filter(([, v]) => v !== ""));
   useEffect(() => { api.get("/reports/cases", { params }).then((x) => setR(x.data)); }, [JSON.stringify(f)]);
-  const exp = async (fmt) => { try { await download("/reports/export", { ...params, fmt }, `complaints-report.${fmt}`); toast(`Exported ${r.total} rows`); } catch (e) { toast(e.response?.status === 403 ? "Your role cannot export reports" : errText(e), "err"); } };
+  const exp = async (fmt) => {
+    setBusy(true);
+    try { await download("/reports/export", { ...params, fmt }, `complaints-report.${fmt}`); toast(`${fmt.toUpperCase()} report downloaded (${r.total} cases)`); }
+    catch (e) { toast(e.response?.status === 403 ? "Your role cannot export reports" : errText(e), "err"); }
+    finally { setBusy(false); }
+  };
   const set = (k) => (v) => setF((o) => ({ ...o, [k]: v }));
   const chart = (title, data) => (
     <Card><h3 className="mb-2 font-display text-lg font-bold">{title}</h3>
@@ -24,7 +64,7 @@ export default function Reports() {
   return (
     <>
       <H title="Reports" sub="Filter, review and export. Reports only ever include the cases your role may see.">
-        {r?.can_export ? <><button className="btn btn-primary" onClick={() => exp("csv")}>Export CSV</button><button className="btn" onClick={() => exp("json")}>Export JSON</button></> : <Tag tone="muted">Export not available for your role</Tag>}
+        {r?.can_export ? <ExportMenu onPick={exp} busy={busy} /> : <Tag tone="muted">Export not available for your role</Tag>}
       </H>
       <Card className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
         <Select value={f.institution_id} onChange={set("institution_id")} placeholder="All institutions" options={insts.map((i) => ({ value: i.id, label: i.name }))} />

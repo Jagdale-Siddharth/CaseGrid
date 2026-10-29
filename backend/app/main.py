@@ -8,7 +8,7 @@ from . import models  # noqa: F401  (register tables)
 from .config import settings, today
 from .database import Base, SessionLocal, engine
 from .routers import admin, auth, citizen, complaints, dashboard, institutions, overlaps, reports
-from .services import alerts
+from .services import alerts, semantic
 
 
 def _migrate_schema():
@@ -47,6 +47,7 @@ async def _scheduler():
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
     _migrate_schema()
+    semantic.warm_up()  # loads the small multilingual model in the background; never blocks start-up
     task = asyncio.create_task(_scheduler()) if settings.enable_scheduler else None
     yield
     if task:

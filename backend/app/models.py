@@ -180,6 +180,15 @@ class CaseLink(Base):
     __table_args__ = (UniqueConstraint("case_a_id", "case_b_id", name="uq_case_pair"),)
 
 
+class ComplaintEmbedding(Base):
+    """Cached meaning-vector of a complaint's text, so each complaint is embedded exactly once."""
+    __tablename__ = "complaint_embeddings"
+    complaint_id: Mapped[int] = mapped_column(ForeignKey("complaints.id"), primary_key=True)
+    model: Mapped[str] = mapped_column(String(120))
+    text_hash: Mapped[str] = mapped_column(String(40))
+    vector: Mapped[list] = mapped_column(JSON)
+
+
 class Notification(Base):
     __tablename__ = "notifications"
     id: Mapped[int] = mapped_column(primary_key=True)

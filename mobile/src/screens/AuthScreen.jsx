@@ -110,7 +110,7 @@ export default function AuthScreen({ onLoginSuccess }) {
             <>
               <Text style={styles.cardTitle}>Sign In / Authenticate</Text>
               <Text style={styles.cardDesc}>
-                Enter your email address to receive a secure one-time verification code via Resend.
+                Enter your email address to receive a secure one-time verification code by email.
               </Text>
 
               <Text style={styles.label}>Email Address *</Text>

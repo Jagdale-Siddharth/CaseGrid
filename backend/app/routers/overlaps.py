@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..database import get_db
 from ..deps import can_view_case, get_case_or_404, require
 from ..models import CaseLink, Complaint, User, utcnow
-from ..services import overlap
+from ..models import ComplaintEmbedding
+from ..services import overlap, semantic
 from ..services.audit import audit, history
 
 router = APIRouter(prefix="/overlaps", tags=["Potential overlaps"])
@@ -29,6 +30,15 @@ def link_out(l: CaseLink, user: User) -> dict:
 
 def visible(l: CaseLink, user: User) -> bool:
     return can_view_case(user, l.case_a) or can_view_case(user, l.case_b)
+
+
+@router.get("/engine")
+def engine_status(user: User = Depends(require("case:read")), db: Session = Depends(get_db)):
+    """Which matching engine is active (shown to officers so they know how related cases were found)."""
+    st = semantic.status()
+    st["cases_indexed"] = db.scalar(select(func.count()).select_from(ComplaintEmbedding)) or 0
+    st["languages"] = "English, Hindi, Marathi and 50+ other languages" if st["engine"] == "multilingual-ai" else "Basic word matching (best within one language)"
+    return st
 
 
 @router.get("")

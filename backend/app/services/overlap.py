@@ -1,10 +1,14 @@
 """Potential-overlap detection.
 
 Hard gate: same institution (by stable institution ID). Then rule signals (category, timing)
-are combined with text similarity. Text similarity is TF-IDF cosine over a normalised vocabulary
-that maps near-synonyms to shared concepts (so "workshop machines broken" ~ "computer lab
-equipment not working"). If sentence-transformers is installed and USE_EMBEDDINGS=true, real
-sentence embeddings are used instead. Suggestions are never merged or closed automatically.
+are combined with text similarity.
+
+Text similarity, in order of preference:
+  1. MEANING similarity from a small multilingual model (services/semantic.py). Works across English,
+     Hindi and Marathi (even an English complaint vs a Marathi one) with no hand-written word lists.
+  2. If the model is not available (not installed, not downloaded, still loading), a basic lexical
+     matcher (TF-IDF over words, including Devanagari words) keeps the system working.
+Suggestions are never merged or closed automatically.
 """
 import math
 import re
@@ -13,9 +17,8 @@ from collections import Counter
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..config import settings
 from ..models import CaseLink, Complaint
-from . import config_svc
+from . import config_svc, semantic
 
 STOP = set("""the and for are not with has have that this from without they their was were been into over
  many much very some any all can will would should could also still more most other than then them these those
@@ -46,9 +49,17 @@ def _stem(w: str) -> str:
     return w
 
 
+# Most frequent Hindi/Marathi function words (basic matcher only; the AI model needs no such list)
+DEV_STOP = set("है हैं था थी थे का की के को में से पर और या भी यह वह एक नहीं कि है। आहे आहेत नाही चा ची चे ला ना मध्ये आणि किंवा हे ते या".split())
+
+
 def tokens(text: str) -> list[str]:
     out = []
-    for w in re.findall(r"[a-z]+", text.lower()):
+    for w in re.findall(r"[a-z]+|[\u0900-\u097F]+", text.lower()):
+        if "\u0900" <= w[0] <= "\u097F":  # Devanagari word (Hindi / Marathi)
+            if w not in DEV_STOP and len(w) >= 2:
+                out.append(w)
+            continue
         if w in STOP or len(w) < 3:
             continue
         out.append(WORD2CONCEPT.get(w) or WORD2CONCEPT.get(_stem(w)) or _stem(w))
@@ -62,39 +73,26 @@ class Similarity:
         df = Counter(tok for d in docs for tok in d)
         self.idf = {t: math.log((1 + n) / (1 + c)) + 1 for t, c in df.items()}
         self.default_idf = math.log(1 + n) + 1
-        self.emb = None
-        if settings.use_embeddings:
-            try:  # optional dependency
-                from sentence_transformers import SentenceTransformer
-                self.emb = SentenceTransformer("all-MiniLM-L6-v2")
-            except Exception:
-                self.emb = None
 
     def _vec(self, text: str) -> dict:
         tf = Counter(tokens(text))
         return {t: c * self.idf.get(t, self.default_idf) for t, c in tf.items()}
 
     def similarity(self, a: str, b: str) -> tuple[float, list[str]]:
-        if self.emb is not None:
-            import numpy as np
-            ea, eb = self.emb.encode([a, b], normalize_embeddings=True)
-            cos = float(max(0.0, np.dot(ea, eb)))
-        else:
-            va, vb = self._vec(a), self._vec(b)
-            dot = sum(va[t] * vb[t] for t in va if t in vb)
-            na = math.sqrt(sum(v * v for v in va.values()))
-            nb = math.sqrt(sum(v * v for v in vb.values()))
-            cos = dot / (na * nb) if na and nb else 0.0
+        va, vb = self._vec(a), self._vec(b)
+        dot = sum(va[t] * vb[t] for t in va if t in vb)
+        na = math.sqrt(sum(v * v for v in va.values()))
+        nb = math.sqrt(sum(v * v for v in vb.values()))
+        cos = dot / (na * nb) if na and nb else 0.0
         shared = sorted(set(tokens(a)) & set(tokens(b)))
         return cos, shared
 
-    @property
-    def method(self) -> str:
-        return "rules+embeddings" if self.emb is not None else "rules+tfidf"
+    method = "rules+tfidf"
 
 
-def score_pair(a: dict, b: dict, sim: Similarity, cfg: dict) -> tuple[float, list[dict]]:
-    """a/b: dicts with institution_id, category, subject, description, registered_on, bureau."""
+def score_pair(a: dict, b: dict, sim: Similarity, cfg: dict, sem_cos: float | None = None) -> tuple[float, list[dict]]:
+    """a/b: dicts with institution_id, category, subject, description, registered_on, bureau.
+    sem_cos: meaning-similarity from the multilingual model, when available (else basic text matching)."""
     signals: list[dict] = []
     if a["institution_id"] != b["institution_id"]:
         return 0.0, []
@@ -107,12 +105,19 @@ def score_pair(a: dict, b: dict, sim: Similarity, cfg: dict) -> tuple[float, lis
     elif b["category"] in related.get(a["category"], []):
         score += 0.12
         signals.append({"type": "category", "label": "Related categories", "detail": f"{a['category']} and {b['category']}", "weight": 0.12})
-    cos, shared = sim.similarity(f"{a['subject']} {a['description']}", f"{b['subject']} {b['description']}")
-    if cos > 0:
-        w = round(0.55 * cos, 3)
+    if sem_cos is not None:
+        st = semantic.strength(sem_cos)
+        w = round(0.55 * st, 3)
         score += w
-        if cos >= 0.2:
-            signals.append({"type": "text", "label": "Similar descriptions", "detail": f"Text similarity {cos:.0%}; shared topics: {', '.join(shared[:6]) or 'n/a'}", "weight": w})
+        if st >= 0.2:
+            signals.append({"type": "text", "label": "Similar meaning", "detail": f"Meaning similarity {st:.0%} (compared by an AI language model; works across English, Hindi and Marathi)", "weight": w})
+    else:
+        cos, shared = sim.similarity(f"{a['subject']} {a['description']}", f"{b['subject']} {b['description']}")
+        if cos > 0:
+            w = round(0.55 * cos, 3)
+            score += w
+            if cos >= 0.2:
+                signals.append({"type": "text", "label": "Similar descriptions", "detail": f"Text similarity {cos:.0%}; shared topics: {', '.join(shared[:6]) or 'n/a'}", "weight": w})
     gap = abs((a["registered_on"] - b["registered_on"]).days)
     window = int(cfg["overlap_window_days"])
     if gap <= window:
@@ -148,6 +153,11 @@ def scan_complaint(db: Session, c: Complaint) -> list[CaseLink]:
     if not others:
         return []
     sim = Similarity([f"{x.subject} {x.description}" for x in others + [c]])
+    try:
+        vecs = semantic.vectors_for(db, others + [c])  # {} when the model is not ready: basic matcher is used
+    except Exception:  # noqa: BLE001 - matching must never break complaint registration
+        vecs = {}
+    method = "multilingual-ai" if vecs else sim.method
     existing = {(l.case_a_id, l.case_b_id) for l in db.scalars(select(CaseLink).where(
         (CaseLink.case_a_id == c.id) | (CaseLink.case_b_id == c.id)))}
     created = []
@@ -155,9 +165,10 @@ def scan_complaint(db: Session, c: Complaint) -> list[CaseLink]:
         a_id, b_id = pair_key(c.id, o.id)
         if (a_id, b_id) in existing:
             continue  # already suggested / linked / dismissed: never resurface a dismissed pair
-        score, signals = score_pair(as_dict(c), as_dict(o), sim, cfg)
+        sem = semantic.cosine(vecs[c.id], vecs[o.id]) if vecs else None
+        score, signals = score_pair(as_dict(c), as_dict(o), sim, cfg, sem)
         if is_suggestion(score, signals, cfg):
-            link = CaseLink(case_a_id=a_id, case_b_id=b_id, score=score, signals=signals, method=sim.method)
+            link = CaseLink(case_a_id=a_id, case_b_id=b_id, score=score, signals=signals, method=method)
             db.add(link)
             created.append(link)
     db.flush()

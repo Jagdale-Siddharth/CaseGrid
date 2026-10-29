@@ -1,4 +1,9 @@
 import logging
+import smtplib
+import ssl
+from email.message import EmailMessage
+from email.utils import formataddr
+
 import httpx
 from ..config import settings
 
@@ -51,36 +56,70 @@ def send_otp_email(to_email: str, otp_code: str) -> dict:
     </html>
     """
 
+    subject = f"Your AICTE Grievance Portal Verification Code: {otp_code}"
+
+    # 1) SMTP (works for any recipient address)
+    if settings.smtp_host and settings.smtp_user and settings.smtp_password:
+        return _send_via_smtp(to_email, subject, html_content, otp_code)
+
+    # 2) Resend (NOTE: with the sandbox sender onboarding@resend.dev, Resend only
+    #    delivers to the email that owns the Resend account. Verify a domain to send to anyone.)
     api_key = (settings.resend_api_key or "").strip()
-    if not api_key:
-        print(f"\n=======================================================")
-        print(f"[RESEND SIMULATION] To: {to_email} | OTP: {otp_code}")
-        print(f"To send real emails, set RESEND_API_KEY in backend/.env")
-        print(f"=======================================================\n")
-        return {"status": "simulated", "otp": otp_code}
+    if api_key:
+        return _send_via_resend(api_key, to_email, subject, html_content, otp_code)
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
+    # 3) No provider configured -> local simulation
+    print(f"\n=======================================================")
+    print(f"[OTP SIMULATION] To: {to_email} | OTP: {otp_code}")
+    print(f"Set SMTP_* (or RESEND_API_KEY + verified domain) in backend/.env to send real emails")
+    print(f"=======================================================\n")
+    return {"status": "simulated", "otp": otp_code}
 
-    payload = {
-        "from": settings.resend_from_email,
-        "to": [to_email],
-        "subject": f"Your AICTE Grievance Portal Verification Code: {otp_code}",
-        "html": html_content
-    }
 
+def _send_via_smtp(to_email: str, subject: str, html: str, otp_code: str) -> dict:
+    sender = (settings.smtp_from_email or settings.smtp_user).strip()
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = sender if "<" in sender else formataddr(("AICTE Grievance Portal", sender))
+    msg["To"] = to_email
+    msg.set_content(
+        f"Your AICTE Grievance Portal verification code is {otp_code}.\n"
+        f"It is valid for 10 minutes. Do not share this code with anyone."
+    )
+    msg.add_alternative(html, subtype="html")
+    try:
+        ctx = ssl.create_default_context()
+        if settings.smtp_use_ssl or settings.smtp_port == 465:
+            with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=15, context=ctx) as srv:
+                srv.login(settings.smtp_user, settings.smtp_password)
+                srv.send_message(msg)
+        else:
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as srv:
+                srv.ehlo()
+                srv.starttls(context=ctx)
+                srv.ehlo()
+                srv.login(settings.smtp_user, settings.smtp_password)
+                srv.send_message(msg)
+        logger.info(f"SMTP email dispatched successfully to {to_email}")
+        return {"status": "sent", "provider": "smtp"}
+    except Exception as e:
+        logger.exception("SMTP send failed")
+        print(f"[SMTP ERROR] {e}. OTP code was: {otp_code}")
+        return {"status": "exception", "error": str(e), "otp": otp_code}
+
+
+def _send_via_resend(api_key: str, to_email: str, subject: str, html: str, otp_code: str) -> dict:
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    payload = {"from": settings.resend_from_email, "to": [to_email], "subject": subject, "html": html}
     try:
         with httpx.Client(timeout=10.0) as client:
             resp = client.post(RESEND_API_URL, headers=headers, json=payload)
-            if resp.status_code in (200, 201):
-                logger.info(f"Resend email dispatched successfully to {to_email}")
-                return {"status": "sent", "resend_id": resp.json().get("id")}
-            else:
-                logger.warning(f"Resend API error {resp.status_code}: {resp.text}")
-                print(f"[RESEND ERROR {resp.status_code}] {resp.text}. OTP code was: {otp_code}")
-                return {"status": "error", "error": resp.text, "otp": otp_code}
+        if resp.status_code in (200, 201):
+            logger.info(f"Resend email dispatched successfully to {to_email}")
+            return {"status": "sent", "provider": "resend", "resend_id": resp.json().get("id")}
+        logger.warning(f"Resend API error {resp.status_code}: {resp.text}")
+        print(f"[RESEND ERROR {resp.status_code}] {resp.text}. OTP code was: {otp_code}")
+        return {"status": "error", "error": resp.text, "otp": otp_code}
     except Exception as e:
         logger.exception("Failed to connect to Resend API")
         print(f"[RESEND EXCEPTION] {e}. OTP code was: {otp_code}")

@@ -12,3 +12,5 @@ pytest==8.3.4
 httpx==0.28.1
 # Optional semantic similarity (sentence embeddings). The app works without it.
 # sentence-transformers>=3.0
+reportlab>=4.0,<5
+fastembed>=0.5,<1
