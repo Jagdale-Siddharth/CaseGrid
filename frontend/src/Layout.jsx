@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Bell, BarChart3, Building2, ChevronRight, GitCompareArrows, Home, LayoutDashboard, ListChecks, LogOut, Route, ScrollText, UserRound, Users } from "lucide-react";
+import { Bell, BarChart3, Building2, ChevronRight, GitCompareArrows, Home, LayoutDashboard, ListChecks, LogOut, Route, ScrollText, Smartphone, UserRound, Users } from "lucide-react";
 import { useAuth } from "./auth";
 import { Brand, Footer, Tricolor, UtilityBar } from "./Gov";
 
@@ -13,6 +13,7 @@ const NAV = [
   ["/reports", "Reports", BarChart3, "report:view"],
   ["/audit", "Audit trail", ScrollText, "audit:read"],
   ["/admin", "Users", Users, "user:manage"],
+  ["/mobile-app", "Citizen App", Smartphone, "case:read"],
 ];
 
 function Crumbs({ links }) {

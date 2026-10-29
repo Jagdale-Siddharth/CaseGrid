@@ -15,6 +15,7 @@ import Alerts from "./pages/Alerts";
 import Reports from "./pages/Reports";
 import Audit from "./pages/Audit";
 import Admin from "./pages/Admin";
+import MobileDemo from "./pages/MobileDemo";
 
 function Guard({ perm, children }) {
   const { user, ready, can } = useAuth();
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="reports" element={g("report:view", <Reports />)} />
         <Route path="audit" element={g("audit:read", <Audit />)} />
         <Route path="admin" element={g("user:manage", <Admin />)} />
+        <Route path="mobile-app" element={g("case:read", <MobileDemo />)} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
