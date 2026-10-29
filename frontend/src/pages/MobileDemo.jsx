@@ -129,7 +129,7 @@ export default function MobileDemo() {
 
             <div className="mt-4 border-t border-line pt-3">
               <a
-                href="https://expo.dev/artifacts/eas/LsWb9ZMLO7SYpTgSCYs9dw-hrOmZ428Zv5PNzvErYd4.apk"
+                href="https://expo.dev/artifacts/eas/M2QB8tdjin4oMU3jRKieVeEdECBOH1syhuZSKk_ogq0.apk"
                 target="_blank"
                 rel="noreferrer"
                 className="btn btn-primary w-full text-center text-xs flex items-center justify-center gap-2"
