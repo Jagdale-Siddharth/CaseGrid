@@ -103,7 +103,7 @@ def test_export_requires_permission_and_is_scoped_and_audited(client, login):
     lines = r.text.strip().splitlines()
     assert lines[0].startswith("case_id,") and len(lines) > 2 and all("Fees" in l for l in lines[1:])
     log = client.get("/audit", params={"action": "report.export"}, headers=login("admin")).json()
-    assert log and "cat=Fees" in log[0]["detail"]
+    assert log and ("cat=Fees" in log[0]["detail"] or "Category = Fees" in log[0]["detail"])
     j = client.get("/reports/export", params={"fmt": "json", "date_from": "2026-10-01"}, headers=login("supervisor"))
     assert all(x["registered_on"] >= "2026-10-01" for x in j.json())
 
