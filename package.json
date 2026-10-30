@@ -1,0 +1,24 @@
+{
+  "name": "casegrid",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AICTE Integrated Complaint Monitoring Dashboard & Citizen Mobile Portal",
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint:backend": "flake8 backend/app --count --select=E9,F63,F7,F82 --show-source --statistics"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,jsx,ts,tsx}": [
+      "npm --prefix frontend run lint"
+    ],
+    "backend/**/*.py": [
+      "flake8 --count --select=E9,F63,F7,F82 --show-source --statistics"
+    ]
+  }
+}

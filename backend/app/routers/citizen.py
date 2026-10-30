@@ -77,10 +77,7 @@ def send_otp(req: SendOtpRequest, db: Session = Depends(get_db)):
     status_ = result.get("status")
 
     if status_ == "sent":
-        resp = {"success": True, "message": f"Verification code sent to {email}"}
-        if settings.otp_debug_fallback:
-            resp["debug_otp"] = otp_code
-        return resp
+        return {"success": True, "message": f"Verification code sent to {email}"}
 
     if status_ == "simulated":
         # No email provider configured: local dev only

@@ -37,15 +37,7 @@ export default function AuthScreen({ onLoginSuccess }) {
     setLoading(true);
     try {
       const res = await sendOtp(email.trim());
-      if (res.debug_otp) {
-        setDemoOtpHint(res.debug_otp);
-        Alert.alert(
-          'Verification Code Sent',
-          `A code was sent to ${email}.\n\n[Dev Preview OTP]: ${res.debug_otp}`
-        );
-      } else {
-        Alert.alert('Verification Code Sent', `A 6-digit code has been dispatched to ${email}. Check your inbox or spam.`);
-      }
+      Alert.alert('Verification Code Sent', `A 6-digit code has been dispatched to ${email}. Check your inbox or spam.`);
       setStep('otp');
     } catch (err) {
       Alert.alert('Error Sending Code', err.message || 'Failed to send OTP. Check your server connection.');
@@ -157,12 +149,7 @@ export default function AuthScreen({ onLoginSuccess }) {
                 Verification code sent to <Text style={{ fontWeight: '700', color: '#0f172a' }}>{email}</Text>
               </Text>
 
-              {demoOtpHint ? (
-                <View style={styles.hintBox}>
-                  <Ionicons name="information-circle" size={18} color="#0369a1" />
-                  <Text style={styles.hintText}>Demo OTP: {demoOtpHint}</Text>
-                </View>
-              ) : null}
+
 
               <Text style={styles.label}>6-Digit OTP Code *</Text>
               <View style={styles.inputWrap}>
