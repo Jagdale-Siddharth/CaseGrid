@@ -7,14 +7,15 @@ from email.utils import formataddr
 import httpx
 from ..config import settings
 
-logger = logging.getLogger("aicte.resend")
+logger = logging.getLogger("aicte.email")
 
 RESEND_API_URL = "https://api.resend.com/emails"
+BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
 
 
 def send_otp_email(to_email: str, otp_code: str) -> dict:
-    """Send a 6-digit OTP verification email via Resend.
-    If RESEND_API_KEY is not set, logs the OTP locally and returns success for smooth local testing."""
+    """Send a 6-digit OTP verification email via Brevo, Resend, or SMTP.
+    If no provider is set, logs the OTP locally and returns success for smooth local testing."""
 
     html_content = f"""
     <!DOCTYPE html>
@@ -58,22 +59,55 @@ def send_otp_email(to_email: str, otp_code: str) -> dict:
 
     subject = f"Your AICTE Grievance Portal Verification Code: {otp_code}"
 
-    # 1) SMTP (works for any recipient address)
+    # 1) Brevo HTTPS REST API (port 443 - works anywhere, delivers to ANY recipient)
+    brevo_key = (settings.brevo_api_key or "").strip()
+    if brevo_key:
+        return _send_via_brevo(brevo_key, to_email, subject, html_content, otp_code)
+
+    # 2) Resend HTTPS REST API (port 443)
+    resend_key = (settings.resend_api_key or "").strip()
+    if resend_key:
+        return _send_via_resend(resend_key, to_email, subject, html_content, otp_code)
+
+    # 3) SMTP (with fast 3-second timeout to avoid locking the event loop)
     if settings.smtp_host and settings.smtp_user and settings.smtp_password:
         return _send_via_smtp(to_email, subject, html_content, otp_code)
 
-    # 2) Resend (NOTE: with the sandbox sender onboarding@resend.dev, Resend only
-    #    delivers to the email that owns the Resend account. Verify a domain to send to anyone.)
-    api_key = (settings.resend_api_key or "").strip()
-    if api_key:
-        return _send_via_resend(api_key, to_email, subject, html_content, otp_code)
-
-    # 3) No provider configured -> local simulation
+    # 4) No provider configured -> simulated fallback
     print(f"\n=======================================================")
     print(f"[OTP SIMULATION] To: {to_email} | OTP: {otp_code}")
-    print(f"Set SMTP_* (or RESEND_API_KEY + verified domain) in backend/.env to send real emails")
+    print(f"Set BREVO_API_KEY, RESEND_API_KEY, or SMTP_* in backend/.env to send real emails")
     print(f"=======================================================\n")
     return {"status": "simulated", "otp": otp_code}
+
+
+def _send_via_brevo(api_key: str, to_email: str, subject: str, html: str, otp_code: str) -> dict:
+    sender_email = (settings.brevo_sender_email or settings.smtp_from_email or "rishidembla07@gmail.com").strip()
+    sender_name = settings.brevo_sender_name or "AICTE Grievance Portal"
+    headers = {
+        "api-key": api_key,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    payload = {
+        "sender": {"name": sender_name, "email": sender_email},
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "htmlContent": html,
+    }
+    try:
+        with httpx.Client(timeout=8.0) as client:
+            resp = client.post(BREVO_API_URL, headers=headers, json=payload)
+        if resp.status_code in (200, 201):
+            logger.info(f"Brevo email dispatched successfully to {to_email}")
+            return {"status": "sent", "provider": "brevo", "messageId": resp.json().get("messageId")}
+        logger.warning(f"Brevo API error {resp.status_code}: {resp.text}")
+        print(f"[BREVO ERROR {resp.status_code}] {resp.text}. OTP code was: {otp_code}")
+        return {"status": "error", "error": resp.text, "otp": otp_code}
+    except Exception as e:
+        logger.exception("Failed to connect to Brevo API")
+        print(f"[BREVO EXCEPTION] {e}. OTP code was: {otp_code}")
+        return {"status": "exception", "error": str(e), "otp": otp_code}
 
 
 def _send_via_smtp(to_email: str, subject: str, html: str, otp_code: str) -> dict:
@@ -90,11 +124,11 @@ def _send_via_smtp(to_email: str, subject: str, html: str, otp_code: str) -> dic
     try:
         ctx = ssl.create_default_context()
         if settings.smtp_use_ssl or settings.smtp_port == 465:
-            with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=15, context=ctx) as srv:
+            with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=3, context=ctx) as srv:
                 srv.login(settings.smtp_user, settings.smtp_password)
                 srv.send_message(msg)
         else:
-            with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as srv:
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=3) as srv:
                 srv.ehlo()
                 srv.starttls(context=ctx)
                 srv.ehlo()
@@ -112,7 +146,7 @@ def _send_via_resend(api_key: str, to_email: str, subject: str, html: str, otp_c
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload = {"from": settings.resend_from_email, "to": [to_email], "subject": subject, "html": html}
     try:
-        with httpx.Client(timeout=10.0) as client:
+        with httpx.Client(timeout=8.0) as client:
             resp = client.post(RESEND_API_URL, headers=headers, json=payload)
         if resp.status_code in (200, 201):
             logger.info(f"Resend email dispatched successfully to {to_email}")

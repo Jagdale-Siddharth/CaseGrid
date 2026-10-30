@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     semantic_ceiling: float = 0.80     # cosine at/above this counts as "same issue"
     resend_api_key: str = ""
     resend_from_email: str = "AICTE Grievance Portal <onboarding@resend.dev>"
+    # Brevo HTTPS REST API (delivers to ANY recipient over port 443 without domain restrictions)
+    brevo_api_key: str = ""
+    brevo_sender_email: str = "rishidembla07@gmail.com"
+    brevo_sender_name: str = "AICTE Grievance Portal"
     # SMTP (Gmail / Brevo / Outlook / SES ...) - delivers OTP to ANY recipient address.
     # If SMTP_HOST + SMTP_USER + SMTP_PASSWORD are set, SMTP is used instead of Resend.
     smtp_host: str = ""
