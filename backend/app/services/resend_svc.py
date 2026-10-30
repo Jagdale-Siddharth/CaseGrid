@@ -59,6 +59,11 @@ def send_otp_email(to_email: str, otp_code: str) -> dict:
 
     subject = f"Your AICTE Grievance Portal Verification Code: {otp_code}"
 
+    # 0) Google Apps Script Web App (delivers to ANY recipient natively over HTTPS port 443)
+    google_url = (settings.google_mail_webhook_url or "").strip()
+    if google_url:
+        return _send_via_google_script(google_url, to_email, subject, html_content, otp_code)
+
     # 1) Brevo HTTPS REST API (port 443 - works anywhere, delivers to ANY recipient)
     brevo_key = (settings.brevo_api_key or "").strip()
     if brevo_key:
@@ -157,4 +162,27 @@ def _send_via_resend(api_key: str, to_email: str, subject: str, html: str, otp_c
     except Exception as e:
         logger.exception("Failed to connect to Resend API")
         print(f"[RESEND EXCEPTION] {e}. OTP code was: {otp_code}")
+        return {"status": "exception", "error": str(e), "otp": otp_code}
+
+
+def _send_via_google_script(webhook_url: str, to_email: str, subject: str, html: str, otp_code: str) -> dict:
+    payload = {
+        "to": to_email,
+        "subject": subject,
+        "html": html,
+    }
+    try:
+        with httpx.Client(timeout=10.0, follow_redirects=True) as client:
+            resp = client.post(webhook_url, json=payload)
+        if resp.status_code in (200, 201):
+            data = resp.json() if resp.text.strip().startswith("{") else {}
+            if data.get("status") == "error":
+                logger.error(f"Google Script reported error: {data.get('error')}")
+                return {"status": "error", "error": data.get("error", "Google Script error"), "otp": otp_code}
+            logger.info(f"Google Script email dispatched successfully to {to_email}")
+            return {"status": "sent", "provider": "google_apps_script"}
+        logger.warning(f"Google Script HTTP {resp.status_code}: {resp.text}")
+        return {"status": "error", "error": resp.text, "otp": otp_code}
+    except Exception as e:
+        logger.exception("Failed to connect to Google Script Webhook")
         return {"status": "exception", "error": str(e), "otp": otp_code}

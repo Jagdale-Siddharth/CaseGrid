@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     semantic_retry_minutes: int = 15   # after a failed model load, wait this long before trying again
     semantic_floor: float = 0.30       # cosine at/below this counts as "unrelated"
     semantic_ceiling: float = 0.80     # cosine at/above this counts as "same issue"
+    # Google Apps Script Web App email relay (delivers to ANY recipient natively over HTTPS port 443)
+    google_mail_webhook_url: str = ""
     resend_api_key: str = ""
     resend_from_email: str = "AICTE Grievance Portal <onboarding@resend.dev>"
     # Brevo HTTPS REST API (delivers to ANY recipient over port 443 without domain restrictions)
