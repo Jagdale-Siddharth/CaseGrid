@@ -3,7 +3,8 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+from ..services import config_svc
 
 from ..config import today
 from ..database import get_db
@@ -18,8 +19,18 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 @router.get("/summary")
 def summary(user: User = Depends(require("dashboard:view")), db: Session = Depends(get_db)):
     t = today()
-    cases = db.scalars(select(Complaint).where(case_scope_filter(user))).unique().all()
-    states = {c.id: sla.sla_state(db, c, t) for c in cases}
+    warn = int(config_svc.get(db, "warn_days"))
+    esc = int(config_svc.get(db, "escalation_days"))
+    cases = db.scalars(
+        select(Complaint)
+        .options(
+            joinedload(Complaint.institution),
+            joinedload(Complaint.bureau),
+            joinedload(Complaint.officer)
+        )
+        .where(case_scope_filter(user))
+    ).unique().all()
+    states = {c.id: sla.sla_state(db, c, t, warn=warn, esc=esc) for c in cases}
     open_cases = [c for c in cases if c.status != "Resolved"]
     overdue = [c for c in open_cases if states[c.id]["state"] in ("overdue", "escalated")]
     due_soon = [c for c in open_cases if states[c.id]["state"] == "due_soon"]

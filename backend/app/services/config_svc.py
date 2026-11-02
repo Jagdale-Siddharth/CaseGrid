@@ -1,4 +1,6 @@
 """Business-rule configuration stored in the settings table (editable by admins)."""
+import time
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import Setting
@@ -28,10 +30,26 @@ TRANSITIONS = {
 CLOSED_STATUSES = {"Resolved"}
 NOTE_REQUIRED = {"Resolved", "Pending Information"}
 
+_CACHE = {}
+_CACHE_EXPIRES = 0.0
+
 
 def get(db: Session, key: str):
+    global _CACHE, _CACHE_EXPIRES
+    now = time.time()
+    if not _CACHE or now > _CACHE_EXPIRES:
+        try:
+            rows = db.scalars(select(Setting)).all()
+            _CACHE = {r.key: r.value for r in rows}
+            _CACHE_EXPIRES = now + 120.0
+        except Exception:
+            pass
+    if key in _CACHE:
+        return _CACHE[key]
     row = db.get(Setting, key)
-    return row.value if row else DEFAULTS[key]
+    val = row.value if row else DEFAULTS.get(key)
+    _CACHE[key] = val
+    return val
 
 
 def all_config(db: Session) -> dict:
@@ -39,6 +57,7 @@ def all_config(db: Session) -> dict:
 
 
 def put(db: Session, key: str, value) -> None:
+    _CACHE[key] = value
     row = db.get(Setting, key)
     if row:
         row.value = value

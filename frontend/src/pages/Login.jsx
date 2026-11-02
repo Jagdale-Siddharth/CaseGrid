@@ -12,7 +12,7 @@ import {
   User,
 } from "lucide-react";
 import { useAuth } from "../auth";
-import { errText } from "../api";
+import { errText, prewarmBackend } from "../api";
 import { Brand, Footer, Tricolor, UtilityBar } from "../Gov";
 import MobileDemo from "./MobileDemo";
 
@@ -62,18 +62,29 @@ export default function Login({ initialTab = "citizen" }) {
   const [p, setP] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [wakeNotice, setWakeNotice] = useState(false);
+
+  useEffect(() => {
+    prewarmBackend();
+  }, []);
 
   const submit = async (e) => {
     e?.preventDefault();
     setBusy(true);
+    setWakeNotice(false);
     setErr("");
+    const timer = setTimeout(() => {
+      setWakeNotice(true);
+    }, 2000);
     try {
       await login(u, p);
       navigate("/");
     } catch (x) {
       setErr(errText(x));
     } finally {
+      clearTimeout(timer);
       setBusy(false);
+      setWakeNotice(false);
     }
   };
 
@@ -215,11 +226,16 @@ export default function Login({ initialTab = "citizen" }) {
                     </p>
                   )}
                   <button
-                    className="btn btn-primary w-full py-2.5"
+                    className="btn btn-primary w-full py-2.5 transition-all"
                     disabled={busy || !u || !p}
                   >
-                    {busy ? "Signing in..." : "Sign in"}
+                    {busy ? (wakeNotice ? "Connecting (waking cloud server)..." : "Signing in...") : "Sign in"}
                   </button>
+                  {busy && wakeNotice && (
+                    <p className="text-center text-xs text-muted animate-pulse">
+                      Waking cloud backend from standby... please hold on a few seconds.
+                    </p>
+                  )}
                 </form>
 
                 <div>

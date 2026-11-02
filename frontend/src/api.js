@@ -36,3 +36,22 @@ export async function download(url, params, filename) {
   URL.revokeObjectURL(a.href);
 }
 export default api;
+
+// Immediate background warm-up of cloud backend (prevents Render standby delay)
+export function prewarmBackend() {
+  const target = API_URL && !API_URL.includes("localhost") ? API_URL : "https://casegrid-backend.onrender.com";
+  const url = `${target.replace(/\/$/, "")}/health`;
+  try {
+    fetch(url, { method: "GET", mode: "no-cors" }).catch((err) => {
+      void err;
+    });
+  } catch (err) {
+    void err;
+  }
+}
+
+if (typeof window !== "undefined") {
+  prewarmBackend();
+  // Keep alive every 4 minutes while browser session is open
+  setInterval(prewarmBackend, 4 * 60 * 1000);
+}

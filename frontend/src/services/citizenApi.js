@@ -88,13 +88,22 @@ export async function getCitizenProfile(token) {
   });
 }
 
+let _cachedInsts = null;
+let _cachedCats = null;
+
 export async function getInstitutions(query = "") {
   const q = encodeURIComponent(query.trim());
-  return citizenRequest(`/citizen/institutions?q=${q}`);
+  if (!query.trim() && _cachedInsts) return _cachedInsts;
+  const res = await citizenRequest(`/citizen/institutions?q=${q}`);
+  if (!query.trim() && Array.isArray(res) && res.length > 0) _cachedInsts = res;
+  return res;
 }
 
 export async function getCategories() {
-  return citizenRequest("/citizen/categories");
+  if (_cachedCats) return _cachedCats;
+  const res = await citizenRequest("/citizen/categories");
+  if (res && res.categories) _cachedCats = res;
+  return res;
 }
 
 export async function fileComplaint(token, payload) {

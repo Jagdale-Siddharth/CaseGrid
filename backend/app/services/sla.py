@@ -9,14 +9,16 @@ def due_date_for(db, registered: date, priority: str) -> date:
     return registered + timedelta(days=int(days.get(priority, days["Medium"])))
 
 
-def sla_state(db, complaint, today: date) -> dict:
+def sla_state(db, complaint, today: date, warn: int | None = None, esc: int | None = None) -> dict:
     """Returns {state, days_left, age_days}. state: closed|on_track|due_soon|overdue|escalated."""
     age = (today - complaint.registered_on).days
     if complaint.status in config_svc.CLOSED_STATUSES:
         return {"state": "closed", "days_left": None, "age_days": age}
     left = (complaint.due_date - today).days
-    warn = int(config_svc.get(db, "warn_days"))
-    esc = int(config_svc.get(db, "escalation_days"))
+    if warn is None:
+        warn = int(config_svc.get(db, "warn_days"))
+    if esc is None:
+        esc = int(config_svc.get(db, "escalation_days"))
     if left < 0:
         state = "escalated" if -left >= esc else "overdue"
     elif left <= warn:
