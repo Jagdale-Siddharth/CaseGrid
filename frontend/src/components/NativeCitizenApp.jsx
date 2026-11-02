@@ -20,7 +20,6 @@ import {
   ArrowRight,
   RefreshCw,
   X,
-  Server,
   UploadCloud,
   ChevronRight,
   Sparkles,
@@ -36,8 +35,6 @@ import {
   fileComplaint,
   getMyComplaints,
   trackCase,
-  getCitizenBaseUrl,
-  setCitizenBaseUrl,
 } from "../services/citizenApi";
 
 const TOKEN_KEY = "@aicte_citizen_token";
@@ -654,8 +651,6 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
-  const [showConfig, setShowConfig] = useState(false);
-  const [serverUrl, setServerUrl] = useState(getCitizenBaseUrl());
 
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
@@ -701,82 +696,27 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
     }
   };
 
-  const handleSaveConfig = () => {
-    setCitizenBaseUrl(serverUrl);
-    setShowConfig(false);
-    setMsg({ type: "success", text: `Server URL updated to: ${serverUrl}` });
-  };
-
   return (
     <div className="flex min-h-full flex-col justify-between p-5">
       {/* Top Header */}
       <div>
-        <div className="flex items-center justify-between pt-2 pb-4">
-          <div className="flex items-center gap-2">
-            <div
-              className={`grid h-8 w-8 place-items-center rounded-xl ${
-                isDark ? "bg-sky-500/20 text-sky-400" : "bg-blue-100 text-blue-600 border border-blue-200"
-              }`}
-            >
-              <ShieldCheck size={20} />
-            </div>
-            <div>
-              <h2 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                {t("portalTitle")}
-              </h2>
-              <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                {t("portalSubtitle")}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowConfig(!showConfig)}
-            className={`rounded-lg border p-1.5 transition ${
-              isDark
-                ? "border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
-                : "border-slate-300 bg-white text-slate-600 hover:text-slate-900 shadow-xs"
-            }`}
-            title="Configure Server URL"
-          >
-            <Server size={14} />
-          </button>
-        </div>
-
-        {/* Server Config Drawer */}
-        {showConfig && (
+        <div className="flex items-center gap-2 pt-2 pb-4">
           <div
-            className={`mb-4 rounded-xl border p-3 text-xs ${
-              isDark ? "border-sky-500/30 bg-sky-950/40 text-slate-200" : "border-blue-300 bg-blue-50/80 text-slate-800"
+            className={`grid h-8 w-8 place-items-center rounded-xl ${
+              isDark ? "bg-sky-500/20 text-sky-400" : "bg-blue-100 text-blue-600 border border-blue-200"
             }`}
           >
-            <span className={`font-semibold ${isDark ? "text-sky-300" : "text-blue-900"}`}>Backend API URL</span>
-            <input
-              type="text"
-              className={`mt-1.5 w-full rounded-lg border px-2.5 py-1.5 text-xs outline-none focus:border-sky-500 ${
-                isDark ? "border-slate-700 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-900"
-              }`}
-              value={serverUrl}
-              onChange={(e) => setServerUrl(e.target.value)}
-            />
-            <div className="mt-2 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowConfig(false)}
-                className={`rounded-md px-2 py-1 ${isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveConfig}
-                className="rounded-md bg-sky-600 px-3 py-1 font-semibold text-white hover:bg-sky-500"
-              >
-                Save
-              </button>
-            </div>
+            <ShieldCheck size={20} />
           </div>
-        )}
+          <div>
+            <h2 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+              {t("portalTitle")}
+            </h2>
+            <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              {t("portalSubtitle")}
+            </p>
+          </div>
+        </div>
 
         {/* Notification Toast */}
         {msg && (
@@ -2040,19 +1980,6 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark, t, lang }) {
 // 5. PROFILE & SETTINGS SCREEN
 // -------------------------------------------------------------
 function CitizenProfileScreen({ citizen, onLogout, isDark, t, lang, onLangChange }) {
-  const [serverUrl, setServerUrl] = useState(getCitizenBaseUrl());
-  const [editingUrl, setEditingUrl] = useState(false);
-  const [tempUrl, setTempUrl] = useState(serverUrl);
-  const [saveToast, setSaveToast] = useState(false);
-
-  const handleSave = () => {
-    setCitizenBaseUrl(tempUrl);
-    setServerUrl(tempUrl);
-    setEditingUrl(false);
-    setSaveToast(true);
-    setTimeout(() => setSaveToast(false), 2500);
-  };
-
   return (
     <div className="p-4 space-y-4">
       <div>
@@ -2062,13 +1989,6 @@ function CitizenProfileScreen({ citizen, onLogout, isDark, t, lang, onLangChange
         </h2>
         <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{t("profileSub")}</p>
       </div>
-
-      {saveToast && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-500 flex items-center gap-2">
-          <CheckCircle2 size={16} />
-          <span>Server URL successfully updated.</span>
-        </div>
-      )}
 
       {/* Account Card */}
       <div
@@ -2161,64 +2081,6 @@ function CitizenProfileScreen({ citizen, onLogout, isDark, t, lang, onLangChange
             मराठी
           </button>
         </div>
-      </div>
-
-      {/* Backend API Config */}
-      <div
-        className={`rounded-2xl border p-4 space-y-2.5 ${
-          isDark ? "border-slate-800 bg-slate-900/90" : "border-slate-200 bg-white shadow-xs"
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <span className={`font-semibold text-xs flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
-            <Server size={14} className={isDark ? "text-sky-400" : "text-blue-600"} />
-            {t("backendEndpoint")}
-          </span>
-          {!editingUrl ? (
-            <button
-              type="button"
-              onClick={() => {
-                setTempUrl(serverUrl);
-                setEditingUrl(true);
-              }}
-              className={`text-[10px] font-semibold hover:underline ${isDark ? "text-sky-400" : "text-blue-600"}`}
-            >
-              {t("edit")}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setEditingUrl(false)}
-              className="text-[10px] text-slate-400 hover:text-slate-200"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-
-        {!editingUrl ? (
-          <p className={`font-mono text-[10px] break-all ${isDark ? "text-slate-400" : "text-slate-600"}`}>{serverUrl}</p>
-        ) : (
-          <div className="space-y-2 pt-1">
-            <input
-              type="text"
-              className={`w-full rounded-xl border px-2.5 py-1.5 text-xs outline-none focus:border-sky-500 ${
-                isDark ? "border-slate-700 bg-slate-950 text-white" : "border-slate-300 bg-slate-50 text-slate-900"
-              }`}
-              value={tempUrl}
-              onChange={(e) => setTempUrl(e.target.value)}
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={handleSave}
-                className="rounded-lg bg-sky-600 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-500"
-              >
-                {t("saveEndpoint")}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Logout */}
