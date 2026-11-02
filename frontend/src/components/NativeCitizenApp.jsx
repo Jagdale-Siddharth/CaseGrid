@@ -22,6 +22,8 @@ import {
   X,
   UploadCloud,
   ChevronRight,
+  ChevronDown,
+  Check,
   Sparkles,
   Video,
   Languages,
