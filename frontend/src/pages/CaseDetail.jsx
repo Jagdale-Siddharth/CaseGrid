@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Paperclip, X } from "lucide-react";
+import { Camera, Download, ExternalLink, Eye, FileText, Image, MapPin, Paperclip, X } from "lucide-react";
 import api, { download, errText } from "../api";
 import { useAuth } from "../auth";
 import { Card, Field, Modal, ReasonModal, Select, SlaTag, Spinner, StatusTag, Tag, fmtDT, fmtDate, useToast } from "../ui";
@@ -24,7 +24,33 @@ export default function CaseDetail() {
   const [freeNote, setFreeNote] = useState("");
   const [target, setTarget] = useState({ bureau_id: "", officer_id: "" });
   const [reassign, setReassign] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
   const file = useRef();
+
+  const openDocPreview = async (d) => {
+    setPreviewDoc(d);
+    setLoadingPreview(true);
+    try {
+      const res = await api.get(`/complaints/${id}/documents/${d.id}/download`, { responseType: "blob" });
+      const blobUrl = URL.createObjectURL(res.data);
+      setPreviewUrl(blobUrl);
+    } catch {
+      toast("Failed to load document preview", "err");
+      setPreviewDoc(null);
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
+  const closeDocPreview = () => {
+    if (previewUrl && !previewDoc?.isDirect) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    setPreviewDoc(null);
+  };
 
   const load = useCallback(async () => {
     try {
@@ -77,6 +103,67 @@ export default function CaseDetail() {
                 <div key={k}><dt className="text-xs font-semibold text-muted">{k}</dt><dd className="mt-0.5">{v}</dd></div>))}
             </dl>
           </Card>
+          {(c.geo_latitude || c.geo_address || c.photo_url) && (
+            <Card className="border border-brand/40 bg-brand/5">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <h2 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+                  <MapPin size={18} className="text-brand" />
+                  Geotagged Evidence &amp; Location
+                </h2>
+                {c.geo_latitude && c.geo_longitude && (
+                  <a
+                    href={`https://www.google.com/maps?q=${c.geo_latitude},${c.geo_longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-md bg-brand px-2.5 py-1 text-xs font-semibold text-onbrand hover:brightness-110"
+                  >
+                    <span>Open in Google Maps</span>
+                    <ExternalLink size={12} />
+                  </a>
+                )}
+              </div>
+
+              {c.geo_address && (
+                <div className="mt-1 flex items-start gap-2 text-sm text-ink">
+                  <span className="text-xs font-bold uppercase text-muted mt-0.5">Address:</span>
+                  <span className="font-medium">{c.geo_address}</span>
+                </div>
+              )}
+
+              {c.geo_latitude && c.geo_longitude && (
+                <div className="mt-1 flex items-center gap-2 text-xs font-mono text-muted">
+                  <span>Coordinates: {Number(c.geo_latitude).toFixed(6)}, {Number(c.geo_longitude).toFixed(6)}</span>
+                </div>
+              )}
+
+              {c.photo_url && (
+                <div className="mt-3.5 pt-3 border-t border-line/60">
+                  <p className="text-xs font-semibold text-muted mb-2 flex items-center gap-1.5">
+                    <Camera size={14} className="text-brand" /> Geotagged Site Photo
+                  </p>
+                  <div
+                    className="group relative inline-block cursor-pointer overflow-hidden rounded-xl border border-line bg-surface hover:shadow-md transition"
+                    onClick={() => {
+                      const fullUrl = `${api.defaults.baseURL || "https://casegrid-backend.onrender.com"}${c.photo_url}`;
+                      setPreviewDoc({ filename: "Geotag_Photo.jpg", isDirect: true, isImg: true });
+                      setPreviewUrl(fullUrl);
+                    }}
+                  >
+                    <img
+                      src={`${api.defaults.baseURL || "https://casegrid-backend.onrender.com"}${c.photo_url}`}
+                      alt="Field evidence"
+                      className="h-44 w-auto max-w-full rounded-lg object-cover transition group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-black/80 px-3 py-1.5 text-xs font-bold text-white shadow">
+                        <Eye size={13} /> Click to View Full Photo
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
           <Card>
             <h2 className="mb-4 font-display text-xl font-bold">Case history</h2>
             <ol className="relative space-y-4 border-l-2 border-brand/80 pl-5">
@@ -111,18 +198,109 @@ export default function CaseDetail() {
                 <button className="btn w-full" disabled={freeNote.trim().length < 2} onClick={() => act(async () => { await api.post(`/complaints/${id}/notes`, { note: freeNote }); setFreeNote(""); }, "Note added")}>Add note</button></div>)}
           </Card>
           <Card>
-            <h2 className="mb-3 font-display text-xl font-bold">Supporting documents</h2>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-display text-xl font-bold">Supporting documents</h2>
+              <span className="text-xs text-muted font-medium">{docs.length} attached</span>
+            </div>
             {docs.length === 0 && <p className="text-sm text-muted">No documents attached yet.</p>}
-            <ul className="space-y-3 pt-1">{docs.map((d) => (
-              <li key={d.id} className="relative">
-                <button className="flex w-full items-center gap-2 rounded-lg border border-line p-2 pr-3 text-left text-sm hover:border-brand" onClick={() => download(`/complaints/${id}/documents/${d.id}/download`, {}, d.filename)}><Paperclip size={14} /><span className="flex-1 truncate">{d.filename}</span><span className="text-xs text-muted">{Math.max(1, Math.round(d.size_bytes / 1024))} KB</span></button>
-                {can("document:upload") && (
-                  <button type="button" onClick={() => setRmDoc(d)} aria-label={`Remove ${d.filename}`} title="Remove this document"
-                    className="absolute -right-2 -top-2.5 grid h-6 w-6 place-items-center rounded-full border-2 border-surface bg-danger text-white shadow transition hover:scale-110 hover:brightness-110"><X size={14} strokeWidth={3} /></button>
-                )}
-              </li>))}</ul>
-            {can("document:upload") && <><input ref={file} type="file" className="sr-only" id="up" onChange={(e) => { const fd = new FormData(); fd.append("file", e.target.files[0]); act(() => api.post(`/complaints/${id}/documents`, fd), "Document attached"); e.target.value = ""; }} />
-              <label htmlFor="up" className="btn mt-3 w-full cursor-pointer">Attach a document</label></>}
+            <ul className="space-y-3 pt-1">
+              {docs.map((d) => {
+                const isImg = Boolean(d.filename.match(/\.(jpg|jpeg|png|webp|gif)$/i));
+                const isPdf = Boolean(d.filename.match(/\.pdf$/i));
+                const thumbUrl = d.stored_name
+                  ? `${api.defaults.baseURL || "https://casegrid-backend.onrender.com"}/complaints/documents/${d.stored_name}`
+                  : null;
+
+                return (
+                  <li key={d.id} className="relative rounded-xl border border-line bg-surface p-2.5 transition hover:border-brand/70 shadow-xs">
+                    <div className="flex items-start gap-3">
+                      {isImg && thumbUrl ? (
+                        <div
+                          className="group/thumb relative h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-line bg-raised hover:opacity-90"
+                          onClick={() => openDocPreview(d)}
+                          title="Click to preview"
+                        >
+                          <img
+                            src={thumbUrl}
+                            alt={d.filename}
+                            className="h-full w-full object-cover"
+                            onError={(e) => { e.currentTarget.style.display = "none"; }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover/thumb:opacity-100 transition">
+                            <Eye size={14} className="text-white" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-raised text-muted">
+                          {isPdf ? <FileText size={22} className="text-danger" /> : isImg ? <Image size={22} className="text-brand" /> : <Paperclip size={20} />}
+                        </div>
+                      )}
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-ink" title={d.filename}>
+                          {d.filename}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {Math.max(1, Math.round(d.size_bytes / 1024))} KB
+                        </p>
+
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openDocPreview(d)}
+                            className="inline-flex items-center gap-1 rounded-md border border-line bg-raised px-2.5 py-1 text-xs font-semibold text-ink transition hover:border-brand hover:bg-brand/10"
+                          >
+                            <Eye size={12} className="text-brand" />
+                            <span>Preview</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => download(`/complaints/${id}/documents/${d.id}/download`, {}, d.filename)}
+                            className="inline-flex items-center gap-1 rounded-md border border-line bg-raised px-2.5 py-1 text-xs font-semibold text-ink transition hover:border-brand hover:bg-brand/10"
+                          >
+                            <Download size={12} />
+                            <span>Download</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {can("document:upload") && (
+                        <button
+                          type="button"
+                          onClick={() => setRmDoc(d)}
+                          aria-label={`Remove ${d.filename}`}
+                          title="Remove this document"
+                          className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line text-muted transition hover:bg-danger hover:text-white"
+                        >
+                          <X size={13} strokeWidth={2.5} />
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            {can("document:upload") && (
+              <>
+                <input
+                  ref={file}
+                  type="file"
+                  className="sr-only"
+                  id="up"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const fd = new FormData();
+                      fd.append("file", e.target.files[0]);
+                      act(() => api.post(`/complaints/${id}/documents`, fd), "Document attached");
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                <label htmlFor="up" className="btn mt-3 w-full cursor-pointer text-center block">
+                  Attach a document
+                </label>
+              </>
+            )}
           </Card>
           <Card>
             <h2 className="mb-3 font-display text-xl font-bold">Possibly related cases</h2>
@@ -148,6 +326,87 @@ export default function CaseDetail() {
           <div className="mt-5 flex justify-end gap-2">
             <button className="btn" onClick={() => setRmDoc(null)}>Keep document</button>
             <button className="btn btn-danger" onClick={() => { const d = rmDoc; setRmDoc(null); act(() => api.delete(`/complaints/${id}/documents/${d.id}`), "Document removed"); }}>Remove document</button>
+          </div>
+        </Modal>
+      )}
+
+      {previewDoc && (
+        <Modal
+          title={`Preview: ${previewDoc.filename}`}
+          onClose={closeDocPreview}
+          wide="xl"
+        >
+          <div className="space-y-4">
+            {loadingPreview ? (
+              <div className="flex h-72 flex-col items-center justify-center gap-3">
+                <Spinner />
+                <p className="text-xs text-muted">Loading document preview...</p>
+              </div>
+            ) : previewUrl ? (
+              <div className="rounded-xl border border-line bg-raised p-2 text-center">
+                {previewDoc.isImg || previewDoc.filename.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? (
+                  <div className="flex justify-center overflow-auto max-h-[72vh]">
+                    <img
+                      src={previewUrl}
+                      alt={previewDoc.filename}
+                      className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain shadow"
+                    />
+                  </div>
+                ) : previewDoc.filename.match(/\.pdf$/i) ? (
+                  <iframe
+                    src={previewUrl}
+                    title={previewDoc.filename}
+                    className="h-[72vh] w-full rounded-lg border-0 bg-white"
+                  />
+                ) : (
+                  <div className="py-12 text-center space-y-3">
+                    <FileText size={48} className="mx-auto text-muted" />
+                    <p className="text-sm font-semibold">Inline preview is not supported for this file type.</p>
+                    {previewDoc.id && (
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() => download(`/complaints/${id}/documents/${previewDoc.id}/download`, {}, previewDoc.filename)}
+                      >
+                        Download {previewDoc.filename}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-danger">Failed to display document preview.</p>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
+              <span className="text-xs text-muted truncate max-w-xs">{previewDoc.filename}</span>
+              <div className="flex items-center gap-2">
+                {previewUrl && (
+                  <a
+                    href={previewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn text-xs inline-flex items-center gap-1.5"
+                  >
+                    <ExternalLink size={12} />
+                    <span>Open in new tab</span>
+                  </a>
+                )}
+                {previewDoc.id && (
+                  <button
+                    type="button"
+                    className="btn btn-primary text-xs inline-flex items-center gap-1.5"
+                    onClick={() => download(`/complaints/${id}/documents/${previewDoc.id}/download`, {}, previewDoc.filename)}
+                  >
+                    <Download size={12} />
+                    <span>Download</span>
+                  </button>
+                )}
+                <button type="button" className="btn text-xs" onClick={closeDocPreview}>
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </Modal>
       )}

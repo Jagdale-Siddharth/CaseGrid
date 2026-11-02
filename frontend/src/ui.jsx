@@ -69,7 +69,7 @@ export function Modal({ title, onClose, children, wide }) {
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-rail/70 p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={title} className={`max-h-[92vh] w-full overflow-auto rounded-xl2 border border-line border-t-4 border-t-accent bg-surface p-6 shadow-2xl ${wide ? "max-w-2xl" : "max-w-lg"}`}>
+      <div role="dialog" aria-modal="true" aria-label={title} className={`max-h-[92vh] w-full overflow-auto rounded-xl2 border border-line border-t-4 border-t-accent bg-surface p-6 shadow-2xl ${wide === "xl" ? "max-w-4xl" : wide ? "max-w-2xl" : "max-w-lg"}`}>
         <div className="mb-4 flex items-start justify-between gap-4"><h2 className="font-display text-2xl font-bold">{title}</h2>
           <button className="rounded-md p-1 hover:bg-raised" onClick={onClose} aria-label="Close"><X size={20} /></button></div>
         {children}

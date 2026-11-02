@@ -168,6 +168,14 @@ class ComplaintOut(ORM):
     resolved_on: date | None = None
     sla: SlaOut | None = None
     document_count: int = 0
+    geo_latitude: float | None = None
+    geo_longitude: float | None = None
+    geo_address: str | None = None
+    photo_url: str | None = None
+    is_urgent: bool = False
+    complainant_email: str | None = None
+    complainant_name: str | None = None
+    complainant_phone: str | None = None
 
 
 class HistoryOut(ORM):
@@ -193,6 +201,7 @@ class AssignmentOut(ORM):
 class DocumentOut(ORM):
     id: int
     filename: str
+    stored_name: str | None = None
     content_type: str
     size_bytes: int
     uploaded_at: datetime
