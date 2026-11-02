@@ -1,4 +1,4 @@
-import { Info, QrCode } from "lucide-react";
+import { Info } from "lucide-react";
 import { Card, H } from "../ui";
 import { useTheme } from "../theme";
 import NativeCitizenApp from "../components/NativeCitizenApp";
@@ -47,7 +47,7 @@ export default function MobileDemo() {
           </div>
         </div>
 
-        {/* Right Side: Evaluation Guide & Architecture */}
+        {/* Right Side: Evaluation Guide */}
         <div className="space-y-4">
           <Card>
             <h3 className="mb-2 font-display text-lg font-extrabold flex items-center gap-2">
@@ -70,30 +70,6 @@ export default function MobileDemo() {
                 <b>Track Grievance</b>: Use the <i>Track Any</i> tab on the mobile app to verify real-time status and timeline tracking.
               </li>
             </ol>
-          </Card>
-
-          <Card>
-            <h3 className="mb-2 font-display text-lg font-extrabold flex items-center gap-2">
-              <QrCode size={18} className="text-brand" /> Native Mobile App Highlights
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-lg bg-raised p-2.5">
-                <span className="font-bold text-ink">Tech Stack</span>
-                <p className="text-muted mt-0.5">React Native 0.88, Expo SDK 58</p>
-              </div>
-              <div className="rounded-lg bg-raised p-2.5">
-                <span className="font-bold text-ink">Field Evidence</span>
-                <p className="text-muted mt-0.5">Laptop Webcam & Live Geocoding</p>
-              </div>
-              <div className="rounded-lg bg-raised p-2.5">
-                <span className="font-bold text-ink">Authentication</span>
-                <p className="text-muted mt-0.5">Secure Email OTP (Apps Script / Brevo)</p>
-              </div>
-              <div className="rounded-lg bg-raised p-2.5">
-                <span className="font-bold text-ink">Data Integrity</span>
-                <p className="text-muted mt-0.5">Clean citizen-to-bureau provenance</p>
-              </div>
-            </div>
           </Card>
         </div>
       </div>
