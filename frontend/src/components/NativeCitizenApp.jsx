@@ -402,6 +402,121 @@ export function getCategoryLabel(cat, lang = "en") {
   return cat;
 }
 
+
+export const LANGUAGE_OPTIONS = [
+  { code: "en", label: "English", sublabel: "EN", flag: "🇮🇳" },
+  { code: "hi", label: "हिन्दी", sublabel: "HI", flag: "🇮🇳" },
+  { code: "mr", label: "मराठी", sublabel: "MR", flag: "🇮🇳" },
+];
+
+function AmazonLanguageDropdown({ lang, onLangChange, isDark }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const current = LANGUAGE_OPTIONS.find((l) => l.code === lang) || LANGUAGE_OPTIONS[0];
+
+  return (
+    <div className="relative inline-block text-left" ref={ref}>
+      {/* Amazon-style trigger button: Flag + Code + Chevron */}
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-semibold transition shadow-xs ${
+          isDark
+            ? "border-slate-800 bg-slate-900/90 text-slate-200 hover:border-slate-700 hover:bg-slate-800"
+            : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50"
+        }`}
+        title="Change Language"
+      >
+        <span className="text-sm leading-none">🇮🇳</span>
+        <span className="text-[11px] font-bold tracking-tight">{current.sublabel}</span>
+        <ChevronDown size={11} className={`text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {/* Amazon-style popover menu */}
+      {open && (
+        <div
+          className={`absolute right-0 top-full mt-2 w-56 rounded-2xl border p-3 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 ${
+            isDark
+              ? "border-slate-800 bg-slate-900 text-slate-100 shadow-black/80"
+              : "border-slate-200 bg-white text-slate-900 shadow-slate-400/40"
+          }`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-line/60 pb-2 mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
+              {lang === "hi" ? "भाषा बदलें" : lang === "mr" ? "भाषा बदला" : "Change Language"}
+            </span>
+            <span className="text-xs">🌐</span>
+          </div>
+
+          {/* Radio Options List matching Amazon design */}
+          <div className="space-y-1">
+            {LANGUAGE_OPTIONS.map((opt) => {
+              const isSelected = lang === opt.code;
+              return (
+                <button
+                  key={opt.code}
+                  type="button"
+                  onClick={() => {
+                    onLangChange(opt.code);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs transition ${
+                    isSelected
+                      ? isDark
+                        ? "bg-sky-500/15 text-sky-300 font-semibold"
+                        : "bg-blue-50 text-blue-700 font-semibold"
+                      : isDark
+                      ? "hover:bg-slate-800/60 text-slate-300"
+                      : "hover:bg-slate-100/80 text-slate-700"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {/* Amazon-style Radio button */}
+                    <div
+                      className={`grid h-4 w-4 place-items-center rounded-full border transition ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-600"
+                          : isDark
+                          ? "border-slate-600 bg-transparent"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    </div>
+                    <span>{opt.label} - {opt.sublabel}</span>
+                  </div>
+                  {isSelected && <Check size={13} className={isDark ? "text-sky-400" : "text-blue-600"} />}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Footer note */}
+          <div className="mt-2.5 pt-2 border-t border-line/60 flex items-center justify-between text-[10px] text-muted">
+            <span className="flex items-center gap-1 font-medium">
+              <span>🇮🇳</span> AICTE Citizen Services
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function NativeCitizenApp({ themeOverride }) {
   const { theme: ctxTheme } = useTheme() || {};
   const currentTheme = themeOverride || ctxTheme || "light";
@@ -471,57 +586,52 @@ export default function NativeCitizenApp({ themeOverride }) {
         isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
       }`}
     >
-      {/* Top Phone Status Bar Simulation with Mini Language Switcher */}
+      {/* Top Phone Status Bar Simulation (Center is empty for Camera Notch) */}
       <div
-        className={`flex items-center justify-between px-5 pt-2.5 pb-1 text-[11px] font-semibold tracking-wider transition-colors ${
+        className={`flex items-center justify-between px-6 pt-2 pb-1 text-[11px] font-semibold tracking-wider transition-colors z-30 ${
           isDark ? "text-slate-400" : "text-slate-600"
         }`}
       >
         <span>9:41</span>
-
-        {/* Header Language Switcher: EN | हिं | म */}
-        <div className={`flex items-center gap-0.5 rounded-full border p-0.5 text-[9px] shadow-xs ${
-          isDark ? "border-slate-800 bg-slate-900/90 text-slate-400" : "border-slate-300 bg-white text-slate-600"
-        }`}>
-          <button
-            type="button"
-            onClick={() => handleLangChange("en")}
-            className={`rounded-full px-1.5 py-0.5 font-bold transition ${
-              lang === "en" ? "bg-sky-600 text-white" : "hover:text-sky-500"
-            }`}
-            title="English"
-          >
-            EN
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLangChange("hi")}
-            className={`rounded-full px-1.5 py-0.5 font-bold transition ${
-              lang === "hi" ? "bg-sky-600 text-white" : "hover:text-sky-500"
-            }`}
-            title="हिंदी (Hindi)"
-          >
-            हिं
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLangChange("mr")}
-            className={`rounded-full px-1.5 py-0.5 font-bold transition ${
-              lang === "mr" ? "bg-sky-600 text-white" : "hover:text-sky-500"
-            }`}
-            title="मराठी (Marathi)"
-          >
-            म
-          </button>
-        </div>
-
+        {/* Dead center is left empty so the dynamic island sits cleanly above it without collision */}
+        <div className="w-28 h-4 pointer-events-none" />
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px]">5G</span>
+          <span className="text-[10px] font-bold">5G</span>
           <div className={`h-2.5 w-5 rounded-[3px] border p-0.5 ${isDark ? "border-slate-400" : "border-slate-500"}`}>
             <div className={`h-full w-full rounded-[1px] ${isDark ? "bg-emerald-400" : "bg-emerald-600"}`} />
           </div>
         </div>
       </div>
+
+      {/* Modern Sleek App Header Bar */}
+      <header
+        className={`flex items-center justify-between px-4 py-2 border-b transition-colors z-30 relative ${
+          isDark ? "border-slate-800/80 bg-slate-950/95" : "border-slate-200/80 bg-white/95 shadow-2xs"
+        }`}
+      >
+        <div className="flex items-center gap-2 truncate pr-2">
+          <div className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${
+            isDark ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-xs"
+          }`}>
+            <ShieldCheck size={16} />
+          </div>
+          <div className="leading-tight truncate">
+            <h1 className={`text-xs font-bold tracking-tight truncate ${isDark ? "text-white" : "text-slate-900"}`}>
+              {t("portalTitle")}
+            </h1>
+            <p className={`text-[9px] truncate ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              {token && citizen ? citizen.email : t("portalSubtitle")}
+            </p>
+          </div>
+        </div>
+
+        {/* Amazon-style language dropdown */}
+        <AmazonLanguageDropdown
+          lang={lang}
+          onLangChange={handleLangChange}
+          isDark={isDark}
+        />
+      </header>
 
       {/* Main Body */}
       <div
@@ -581,8 +691,8 @@ export default function NativeCitizenApp({ themeOverride }) {
       {/* Bottom Navigation Bar */}
       {token && citizen && (
         <nav
-          className={`flex items-center justify-around border-t py-2 px-1 backdrop-blur-md transition-colors ${
-            isDark ? "border-slate-800/80 bg-slate-950/95" : "border-slate-200 bg-white/95 shadow-md"
+          className={`flex items-center justify-around border-t py-1.5 px-1 backdrop-blur-xl transition-colors z-30 ${
+            isDark ? "border-slate-800/90 bg-slate-950/90 shadow-2xl" : "border-slate-200/90 bg-white/95 shadow-lg"
           }`}
         >
           <TabButton
@@ -624,18 +734,21 @@ function TabButton({ active, onClick, icon, label, isDark }) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-1 flex-col items-center justify-center py-1 transition-all ${
+      className={`relative flex flex-1 flex-col items-center justify-center py-1 transition-all ${
         active
           ? isDark
-            ? "text-sky-400 font-semibold"
+            ? "text-sky-400 font-bold"
             : "text-blue-600 font-bold"
           : isDark
           ? "text-slate-400 hover:text-slate-200"
           : "text-slate-500 hover:text-slate-900"
       }`}
     >
-      <div className={`${active ? "scale-110" : "scale-100"} transition-transform`}>{icon}</div>
-      <span className="mt-1 text-[10px] tracking-tight truncate max-w-[70px]">{label}</span>
+      <div className={`${active ? "scale-110 -translate-y-0.5" : "scale-100"} transition-all`}>{icon}</div>
+      <span className="mt-0.5 text-[10px] tracking-tight truncate max-w-[70px] leading-tight">{label}</span>
+      {active && (
+        <span className={`h-1 w-1 rounded-full mt-0.5 ${isDark ? "bg-sky-400" : "bg-blue-600"}`} />
+      )}
     </button>
   );
 }
@@ -651,6 +764,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [devOtp, setDevOtp] = useState(null);
 
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
@@ -661,8 +775,11 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
     setLoading(true);
     setMsg(null);
     try {
-      await sendOtp(email.trim());
+      const res = await sendOtp(email.trim());
       setStep("otp");
+      if (res && res.debug_otp) {
+        setDevOtp(res.debug_otp);
+      }
       setMsg({
         type: "success",
         text: t("otpSentSuccess", { email: email.trim() }),
@@ -698,24 +815,15 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
 
   return (
     <div className="flex min-h-full flex-col justify-between p-5">
-      {/* Top Header */}
+      {/* Hero Welcome */}
       <div>
-        <div className="flex items-center gap-2 pt-2 pb-4">
-          <div
-            className={`grid h-8 w-8 place-items-center rounded-xl ${
-              isDark ? "bg-sky-500/20 text-sky-400" : "bg-blue-100 text-blue-600 border border-blue-200"
-            }`}
-          >
-            <ShieldCheck size={20} />
-          </div>
-          <div>
-            <h2 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-              {t("portalTitle")}
-            </h2>
-            <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-              {t("portalSubtitle")}
-            </p>
-          </div>
+        <div className="pt-2 pb-3">
+          <h2 className={`text-base font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+            {t("signInTitle")}
+          </h2>
+          <p className={`text-xs mt-0.5 leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            {t("signInSubtitle")}
+          </p>
         </div>
 
         {/* Notification Toast */}
@@ -793,7 +901,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.99] transition-all disabled:opacity-50"
               >
                 {loading ? <RefreshCw size={14} className="animate-spin" /> : <ArrowRight size={14} />}
                 {loading ? t("sendingOtp") : t("sendOtpBtn")}
@@ -819,13 +927,34 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
                 </button>
               </div>
 
+              {devOtp && (
+                <div className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition shadow-2xs ${
+                  isDark ? "border-sky-500/30 bg-sky-950/40 text-sky-200" : "border-blue-200 bg-blue-50 text-blue-900"
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-blue-600 text-white text-[9px] font-bold">OTP</span>
+                    <div>
+                      <span className="text-[9px] uppercase font-bold opacity-75">Demo Preview Code</span>
+                      <p className="font-mono text-sm font-bold tracking-wider leading-none">{devOtp}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOtpCode(devOtp)}
+                    className="rounded-lg bg-blue-600 hover:bg-blue-700 px-2.5 py-1 text-[11px] font-bold text-white transition shadow-xs"
+                  >
+                    Autofill
+                  </button>
+                </div>
+              )}
+
               <div>
                 <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   {t("otpLabel")}
                 </label>
                 <div
-                  className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
-                    isDark ? "border-slate-800 bg-slate-950/80" : "border-slate-300 bg-slate-50"
+                  className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 ${
+                    isDark ? "border-slate-800 bg-slate-950/80" : "border-slate-200 bg-white"
                   }`}
                 >
                   <Key size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
@@ -893,7 +1022,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.99] transition-all disabled:opacity-50"
               >
                 {loading ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
                 {loading ? t("verifying") : t("verifyBtn")}
