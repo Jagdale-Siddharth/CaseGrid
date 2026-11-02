@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ShieldCheck,
   Mail,
@@ -24,7 +24,9 @@ import {
   UploadCloud,
   ChevronRight,
   Sparkles,
+  Video,
 } from "lucide-react";
+import { useTheme } from "../theme";
 import {
   sendOtp,
   verifyOtp,
@@ -40,7 +42,11 @@ import {
 const TOKEN_KEY = "@aicte_citizen_token";
 const USER_KEY = "@aicte_citizen_user";
 
-export default function NativeCitizenApp() {
+export default function NativeCitizenApp({ themeOverride }) {
+  const { theme: ctxTheme } = useTheme() || {};
+  const currentTheme = themeOverride || ctxTheme || "light";
+  const isDark = currentTheme === "dark";
+
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || null);
   const [citizen, setCitizen] = useState(() => {
     try {
@@ -76,22 +82,34 @@ export default function NativeCitizenApp() {
   };
 
   return (
-    <div className="flex h-full w-full flex-col bg-slate-950 font-sans text-slate-100 select-none overflow-hidden">
+    <div
+      className={`relative flex h-full w-full flex-col font-sans select-none overflow-hidden transition-colors duration-200 ${
+        isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
+      }`}
+    >
       {/* Top Phone Status Bar Simulation */}
-      <div className="flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-semibold tracking-wider text-slate-400">
+      <div
+        className={`flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-semibold tracking-wider transition-colors ${
+          isDark ? "text-slate-400" : "text-slate-600"
+        }`}
+      >
         <span>9:41</span>
         <div className="flex items-center gap-1.5">
           <span className="text-[10px]">5G</span>
-          <div className="h-2.5 w-5 rounded-[3px] border border-slate-400 p-0.5">
-            <div className="h-full w-full rounded-[1px] bg-emerald-400" />
+          <div className={`h-2.5 w-5 rounded-[3px] border p-0.5 ${isDark ? "border-slate-400" : "border-slate-500"}`}>
+            <div className={`h-full w-full rounded-[1px] ${isDark ? "bg-emerald-400" : "bg-emerald-600"}`} />
           </div>
         </div>
       </div>
 
       {/* Main Body */}
-      <div className="relative flex-1 overflow-y-auto overflow-x-hidden bg-slate-900/60 scrollbar-thin scrollbar-thumb-slate-700">
+      <div
+        className={`relative flex-1 overflow-y-auto overflow-x-hidden transition-colors ${
+          isDark ? "bg-slate-900/60 scrollbar-thumb-slate-700" : "bg-slate-100/70 scrollbar-thumb-slate-300"
+        }`}
+      >
         {!token || !citizen ? (
-          <CitizenAuthScreen onLoginSuccess={handleLoginSuccess} />
+          <CitizenAuthScreen onLoginSuccess={handleLoginSuccess} isDark={isDark} />
         ) : (
           <>
             {activeTab === "new" && (
@@ -99,6 +117,7 @@ export default function NativeCitizenApp() {
                 token={token}
                 citizen={citizen}
                 onComplaintCreated={handleComplaintCreated}
+                isDark={isDark}
               />
             )}
             {activeTab === "my" && (
@@ -108,13 +127,14 @@ export default function NativeCitizenApp() {
                   setPrefilledTrackCaseId(caseId);
                   setActiveTab("track");
                 }}
+                isDark={isDark}
               />
             )}
             {activeTab === "track" && (
-              <CitizenTrackCaseScreen initialCaseId={prefilledTrackCaseId} />
+              <CitizenTrackCaseScreen initialCaseId={prefilledTrackCaseId} isDark={isDark} />
             )}
             {activeTab === "profile" && (
-              <CitizenProfileScreen citizen={citizen} onLogout={handleLogout} />
+              <CitizenProfileScreen citizen={citizen} onLogout={handleLogout} isDark={isDark} />
             )}
           </>
         )}
@@ -122,30 +142,38 @@ export default function NativeCitizenApp() {
 
       {/* Bottom Navigation Bar */}
       {token && citizen && (
-        <nav className="flex items-center justify-around border-t border-slate-800/80 bg-slate-950/95 py-2 px-1 backdrop-blur-md">
+        <nav
+          className={`flex items-center justify-around border-t py-2 px-1 backdrop-blur-md transition-colors ${
+            isDark ? "border-slate-800/80 bg-slate-950/95" : "border-slate-200 bg-white/95 shadow-md"
+          }`}
+        >
           <TabButton
             active={activeTab === "new"}
             onClick={() => setActiveTab("new")}
             icon={<PlusCircle size={20} />}
             label="File Grievance"
+            isDark={isDark}
           />
           <TabButton
             active={activeTab === "my"}
             onClick={() => setActiveTab("my")}
             icon={<FolderOpen size={20} />}
             label="My Cases"
+            isDark={isDark}
           />
           <TabButton
             active={activeTab === "track"}
             onClick={() => setActiveTab("track")}
             icon={<Search size={20} />}
             label="Track Any"
+            isDark={isDark}
           />
           <TabButton
             active={activeTab === "profile"}
             onClick={() => setActiveTab("profile")}
             icon={<UserRound size={20} />}
             label="Account"
+            isDark={isDark}
           />
         </nav>
       )}
@@ -153,13 +181,19 @@ export default function NativeCitizenApp() {
   );
 }
 
-function TabButton({ active, onClick, icon, label }) {
+function TabButton({ active, onClick, icon, label, isDark }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={`flex flex-1 flex-col items-center justify-center py-1 transition-all ${
-        active ? "text-sky-400 font-semibold" : "text-slate-400 hover:text-slate-200"
+        active
+          ? isDark
+            ? "text-sky-400 font-semibold"
+            : "text-blue-600 font-bold"
+          : isDark
+          ? "text-slate-400 hover:text-slate-200"
+          : "text-slate-500 hover:text-slate-900"
       }`}
     >
       <div className={`${active ? "scale-110" : "scale-100"} transition-transform`}>{icon}</div>
@@ -171,7 +205,7 @@ function TabButton({ active, onClick, icon, label }) {
 // -------------------------------------------------------------
 // 1. AUTH SCREEN (Email OTP)
 // -------------------------------------------------------------
-function CitizenAuthScreen({ onLoginSuccess }) {
+function CitizenAuthScreen({ onLoginSuccess, isDark }) {
   const [step, setStep] = useState("email"); // 'email' | 'otp'
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
@@ -238,18 +272,30 @@ function CitizenAuthScreen({ onLoginSuccess }) {
       <div>
         <div className="flex items-center justify-between pt-2 pb-4">
           <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-sky-500/20 text-sky-400">
+            <div
+              className={`grid h-8 w-8 place-items-center rounded-xl ${
+                isDark ? "bg-sky-500/20 text-sky-400" : "bg-blue-100 text-blue-600 border border-blue-200"
+              }`}
+            >
               <ShieldCheck size={20} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">AICTE Grievance Portal</h2>
-              <p className="text-[10px] text-slate-400">Citizen & Student Mobile Access</p>
+              <h2 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                AICTE Grievance Portal
+              </h2>
+              <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                Citizen & Student Mobile Access
+              </p>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setShowConfig(!showConfig)}
-            className="rounded-lg border border-slate-800 bg-slate-900/60 p-1.5 text-slate-400 hover:text-white"
+            className={`rounded-lg border p-1.5 transition ${
+              isDark
+                ? "border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
+                : "border-slate-300 bg-white text-slate-600 hover:text-slate-900 shadow-xs"
+            }`}
             title="Configure Server URL"
           >
             <Server size={14} />
@@ -258,11 +304,17 @@ function CitizenAuthScreen({ onLoginSuccess }) {
 
         {/* Server Config Drawer */}
         {showConfig && (
-          <div className="mb-4 rounded-xl border border-sky-500/30 bg-sky-950/40 p-3 text-xs">
-            <span className="font-semibold text-sky-300">Backend API URL</span>
+          <div
+            className={`mb-4 rounded-xl border p-3 text-xs ${
+              isDark ? "border-sky-500/30 bg-sky-950/40 text-slate-200" : "border-blue-300 bg-blue-50/80 text-slate-800"
+            }`}
+          >
+            <span className={`font-semibold ${isDark ? "text-sky-300" : "text-blue-900"}`}>Backend API URL</span>
             <input
               type="text"
-              className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-white outline-none focus:border-sky-500"
+              className={`mt-1.5 w-full rounded-lg border px-2.5 py-1.5 text-xs outline-none focus:border-sky-500 ${
+                isDark ? "border-slate-700 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-900"
+              }`}
               value={serverUrl}
               onChange={(e) => setServerUrl(e.target.value)}
             />
@@ -270,7 +322,7 @@ function CitizenAuthScreen({ onLoginSuccess }) {
               <button
                 type="button"
                 onClick={() => setShowConfig(false)}
-                className="rounded-md px-2 py-1 text-slate-400 hover:text-white"
+                className={`rounded-md px-2 py-1 ${isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
               >
                 Cancel
               </button>
@@ -290,40 +342,66 @@ function CitizenAuthScreen({ onLoginSuccess }) {
           <div
             className={`mb-4 flex items-start gap-2 rounded-xl border p-3 text-xs leading-relaxed ${
               msg.type === "error"
-                ? "border-rose-500/30 bg-rose-950/40 text-rose-300"
-                : "border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
+                ? isDark
+                  ? "border-rose-500/30 bg-rose-950/40 text-rose-300"
+                  : "border-rose-300 bg-rose-50 text-rose-800"
+                : isDark
+                ? "border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
+                : "border-emerald-300 bg-emerald-50 text-emerald-800"
             }`}
           >
-            {msg.type === "error" ? <AlertTriangle size={16} className="shrink-0 mt-0.5" /> : <CheckCircle2 size={16} className="shrink-0 mt-0.5" />}
+            {msg.type === "error" ? (
+              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+            ) : (
+              <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
+            )}
             <div className="flex-1">{msg.text}</div>
-            <button type="button" onClick={() => setMsg(null)} className="text-slate-400 hover:text-white">
+            <button
+              type="button"
+              onClick={() => setMsg(null)}
+              className={isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800"}
+            >
               <X size={14} />
             </button>
           </div>
         )}
 
         {/* Card */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl backdrop-blur-sm">
+        <div
+          className={`rounded-2xl border p-5 shadow-xl transition-colors ${
+            isDark
+              ? "border-slate-800 bg-slate-900/90 text-white"
+              : "border-slate-200 bg-white text-slate-800 shadow-slate-200/50"
+          }`}
+        >
           {step === "email" ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <h3 className="text-base font-bold text-white">Sign In / Authenticate</h3>
-                <p className="mt-1 text-xs text-slate-400">
+                <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  Sign In / Authenticate
+                </h3>
+                <p className={`mt-1 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                   Enter your email address to receive a secure one-time verification code.
                 </p>
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+                <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Email Address *
                 </label>
-                <div className="mt-1.5 flex items-center rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 focus-within:border-sky-500">
-                  <Mail size={16} className="text-slate-400" />
+                <div
+                  className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
+                    isDark ? "border-slate-800 bg-slate-950/80" : "border-slate-300 bg-slate-50"
+                  }`}
+                >
+                  <Mail size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
                   <input
                     type="email"
                     required
                     placeholder="e.g. rahul.sharma@example.com"
-                    className="ml-2.5 flex-1 bg-transparent text-xs text-white placeholder-slate-500 outline-none"
+                    className={`ml-2.5 flex-1 bg-transparent text-xs outline-none ${
+                      isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
+                    }`}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
@@ -344,32 +422,40 @@ function CitizenAuthScreen({ onLoginSuccess }) {
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-white">Enter 6-Digit Code</h3>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Code sent to <span className="font-semibold text-sky-400">{email}</span>
+                  <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                    Enter 6-Digit Code
+                  </h3>
+                  <p className={`mt-1 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    Code sent to <span className={`font-semibold ${isDark ? "text-sky-400" : "text-blue-600"}`}>{email}</span>
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setStep("email")}
-                  className="text-[11px] font-semibold text-sky-400 hover:underline"
+                  className={`text-[11px] font-semibold hover:underline ${isDark ? "text-sky-400" : "text-blue-600"}`}
                 >
                   Change
                 </button>
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+                <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   6-Digit OTP Code *
                 </label>
-                <div className="mt-1.5 flex items-center rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 focus-within:border-sky-500">
-                  <Key size={16} className="text-slate-400" />
+                <div
+                  className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
+                    isDark ? "border-slate-800 bg-slate-950/80" : "border-slate-300 bg-slate-50"
+                  }`}
+                >
+                  <Key size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
                   <input
                     type="text"
                     maxLength={6}
                     required
                     placeholder="123456"
-                    className="ml-2.5 flex-1 bg-transparent text-sm font-mono tracking-widest text-white placeholder-slate-500 outline-none"
+                    className={`ml-2.5 flex-1 bg-transparent text-sm font-mono tracking-widest outline-none ${
+                      isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
+                    }`}
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
                     disabled={loading}
@@ -378,15 +464,21 @@ function CitizenAuthScreen({ onLoginSuccess }) {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+                <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Full Name (Optional)
                 </label>
-                <div className="mt-1.5 flex items-center rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 focus-within:border-sky-500">
-                  <User size={16} className="text-slate-400" />
+                <div
+                  className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
+                    isDark ? "border-slate-800 bg-slate-950/80" : "border-slate-300 bg-slate-50"
+                  }`}
+                >
+                  <User size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
                   <input
                     type="text"
                     placeholder="e.g. Rahul Sharma"
-                    className="ml-2.5 flex-1 bg-transparent text-xs text-white placeholder-slate-500 outline-none"
+                    className={`ml-2.5 flex-1 bg-transparent text-xs outline-none ${
+                      isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
+                    }`}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     disabled={loading}
@@ -395,15 +487,21 @@ function CitizenAuthScreen({ onLoginSuccess }) {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+                <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Mobile Phone (Optional)
                 </label>
-                <div className="mt-1.5 flex items-center rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 focus-within:border-sky-500">
-                  <Phone size={16} className="text-slate-400" />
+                <div
+                  className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
+                    isDark ? "border-slate-800 bg-slate-950/80" : "border-slate-300 bg-slate-50"
+                  }`}
+                >
+                  <Phone size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
                   <input
                     type="tel"
                     placeholder="e.g. 9876543210"
-                    className="ml-2.5 flex-1 bg-transparent text-xs text-white placeholder-slate-500 outline-none"
+                    className={`ml-2.5 flex-1 bg-transparent text-xs outline-none ${
+                      isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
+                    }`}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     disabled={loading}
@@ -417,17 +515,17 @@ function CitizenAuthScreen({ onLoginSuccess }) {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50"
               >
                 {loading ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-                {loading ? "Verifying..." : "Verify & Enter Portal"}
+                {loading ? "Authenticating..." : "Verify & Enter Portal"}
               </button>
 
-              <div className="text-center">
+              <div className="text-center pt-1">
                 <button
                   type="button"
-                  disabled={loading}
                   onClick={handleSendOtp}
-                  className="text-xs text-slate-400 hover:text-sky-400 hover:underline"
+                  disabled={loading}
+                  className={`text-[11px] font-semibold hover:underline ${isDark ? "text-sky-400" : "text-blue-600"}`}
                 >
-                  Resend Verification Code
+                  Resend Code
                 </button>
               </div>
             </form>
@@ -435,18 +533,18 @@ function CitizenAuthScreen({ onLoginSuccess }) {
         </div>
       </div>
 
-      {/* Footer Branding */}
-      <div className="text-center pt-4 pb-2 text-[10px] text-slate-500">
-        All India Council for Technical Education (AICTE), New Delhi • PS 26264
+      {/* Footer Info */}
+      <div className={`pt-4 pb-2 text-center text-[10px] ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+        <span>AICTE Central Redressal System • 256-bit Encrypted</span>
       </div>
     </div>
   );
 }
 
 // -------------------------------------------------------------
-// 2. FILE GRIEVANCE SCREEN
+// 2. NEW COMPLAINT SCREEN (With Live Laptop Webcam Viewfinder)
 // -------------------------------------------------------------
-function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
+function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark }) {
   const [institutions, setInstitutions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingMeta, setLoadingMeta] = useState(true);
@@ -457,14 +555,13 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
   const [description, setDescription] = useState("");
   const [isUrgent, setIsUrgent] = useState(false);
 
-  // Field Evidence: Geotag & Photo
+  // Field evidence: Geotag Photo & Document
   const [photoBase64, setPhotoBase64] = useState(null);
   const [photoName, setPhotoName] = useState(null);
   const [locationCoords, setLocationCoords] = useState(null);
   const [locationAddress, setLocationAddress] = useState("");
   const [loadingLocation, setLoadingLocation] = useState(false);
 
-  // Document attachment
   const [docBase64, setDocBase64] = useState(null);
   const [docName, setDocName] = useState(null);
 
@@ -474,6 +571,12 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
   // Institution Search Modal
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  // Live Laptop Camera Viewfinder
+  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -491,6 +594,97 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
       }
     })();
   }, []);
+
+  // Cleanup camera stream on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
+
+  const fetchCurrentGps = () => {
+    if (!navigator.geolocation) {
+      setLocationAddress("GPS Geolocation not supported in this browser");
+      return;
+    }
+    setLoadingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setLocationCoords({ latitude, longitude });
+        setLocationAddress(`Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`);
+        setLoadingLocation(false);
+      },
+      (err) => {
+        console.warn("Geo error", err);
+        setLocationAddress("GPS Coordinates unavailable");
+        setLoadingLocation(false);
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
+  const startCamera = async () => {
+    setCameraError(null);
+    setCameraActive(true);
+    fetchCurrentGps();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: "user",
+        },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      console.error("Camera access error:", err);
+      setCameraError("Camera access denied or webcam not available on this device.");
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setCameraActive(false);
+    setCameraError(null);
+  };
+
+  const captureFromCamera = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Draw official evidence watermark
+    const now = new Date().toLocaleString();
+    const latLon = locationCoords
+      ? `Lat: ${locationCoords.latitude.toFixed(4)}, Lon: ${locationCoords.longitude.toFixed(4)}`
+      : locationAddress || "GPS Geotagged";
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+    ctx.fillRect(0, canvas.height - 44, canvas.width, 44);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText(`AICTE CITIZEN EVIDENCE • ${latLon} • ${now}`, 14, canvas.height - 18);
+
+    const base64 = canvas.toDataURL("image/jpeg", 0.85);
+    setPhotoBase64(base64);
+    setPhotoName(`Webcam_Evidence_${Date.now()}.jpg`);
+    stopCamera();
+  };
 
   const handleCapturePhoto = (e) => {
     const file = e.target.files?.[0];
@@ -515,28 +709,6 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
     reader.readAsDataURL(file);
   };
 
-  const fetchCurrentGps = () => {
-    if (!navigator.geolocation) {
-      setLocationAddress("GPS Geolocation not supported in this browser");
-      return;
-    }
-    setLoadingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setLocationCoords({ latitude, longitude });
-        setLocationAddress(`Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`);
-        setLoadingLocation(false);
-      },
-      (err) => {
-        console.warn("Geo error", err);
-        setLocationAddress("GPS Coordinates unavailable");
-        setLoadingLocation(false);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedInst) {
@@ -548,90 +720,113 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
       return;
     }
     if (subject.trim().length < 3) {
-      setErrorMsg("Subject must be at least 3 characters.");
+      setErrorMsg("Please provide a valid subject (at least 3 characters).");
       return;
     }
     if (description.trim().length < 10) {
-      setErrorMsg("Description must be at least 10 characters.");
+      setErrorMsg("Please describe your grievance in detail (at least 10 characters).");
       return;
     }
 
     setSubmitting(true);
     setErrorMsg(null);
-
-    const payload = {
-      institution_id: selectedInst.id,
-      category,
-      subject: subject.trim(),
-      description: description.trim(),
-      is_urgent: isUrgent,
-      geo_latitude: locationCoords?.latitude || null,
-      geo_longitude: locationCoords?.longitude || null,
-      geo_address: locationAddress || null,
-      photo_base64: photoBase64,
-      photo_name: photoName,
-      document_base64: docBase64,
-      document_name: docName,
-    };
-
     try {
+      const payload = {
+        institution_id: selectedInst.id,
+        category,
+        subject: subject.trim(),
+        description: description.trim(),
+        is_urgent: isUrgent,
+        geo_address: locationAddress || null,
+        geo_lat: locationCoords?.latitude || null,
+        geo_lng: locationCoords?.longitude || null,
+        photo_filename: photoName || null,
+        photo_base64: photoBase64 || null,
+        doc_filename: docName || null,
+        doc_base64: docBase64 || null,
+      };
+
       const res = await fileComplaint(token, payload);
-      onComplaintCreated(res.case_id);
+      if (res && res.complaint && res.complaint.case_id) {
+        onComplaintCreated(res.complaint.case_id);
+      } else {
+        throw new Error("Unable to create complaint. Server did not return a valid Case ID.");
+      }
     } catch (err) {
-      setErrorMsg(err.message || "Failed to register complaint.");
+      setErrorMsg(err.message || "Failed to lodge complaint. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="p-4 pb-6 space-y-4">
-      {/* Header */}
+    <div className="relative p-4 space-y-4">
+      {/* Top Banner */}
       <div>
-        <h2 className="text-base font-bold text-white flex items-center gap-1.5">
-          <PlusCircle size={18} className="text-sky-400" /> Lodge New Grievance
+        <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+          <PlusCircle size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
+          Lodge Citizen Grievance
         </h2>
-        <p className="text-[11px] text-slate-400">
-          Logged in as <span className="text-slate-300 font-semibold">{citizen.email}</span>
+        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+          Registered under citizen: <span className={`font-semibold ${isDark ? "text-sky-400" : "text-blue-600"}`}>{citizen.email}</span>
         </p>
       </div>
 
       {errorMsg && (
-        <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-950/40 p-2.5 text-xs text-rose-300">
-          <AlertTriangle size={14} className="shrink-0" />
-          <span className="flex-1">{errorMsg}</span>
-          <button type="button" onClick={() => setErrorMsg(null)}><X size={12} /></button>
+        <div
+          className={`flex items-start gap-2 rounded-xl border p-3 text-xs leading-relaxed ${
+            isDark ? "border-rose-500/30 bg-rose-950/40 text-rose-300" : "border-rose-300 bg-rose-50 text-rose-800"
+          }`}
+        >
+          <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+          <div className="flex-1">{errorMsg}</div>
+          <button type="button" onClick={() => setErrorMsg(null)} className="opacity-70 hover:opacity-100">
+            <X size={14} />
+          </button>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
         {/* Institution Selector */}
         <div>
-          <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
-            Approved Institution *
+          <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+            AICTE Approved Institution *
           </label>
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="mt-1 flex w-full items-center justify-between rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2.5 text-left text-white hover:border-slate-700"
+            className={`mt-1.5 flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition ${
+              isDark
+                ? "border-slate-800 bg-slate-950/80 hover:border-slate-700"
+                : "border-slate-300 bg-white hover:border-blue-400 shadow-xs"
+            }`}
           >
             <div className="flex items-center gap-2 truncate">
-              <Building2 size={16} className="text-sky-400 shrink-0" />
-              <span className="truncate">
-                {selectedInst ? `${selectedInst.name} (${selectedInst.code})` : "Select Institution..."}
-              </span>
+              <Building2 size={16} className={isDark ? "text-sky-400 shrink-0" : "text-blue-600 shrink-0"} />
+              <div className="truncate">
+                <p className={`font-semibold truncate ${isDark ? "text-white" : "text-slate-900"}`}>
+                  {selectedInst ? selectedInst.name : "Select an institution..."}
+                </p>
+                {selectedInst && (
+                  <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    Code: {selectedInst.code} • {selectedInst.city || "India"}
+                  </p>
+                )}
+              </div>
             </div>
-            <ChevronRight size={14} className="text-slate-500 shrink-0" />
+            <ChevronRight size={16} className={isDark ? "text-slate-500" : "text-slate-400"} />
           </button>
         </div>
 
-        {/* Category Selector */}
+        {/* Grievance Category */}
         <div>
-          <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+          <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
             Grievance Category *
           </label>
           <select
-            className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-white outline-none focus:border-sky-500"
+            className={`mt-1.5 w-full rounded-xl border px-3 py-2 text-xs outline-none focus:border-sky-500 ${
+              isDark ? "border-slate-800 bg-slate-950 text-white" : "border-slate-300 bg-white text-slate-900 shadow-xs"
+            }`}
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -645,39 +840,53 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
 
         {/* Subject */}
         <div>
-          <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
-            Subject *
+          <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+            Subject / Headline *
           </label>
           <input
             type="text"
             required
-            placeholder="Brief summary of the grievance"
-            className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-white placeholder-slate-500 outline-none focus:border-sky-500"
+            placeholder="e.g. Inadequate lab equipment in Computer Center"
+            className={`mt-1.5 w-full rounded-xl border px-3 py-2 text-xs outline-none focus:border-sky-500 ${
+              isDark
+                ? "border-slate-800 bg-slate-950/80 text-white placeholder-slate-500"
+                : "border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-xs"
+            }`}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
           />
         </div>
 
-        {/* Description */}
+        {/* Detailed Description */}
         <div>
-          <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
-            Detailed Description *
+          <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+            Detailed Grievance Description *
           </label>
           <textarea
-            required
             rows={3}
-            placeholder="Provide specific details, dates, and background regarding this issue..."
-            className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-950/90 p-3 text-white placeholder-slate-500 outline-none focus:border-sky-500"
+            required
+            placeholder="Describe the issue, dates, personnel involved and impact..."
+            className={`mt-1.5 w-full rounded-xl border px-3 py-2 text-xs outline-none focus:border-sky-500 resize-none ${
+              isDark
+                ? "border-slate-800 bg-slate-950/80 text-white placeholder-slate-500"
+                : "border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-xs"
+            }`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
-        {/* Urgent Switch */}
-        <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+        {/* Urgent Toggle */}
+        <div
+          className={`flex items-center justify-between rounded-xl border p-3 ${
+            isDark ? "border-slate-800 bg-slate-950/60" : "border-slate-200 bg-white shadow-xs"
+          }`}
+        >
           <div>
-            <span className="font-semibold text-white">Mark as High Priority / Urgent</span>
-            <p className="text-[10px] text-slate-400">Escalates ticket directly to AICTE priority review</p>
+            <span className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>Urgent Attention Needed</span>
+            <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              Escalates ticket directly to AICTE priority review
+            </p>
           </div>
           <input
             type="checkbox"
@@ -687,11 +896,16 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
           />
         </div>
 
-        {/* Field Evidence: Geotag Photo */}
-        <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+        {/* Field Evidence: Geotag Photo (With Laptop Camera Option) */}
+        <div
+          className={`rounded-xl border p-3 ${
+            isDark ? "border-slate-800 bg-slate-950/60" : "border-slate-200 bg-white shadow-xs"
+          }`}
+        >
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-white flex items-center gap-1.5">
-              <Camera size={14} className="text-sky-400" /> Field Photo (With Geotag)
+            <span className={`font-semibold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+              <Camera size={14} className={isDark ? "text-sky-400" : "text-blue-600"} />
+              Field Photo (With Geotag)
             </span>
             {photoBase64 && (
               <button
@@ -702,7 +916,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
                   setLocationCoords(null);
                   setLocationAddress("");
                 }}
-                className="text-[10px] text-rose-400 hover:underline"
+                className="text-[10px] text-rose-500 hover:underline font-semibold"
               >
                 Remove
               </button>
@@ -711,29 +925,61 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
 
           {photoBase64 ? (
             <div className="mt-2 flex items-center gap-3">
-              <img src={photoBase64} alt="Attached" className="h-14 w-14 rounded-lg object-cover border border-slate-700" />
+              <img
+                src={photoBase64}
+                alt="Attached"
+                className={`h-14 w-14 rounded-lg object-cover border ${
+                  isDark ? "border-slate-700" : "border-slate-300"
+                }`}
+              />
               <div className="text-[11px]">
-                <p className="text-slate-300 font-medium truncate max-w-[160px]">{photoName}</p>
-                <p className="text-slate-400 text-[10px] flex items-center gap-1 mt-0.5">
-                  <MapPin size={10} className="text-emerald-400 shrink-0" />
+                <p className={`font-medium truncate max-w-[160px] ${isDark ? "text-slate-300" : "text-slate-800"}`}>
+                  {photoName}
+                </p>
+                <p className={`text-[10px] flex items-center gap-1 mt-0.5 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                  <MapPin size={10} className="text-emerald-500 shrink-0" />
                   {loadingLocation ? "Reading GPS coordinates..." : locationAddress || "GPS attached"}
                 </p>
               </div>
             </div>
           ) : (
-            <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-700 p-2.5 text-center text-slate-400 hover:border-sky-500 hover:text-sky-300">
-              <UploadCloud size={14} />
-              <span>Attach Image (Auto-embeds GPS)</span>
-              <input type="file" accept="image/*" onChange={handleCapturePhoto} className="hidden" />
-            </label>
+            <div className="mt-2.5 flex flex-col gap-2">
+              {/* Laptop Camera Button */}
+              <button
+                type="button"
+                onClick={startCamera}
+                className="flex items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-sky-500 transition"
+              >
+                <Video size={14} />
+                <span>Take Photo with Laptop Camera</span>
+              </button>
+
+              {/* Or File Upload */}
+              <label
+                className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed p-2 text-center transition ${
+                  isDark
+                    ? "border-slate-700 text-slate-400 hover:border-sky-500 hover:text-sky-300"
+                    : "border-slate-300 text-slate-600 hover:border-blue-500 hover:text-blue-700 bg-slate-50"
+                }`}
+              >
+                <UploadCloud size={14} />
+                <span className="text-[11px]">Or upload image from file</span>
+                <input type="file" accept="image/*" onChange={handleCapturePhoto} className="hidden" />
+              </label>
+            </div>
           )}
         </div>
 
         {/* Supporting Document */}
-        <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+        <div
+          className={`rounded-xl border p-3 ${
+            isDark ? "border-slate-800 bg-slate-950/60" : "border-slate-200 bg-white shadow-xs"
+          }`}
+        >
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-white flex items-center gap-1.5">
-              <FileText size={14} className="text-sky-400" /> Supporting Document (PDF / Doc)
+            <span className={`font-semibold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+              <FileText size={14} className={isDark ? "text-sky-400" : "text-blue-600"} />
+              Supporting Document (PDF / Doc)
             </span>
             {docName && (
               <button
@@ -742,7 +988,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
                   setDocBase64(null);
                   setDocName(null);
                 }}
-                className="text-[10px] text-rose-400 hover:underline"
+                className="text-[10px] text-rose-500 hover:underline font-semibold"
               >
                 Remove
               </button>
@@ -750,12 +996,23 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
           </div>
 
           {docName ? (
-            <p className="mt-1.5 text-[11px] text-emerald-400 truncate">Attached: {docName}</p>
+            <div className="mt-2 flex items-center gap-2 text-[11px]">
+              <FileText size={16} className={isDark ? "text-sky-400" : "text-blue-600"} />
+              <span className={`truncate max-w-[200px] font-medium ${isDark ? "text-slate-300" : "text-slate-800"}`}>
+                {docName}
+              </span>
+            </div>
           ) : (
-            <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-700 p-2.5 text-center text-slate-400 hover:border-sky-500 hover:text-sky-300">
-              <FileText size={14} />
-              <span>Upload PDF, DOC, or TXT file</span>
-              <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleAttachDocument} className="hidden" />
+            <label
+              className={`mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed p-2 text-center transition ${
+                isDark
+                  ? "border-slate-700 text-slate-400 hover:border-sky-500 hover:text-sky-300"
+                  : "border-slate-300 text-slate-600 hover:border-blue-500 hover:text-blue-700 bg-slate-50"
+              }`}
+            >
+              <UploadCloud size={14} />
+              <span className="text-[11px]">Attach document evidence</span>
+              <input type="file" accept=".pdf,.doc,.docx" onChange={handleAttachDocument} className="hidden" />
             </label>
           )}
         </div>
@@ -764,29 +1021,145 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
         <button
           type="submit"
           disabled={submitting || loadingMeta}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-3 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-3 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50 transition"
         >
           {submitting ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
           {submitting ? "Transmitting Complaint..." : "Submit Grievance to AICTE"}
         </button>
       </form>
 
-      {/* Institution Search Modal */}
+      {/* Live Laptop Camera Viewfinder Overlay (Inside Phone Frame) */}
+      {cameraActive && (
+        <div className="absolute inset-0 z-50 flex flex-col bg-black text-white p-3">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center gap-1.5">
+              <Camera size={16} className="text-sky-400" />
+              <span className="text-xs font-bold text-white">Laptop Camera Viewfinder</span>
+            </div>
+            <button
+              type="button"
+              onClick={stopCamera}
+              className="rounded-full bg-slate-800 p-1.5 text-slate-300 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Live GPS status */}
+          <div className="my-2 flex items-center justify-between rounded-lg bg-slate-900/90 px-2.5 py-1 text-[11px] text-emerald-400 border border-emerald-500/30">
+            <div className="flex items-center gap-1 truncate">
+              <MapPin size={12} className="shrink-0 animate-pulse" />
+              <span className="truncate">{loadingLocation ? "Locating GPS..." : locationAddress || "GPS Active"}</span>
+            </div>
+            <button
+              type="button"
+              onClick={fetchCurrentGps}
+              className="text-[10px] text-sky-400 underline ml-2 shrink-0"
+            >
+              Refresh GPS
+            </button>
+          </div>
+
+          {/* Video viewport */}
+          <div className="relative flex-1 rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center border border-slate-800">
+            {cameraError ? (
+              <div className="p-4 text-center">
+                <AlertTriangle size={32} className="mx-auto text-amber-400 mb-2" />
+                <p className="text-xs text-rose-300 font-semibold">{cameraError}</p>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Please allow camera permission in your browser or upload an image file instead.
+                </p>
+                <button
+                  type="button"
+                  onClick={startCamera}
+                  className="mt-3 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white"
+                >
+                  Retry Camera
+                </button>
+              </div>
+            ) : (
+              <>
+                <video
+                  ref={videoRef}
+                  playsInline
+                  autoPlay
+                  muted
+                  className="h-full w-full object-cover"
+                />
+                {/* Visual target reticle */}
+                <div className="pointer-events-none absolute inset-4 border border-dashed border-white/30 rounded-xl" />
+              </>
+            )}
+          </div>
+
+          {/* Bottom shutter bar */}
+          <div className="flex items-center justify-around pt-3 pb-2">
+            <button
+              type="button"
+              onClick={stopCamera}
+              className="text-xs text-slate-400 hover:text-white"
+            >
+              Cancel
+            </button>
+
+            {!cameraError && (
+              <button
+                type="button"
+                onClick={captureFromCamera}
+                className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-sky-400 bg-white text-sky-600 shadow-xl transition active:scale-95 hover:bg-slate-100"
+                title="Capture Geotagged Photo"
+              >
+                <Camera size={24} />
+              </button>
+            )}
+
+            <label className="text-xs text-sky-400 hover:underline cursor-pointer">
+              Upload File
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  stopCamera();
+                  handleCapturePhoto(e);
+                }}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* Institution Search Modal (Contained Strictly Inside Phone Screen) */}
       {searchOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="flex max-h-[80%] w-full max-w-sm flex-col rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3">
-              <h4 className="text-sm font-bold text-white">Select Institution</h4>
-              <button type="button" onClick={() => setSearchOpen(false)} className="text-slate-400 hover:text-white">
+        <div className="absolute inset-0 z-50 flex flex-col bg-black/75 p-3 backdrop-blur-xs">
+          <div
+            className={`flex max-h-full w-full flex-1 flex-col rounded-2xl border p-4 shadow-2xl overflow-hidden ${
+              isDark ? "border-slate-800 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-900"
+            }`}
+          >
+            <div className={`flex items-center justify-between pb-3 border-b ${isDark ? "border-slate-800" : "border-slate-200"}`}>
+              <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Select Institution</h4>
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className={isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}
+              >
                 <X size={16} />
               </button>
             </div>
-            <div className="mb-3 flex items-center rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5">
-              <Search size={14} className="text-slate-400" />
+            <div
+              className={`my-3 flex items-center rounded-xl border px-3 py-1.5 ${
+                isDark ? "border-slate-800 bg-slate-900" : "border-slate-300 bg-slate-50"
+              }`}
+            >
+              <Search size={14} className={isDark ? "text-slate-400" : "text-slate-500"} />
               <input
                 type="text"
                 placeholder="Search by college name or code..."
-                className="ml-2 flex-1 bg-transparent text-xs text-white outline-none"
+                className={`ml-2 flex-1 bg-transparent text-xs outline-none ${
+                  isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
+                }`}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -807,12 +1180,20 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
                       setSelectedInst(inst);
                       setSearchOpen(false);
                     }}
-                    className="flex w-full items-start gap-2.5 rounded-xl border border-slate-900 bg-slate-900/60 p-2.5 text-left hover:border-sky-500/50 hover:bg-slate-800/60"
+                    className={`flex w-full items-start gap-2.5 rounded-xl border p-2.5 text-left transition ${
+                      isDark
+                        ? "border-slate-900 bg-slate-900/60 hover:border-sky-500/50 hover:bg-slate-800/60"
+                        : "border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/50"
+                    }`}
                   >
-                    <Building2 size={16} className="text-sky-400 shrink-0 mt-0.5" />
+                    <Building2 size={16} className={`${isDark ? "text-sky-400" : "text-blue-600"} shrink-0 mt-0.5`} />
                     <div>
-                      <p className="text-xs font-semibold text-white leading-snug">{inst.name}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Code: {inst.code} • {inst.city || "India"}</p>
+                      <p className={`text-xs font-semibold leading-snug ${isDark ? "text-white" : "text-slate-900"}`}>
+                        {inst.name}
+                      </p>
+                      <p className={`text-[10px] mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                        Code: {inst.code} • {inst.city || "India"}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -825,101 +1206,117 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated }) {
 }
 
 // -------------------------------------------------------------
-// 3. MY COMPLAINTS SCREEN
+// 3. MY COMPLAINTS SCREEN (With In-Phone Grievance Modal)
 // -------------------------------------------------------------
-function CitizenMyComplaintsScreen({ token, onTrackExternal }) {
+function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCase, setSelectedCase] = useState(null);
   const [caseDetails, setCaseDetails] = useState(null);
-  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
-  const loadData = async () => {
+  const fetchList = async () => {
     setLoading(true);
     try {
-      const data = await getMyComplaints(token);
-      setComplaints(data || []);
+      const res = await getMyComplaints(token);
+      setComplaints(res.complaints || []);
     } catch (err) {
-      console.warn("My complaints error", err);
+      console.warn("Failed to load complaints", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    fetchList();
   }, [token]);
 
-  const openDetail = async (c) => {
+  const handleOpenDetail = async (c) => {
     setSelectedCase(c);
-    setLoadingDetails(true);
+    setLoadingDetail(true);
     try {
-      const details = await trackCase(c.case_id);
-      setCaseDetails(details);
+      const detail = await trackCase(c.case_id);
+      setCaseDetails(detail);
     } catch {
-      setCaseDetails(c);
+      setCaseDetails(null);
     } finally {
-      setLoadingDetails(false);
+      setLoadingDetail(false);
     }
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="relative p-4 space-y-3 min-h-full">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center gap-1.5">
-            <FolderOpen size={18} className="text-sky-400" /> My Grievances
+          <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+            <FolderOpen size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
+            My Grievances
           </h2>
-          <p className="text-[11px] text-slate-400">Complaints filed from this account</p>
+          <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Complaints filed from this account</p>
         </div>
         <button
           type="button"
-          onClick={loadData}
-          disabled={loading}
-          className="rounded-lg border border-slate-800 bg-slate-900 p-1.5 text-slate-400 hover:text-white"
-          title="Refresh"
+          onClick={fetchList}
+          className={`rounded-lg border p-1.5 transition ${
+            isDark
+              ? "border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
+              : "border-slate-300 bg-white text-slate-600 hover:text-slate-900 shadow-xs"
+          }`}
+          title="Refresh List"
         >
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
         </button>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-          <RefreshCw size={24} className="animate-spin text-sky-400 mb-2" />
-          <span className="text-xs">Fetching complaint history...</span>
+        <div className="py-12 text-center">
+          <RefreshCw size={24} className={`mx-auto animate-spin ${isDark ? "text-sky-400" : "text-blue-600"}`} />
+          <p className={`mt-2 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Loading grievance records...</p>
         </div>
       ) : complaints.length === 0 ? (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-8 text-center text-slate-400">
-          <FolderOpen size={32} className="mx-auto text-slate-600 mb-2" />
-          <p className="text-xs font-semibold text-slate-300">No Complaints Lodged Yet</p>
-          <p className="text-[11px] text-slate-500 mt-1">Tap the &quot;File Grievance&quot; tab to register your first ticket.</p>
+        <div
+          className={`rounded-2xl border p-6 text-center ${
+            isDark ? "border-slate-800 bg-slate-900/40 text-slate-400" : "border-slate-200 bg-white text-slate-500 shadow-xs"
+          }`}
+        >
+          <FolderOpen size={32} className="mx-auto mb-2 opacity-50" />
+          <p className="text-xs font-semibold">No complaints registered yet</p>
+          <p className="mt-1 text-[10px]">Use the "File Grievance" tab to lodge your first official issue.</p>
         </div>
       ) : (
         <div className="space-y-2.5">
           {complaints.map((c) => (
             <button
-              key={c.id || c.case_id}
+              key={c.case_id}
               type="button"
-              onClick={() => openDetail(c)}
-              className="flex w-full flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/80 p-3 text-left hover:border-slate-700 hover:bg-slate-900"
+              onClick={() => handleOpenDetail(c)}
+              className={`w-full rounded-2xl border p-3.5 text-left transition ${
+                isDark
+                  ? "border-slate-800 bg-slate-900/90 hover:border-sky-500/50 hover:bg-slate-800/80"
+                  : "border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/30 shadow-xs"
+              }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-sky-400">{c.case_id}</span>
+              <div className="flex items-center justify-between pb-1.5">
+                <span className={`font-mono text-xs font-bold ${isDark ? "text-sky-400" : "text-blue-600"}`}>
+                  {c.case_id}
+                </span>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                     c.status === "Resolved"
-                      ? "bg-emerald-500/20 text-emerald-400"
+                      ? "bg-emerald-500/20 text-emerald-500"
                       : c.status === "In Progress"
-                      ? "bg-amber-500/20 text-amber-400"
-                      : "bg-sky-500/20 text-sky-400"
+                      ? "bg-amber-500/20 text-amber-500"
+                      : isDark
+                      ? "bg-sky-500/20 text-sky-400"
+                      : "bg-blue-100 text-blue-700"
                   }`}
                 >
                   {c.status}
                 </span>
               </div>
-              <p className="text-xs font-semibold text-white truncate">{c.subject}</p>
-              <div className="flex items-center justify-between text-[10px] text-slate-400">
-                <span>{c.institution_name}</span>
+              <p className={`text-xs font-semibold truncate ${isDark ? "text-white" : "text-slate-900"}`}>{c.subject}</p>
+              <div className={`mt-1 flex items-center justify-between text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                <span className="truncate max-w-[150px]">{c.institution_name}</span>
                 <span>{c.registered_on}</span>
               </div>
             </button>
@@ -927,56 +1324,89 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal }) {
         </div>
       )}
 
-      {/* Case Detail Modal */}
+      {/* Case Detail Modal (Contained Strictly Inside the Phone Frame) */}
       {selectedCase && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="flex max-h-[85%] w-full max-w-sm flex-col rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div className="absolute inset-0 z-50 flex flex-col bg-black/75 p-3 backdrop-blur-xs">
+          <div
+            className={`flex max-h-full w-full flex-1 flex-col rounded-2xl border p-4 shadow-2xl overflow-hidden ${
+              isDark ? "border-slate-800 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-900"
+            }`}
+          >
+            {/* Modal Header */}
+            <div className={`flex items-center justify-between border-b pb-2.5 ${isDark ? "border-slate-800" : "border-slate-200"}`}>
               <div>
-                <span className="font-mono text-xs font-bold text-sky-400">{selectedCase.case_id}</span>
-                <p className="text-[10px] text-slate-400">{selectedCase.category}</p>
+                <span className={`font-mono text-xs font-bold ${isDark ? "text-sky-400" : "text-blue-600"}`}>
+                  {selectedCase.case_id}
+                </span>
+                <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{selectedCase.category}</p>
               </div>
-              <button type="button" onClick={() => setSelectedCase(null)} className="text-slate-400 hover:text-white">
+              <button
+                type="button"
+                onClick={() => setSelectedCase(null)}
+                className={`rounded-lg p-1 ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}
+              >
                 <X size={16} />
               </button>
             </div>
 
+            {/* Modal Body */}
             <div className="flex-1 overflow-y-auto space-y-3 py-3 text-xs pr-1 scrollbar-thin">
               <div>
-                <span className="text-[10px] font-semibold uppercase text-slate-400">Subject</span>
-                <p className="text-white font-semibold">{selectedCase.subject}</p>
+                <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  Subject
+                </span>
+                <p className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{selectedCase.subject}</p>
               </div>
 
               <div>
-                <span className="text-[10px] font-semibold uppercase text-slate-400">Institution</span>
-                <p className="text-slate-200">{selectedCase.institution_name} ({selectedCase.institution_code})</p>
+                <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  Institution
+                </span>
+                <p className={isDark ? "text-slate-200" : "text-slate-700"}>
+                  {selectedCase.institution_name} ({selectedCase.institution_code})
+                </p>
               </div>
 
               <div>
-                <span className="text-[10px] font-semibold uppercase text-slate-400">Description</span>
-                <p className="text-slate-300 whitespace-pre-wrap leading-relaxed mt-0.5">{selectedCase.description}</p>
+                <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  Description
+                </span>
+                <p className={`whitespace-pre-wrap leading-relaxed mt-0.5 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+                  {selectedCase.description}
+                </p>
               </div>
 
               {selectedCase.geo_address && (
                 <div>
-                  <span className="text-[10px] font-semibold uppercase text-slate-400">Geotag Evidence</span>
-                  <p className="text-emerald-400 flex items-center gap-1 mt-0.5">
+                  <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    Geotag Evidence
+                  </span>
+                  <p className="text-emerald-500 flex items-center gap-1 mt-0.5 font-medium">
                     <MapPin size={12} className="shrink-0" /> {selectedCase.geo_address}
                   </p>
                 </div>
               )}
 
               {/* History Timeline */}
-              {caseDetails?.history && (
-                <div className="pt-2 border-t border-slate-800">
-                  <span className="text-[10px] font-semibold uppercase text-slate-400">Lifecycle Audit Trail</span>
+              {loadingDetail ? (
+                <div className="py-4 text-center">
+                  <RefreshCw size={16} className={`mx-auto animate-spin ${isDark ? "text-sky-400" : "text-blue-600"}`} />
+                  <p className={`mt-1 text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Loading case timeline...</p>
+                </div>
+              ) : caseDetails?.history && (
+                <div className={`pt-2 border-t ${isDark ? "border-slate-800" : "border-slate-200"}`}>
+                  <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    Lifecycle Audit Trail
+                  </span>
                   <div className="mt-2 space-y-2">
                     {caseDetails.history.map((h, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-[11px]">
-                        <Clock size={12} className="text-sky-400 shrink-0 mt-0.5" />
+                        <Clock size={12} className={`${isDark ? "text-sky-400" : "text-blue-600"} shrink-0 mt-0.5`} />
                         <div>
-                          <p className="text-white font-medium">{h.description}</p>
-                          <p className="text-[9px] text-slate-500">{h.created_at ? new Date(h.created_at).toLocaleString() : ""}</p>
+                          <p className={`font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{h.description}</p>
+                          <p className={`text-[9px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                            {h.created_at ? new Date(h.created_at).toLocaleString() : ""}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -985,7 +1415,8 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal }) {
               )}
             </div>
 
-            <div className="pt-2 border-t border-slate-800 flex gap-2">
+            {/* Modal Actions */}
+            <div className={`pt-2 border-t ${isDark ? "border-slate-800" : "border-slate-200"}`}>
               <button
                 type="button"
                 onClick={() => {
@@ -993,7 +1424,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal }) {
                   setSelectedCase(null);
                   onTrackExternal(id);
                 }}
-                className="flex-1 rounded-xl bg-sky-600 py-2 text-center text-xs font-semibold text-white hover:bg-sky-500"
+                className="w-full rounded-xl bg-sky-600 py-2.5 text-center text-xs font-bold text-white hover:bg-sky-500 shadow-sm"
               >
                 Track in Detail
               </button>
@@ -1008,7 +1439,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal }) {
 // -------------------------------------------------------------
 // 4. TRACK ANY CASE SCREEN
 // -------------------------------------------------------------
-function CitizenTrackCaseScreen({ initialCaseId }) {
+function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
   const [caseRef, setCaseRef] = useState(initialCaseId || "");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -1043,17 +1474,22 @@ function CitizenTrackCaseScreen({ initialCaseId }) {
   return (
     <div className="p-4 space-y-4">
       <div>
-        <h2 className="text-base font-bold text-white flex items-center gap-1.5">
-          <Search size={18} className="text-sky-400" /> Track Any Grievance
+        <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+          <Search size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
+          Track Any Grievance
         </h2>
-        <p className="text-[11px] text-slate-400">Public tracking via Case Reference ID</p>
+        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Public tracking via Case Reference ID</p>
       </div>
 
       <div className="flex gap-2">
         <input
           type="text"
           placeholder="e.g. CMP-2026-000001"
-          className="flex-1 rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-mono uppercase text-white placeholder-slate-500 outline-none focus:border-sky-500"
+          className={`flex-1 rounded-xl border px-3 py-2 text-xs font-mono uppercase outline-none focus:border-sky-500 ${
+            isDark
+              ? "border-slate-800 bg-slate-950 text-white placeholder-slate-500"
+              : "border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-xs"
+          }`}
           value={caseRef}
           onChange={(e) => setCaseRef(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === "Enter" && handleTrack()}
@@ -1062,33 +1498,45 @@ function CitizenTrackCaseScreen({ initialCaseId }) {
           type="button"
           disabled={loading}
           onClick={() => handleTrack()}
-          className="rounded-xl bg-sky-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-sky-500 disabled:opacity-50"
+          className="rounded-xl bg-sky-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-sky-500 disabled:opacity-50 shadow-sm"
         >
           {loading ? <RefreshCw size={14} className="animate-spin" /> : "Track"}
         </button>
       </div>
 
       {errorMsg && (
-        <div className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs text-rose-300 flex items-start gap-2">
+        <div
+          className={`rounded-xl border p-3 text-xs flex items-start gap-2 ${
+            isDark ? "border-rose-500/30 bg-rose-950/40 text-rose-300" : "border-rose-300 bg-rose-50 text-rose-800"
+          }`}
+        >
           <AlertTriangle size={14} className="shrink-0 mt-0.5" />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {data && (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 space-y-3 text-xs">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div
+          className={`rounded-2xl border p-4 space-y-3 text-xs shadow-md ${
+            isDark ? "border-slate-800 bg-slate-900/90 text-white" : "border-slate-200 bg-white text-slate-900 shadow-slate-200/50"
+          }`}
+        >
+          <div className={`flex items-center justify-between border-b pb-2.5 ${isDark ? "border-slate-800" : "border-slate-200"}`}>
             <div>
-              <span className="font-mono text-sm font-bold text-sky-400">{data.case_id}</span>
-              <p className="text-[10px] text-slate-400">{data.category}</p>
+              <span className={`font-mono text-sm font-bold ${isDark ? "text-sky-400" : "text-blue-600"}`}>
+                {data.case_id}
+              </span>
+              <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{data.category}</p>
             </div>
             <span
               className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
                 data.status === "Resolved"
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                  ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
                   : data.status === "In Progress"
-                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                  : "bg-sky-500/20 text-sky-400 border border-sky-500/30"
+                  ? "bg-amber-500/20 text-amber-500 border border-amber-500/30"
+                  : isDark
+                  ? "bg-sky-500/20 text-sky-400 border border-sky-500/30"
+                  : "bg-blue-100 text-blue-700 border border-blue-200"
               }`}
             >
               {data.status}
@@ -1096,30 +1544,40 @@ function CitizenTrackCaseScreen({ initialCaseId }) {
           </div>
 
           <div>
-            <span className="text-[10px] font-semibold uppercase text-slate-400">Subject</span>
-            <p className="text-white font-semibold">{data.subject}</p>
+            <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              Subject
+            </span>
+            <p className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{data.subject}</p>
           </div>
 
           <div>
-            <span className="text-[10px] font-semibold uppercase text-slate-400">Institution</span>
-            <p className="text-slate-200">{data.institution_name} ({data.institution_code})</p>
+            <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              Institution
+            </span>
+            <p className={isDark ? "text-slate-200" : "text-slate-700"}>
+              {data.institution_name} ({data.institution_code})
+            </p>
           </div>
 
           <div>
-            <span className="text-[10px] font-semibold uppercase text-slate-400">Assigned Bureau</span>
-            <p className="text-slate-300">{data.bureau || "Central Review Bureau"}</p>
+            <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              Assigned Bureau
+            </span>
+            <p className={isDark ? "text-slate-300" : "text-slate-700"}>{data.bureau || "Central Review Bureau"}</p>
           </div>
 
           {/* Timeline */}
           {data.history && data.history.length > 0 && (
-            <div className="pt-2 border-t border-slate-800">
-              <span className="text-[10px] font-semibold uppercase text-slate-400">Activity Timeline</span>
-              <div className="mt-2.5 space-y-2 border-l border-slate-800 pl-3 ml-1">
+            <div className={`pt-2 border-t ${isDark ? "border-slate-800" : "border-slate-200"}`}>
+              <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                Activity Timeline
+              </span>
+              <div className={`mt-2.5 space-y-2 border-l pl-3 ml-1 ${isDark ? "border-slate-800" : "border-slate-300"}`}>
                 {data.history.map((h, i) => (
                   <div key={i} className="relative text-[11px]">
-                    <div className="absolute -left-[17px] top-1 h-2 w-2 rounded-full bg-sky-400" />
-                    <p className="text-white font-medium">{h.description}</p>
-                    <p className="text-[9px] text-slate-500 mt-0.5">
+                    <div className={`absolute -left-[17px] top-1 h-2 w-2 rounded-full ${isDark ? "bg-sky-400" : "bg-blue-600"}`} />
+                    <p className={`font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{h.description}</p>
+                    <p className={`text-[9px] mt-0.5 ${isDark ? "text-slate-500" : "text-slate-400"}`}>
                       {h.actor_role} ({h.actor_name}) • {h.created_at ? new Date(h.created_at).toLocaleString() : ""}
                     </p>
                   </div>
@@ -1136,7 +1594,7 @@ function CitizenTrackCaseScreen({ initialCaseId }) {
 // -------------------------------------------------------------
 // 5. PROFILE & SETTINGS SCREEN
 // -------------------------------------------------------------
-function CitizenProfileScreen({ citizen, onLogout }) {
+function CitizenProfileScreen({ citizen, onLogout, isDark }) {
   const [serverUrl, setServerUrl] = useState(getCitizenBaseUrl());
   const [editingUrl, setEditingUrl] = useState(false);
   const [tempUrl, setTempUrl] = useState(serverUrl);
@@ -1153,72 +1611,115 @@ function CitizenProfileScreen({ citizen, onLogout }) {
   return (
     <div className="p-4 space-y-4">
       <div>
-        <h2 className="text-base font-bold text-white flex items-center gap-1.5">
-          <UserRound size={18} className="text-sky-400" /> Account & Settings
+        <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+          <UserRound size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
+          Citizen Profile
         </h2>
-        <p className="text-[11px] text-slate-400">Authenticated Citizen Profile</p>
+        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Session authentication & preferences</p>
       </div>
 
       {saveToast && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-2.5 text-xs text-emerald-300">
-          Server endpoint updated successfully!
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-500 flex items-center gap-2">
+          <CheckCircle2 size={16} />
+          <span>Server URL successfully updated.</span>
         </div>
       )}
 
-      {/* Profile Card */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 space-y-3">
+      {/* Account Card */}
+      <div
+        className={`rounded-2xl border p-4 space-y-3 ${
+          isDark ? "border-slate-800 bg-slate-900/90 text-white" : "border-slate-200 bg-white text-slate-900 shadow-xs"
+        }`}
+      >
         <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-sky-500/20 text-sky-400 font-bold text-lg">
-            {citizen.full_name ? citizen.full_name[0].toUpperCase() : citizen.email[0].toUpperCase()}
+          <div
+            className={`grid h-12 w-12 place-items-center rounded-2xl ${
+              isDark ? "bg-sky-500/20 text-sky-400" : "bg-blue-100 text-blue-600"
+            }`}
+          >
+            <UserRound size={24} />
           </div>
-          <div className="flex-1 truncate">
-            <h3 className="text-sm font-bold text-white truncate">{citizen.full_name || "Citizen User"}</h3>
-            <p className="text-xs text-slate-400 truncate">{citizen.email}</p>
-            {citizen.phone && <p className="text-[11px] text-slate-500">+91 {citizen.phone}</p>}
+          <div>
+            <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+              {citizen.full_name || "Verified Citizen"}
+            </h3>
+            <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>{citizen.email}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-400">
-          <ShieldCheck size={14} />
-          <span>Email Authenticated (Google Apps Script / Brevo)</span>
+        <div className={`space-y-1.5 pt-2 border-t text-xs ${isDark ? "border-slate-800 text-slate-300" : "border-slate-200 text-slate-700"}`}>
+          <div className="flex justify-between">
+            <span className={isDark ? "text-slate-500" : "text-slate-400"}>Phone</span>
+            <span>{citizen.phone || "Not configured"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className={isDark ? "text-slate-500" : "text-slate-400"}>Auth Provider</span>
+            <span>Secure Email OTP</span>
+          </div>
+          <div className="flex justify-between">
+            <span className={isDark ? "text-slate-500" : "text-slate-400"}>Status</span>
+            <span className="font-semibold text-emerald-500 flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Active Session
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Server Endpoint Settings */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 space-y-2 text-xs">
+      {/* Backend API Config */}
+      <div
+        className={`rounded-2xl border p-4 space-y-2.5 ${
+          isDark ? "border-slate-800 bg-slate-900/90" : "border-slate-200 bg-white shadow-xs"
+        }`}
+      >
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-white flex items-center gap-1.5">
-            <Server size={14} className="text-sky-400" /> Backend API Endpoint
+          <span className={`font-semibold text-xs flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+            <Server size={14} className={isDark ? "text-sky-400" : "text-blue-600"} />
+            Backend API Endpoint
           </span>
-          <button
-            type="button"
-            onClick={() => setEditingUrl(!editingUrl)}
-            className="text-[11px] text-sky-400 hover:underline"
-          >
-            {editingUrl ? "Cancel" : "Edit"}
-          </button>
+          {!editingUrl ? (
+            <button
+              type="button"
+              onClick={() => {
+                setTempUrl(serverUrl);
+                setEditingUrl(true);
+              }}
+              className={`text-[10px] font-semibold hover:underline ${isDark ? "text-sky-400" : "text-blue-600"}`}
+            >
+              Edit
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEditingUrl(false)}
+              className="text-[10px] text-slate-400 hover:text-slate-200"
+            >
+              Cancel
+            </button>
+          )}
         </div>
 
-        {editingUrl ? (
+        {!editingUrl ? (
+          <p className={`font-mono text-[10px] break-all ${isDark ? "text-slate-400" : "text-slate-600"}`}>{serverUrl}</p>
+        ) : (
           <div className="space-y-2 pt-1">
             <input
               type="text"
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
+              className={`w-full rounded-xl border px-2.5 py-1.5 text-xs outline-none focus:border-sky-500 ${
+                isDark ? "border-slate-700 bg-slate-950 text-white" : "border-slate-300 bg-slate-50 text-slate-900"
+              }`}
               value={tempUrl}
               onChange={(e) => setTempUrl(e.target.value)}
             />
-            <button
-              type="button"
-              onClick={handleSave}
-              className="w-full rounded-xl bg-sky-600 py-2 text-xs font-bold text-white hover:bg-sky-500"
-            >
-              Save Endpoint
-            </button>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleSave}
+                className="rounded-lg bg-sky-600 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-500"
+              >
+                Save Endpoint
+              </button>
+            </div>
           </div>
-        ) : (
-          <p className="font-mono text-[11px] text-slate-400 break-all bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
-            {serverUrl}
-          </p>
         )}
       </div>
 
@@ -1226,9 +1727,10 @@ function CitizenProfileScreen({ citizen, onLogout }) {
       <button
         type="button"
         onClick={onLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-500/20"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 py-2.5 text-xs font-bold text-rose-500 transition hover:bg-rose-500 hover:text-white"
       >
-        <LogOut size={14} /> End Citizen Session
+        <LogOut size={14} />
+        <span>Log Out of Citizen Account</span>
       </button>
     </div>
   );

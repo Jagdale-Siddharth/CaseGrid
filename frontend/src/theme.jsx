@@ -10,10 +10,32 @@ export const PALETTE = {
 };
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(document.documentElement.dataset.theme || "light");
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem("theme") || "light";
+    } catch {
+      return "light";
+    }
+  });
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("theme", theme);
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      /* ignore */
+    }
   }, [theme]);
-  return <Ctx.Provider value={{ theme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")), c: PALETTE[theme] }}>{children}</Ctx.Provider>;
+
+  return (
+    <Ctx.Provider
+      value={{
+        theme,
+        toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+        c: PALETTE[theme] || PALETTE.light,
+      }}
+    >
+      {children}
+    </Ctx.Provider>
+  );
 }

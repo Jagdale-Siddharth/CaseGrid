@@ -1,8 +1,12 @@
 import { Info, QrCode } from "lucide-react";
 import { Card, H } from "../ui";
+import { useTheme } from "../theme";
 import NativeCitizenApp from "../components/NativeCitizenApp";
 
 export default function MobileDemo() {
+  const { theme } = useTheme() || {};
+  const isDark = theme === "dark";
+
   return (
     <>
       <H
@@ -18,19 +22,33 @@ export default function MobileDemo() {
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         {/* Left Side: Virtual Phone Container */}
         <div className="flex flex-col items-center">
-          <div className="relative mx-auto w-full max-w-[390px] rounded-[48px] border-[12px] border-slate-900 bg-slate-900 p-2 shadow-2xl">
+          <div
+            className={`relative mx-auto w-full max-w-[390px] rounded-[48px] border-[12px] p-2 transition-all duration-200 ${
+              isDark
+                ? "border-slate-850 bg-slate-900 shadow-2xl shadow-black/80"
+                : "border-slate-800 bg-slate-800 shadow-2xl shadow-slate-400/40"
+            }`}
+          >
             {/* Top Phone Notch / Dynamic Island */}
             <div className="absolute left-1/2 top-4 z-20 h-5 w-28 -translate-x-1/2 rounded-full bg-black flex items-center justify-center">
               <span className="h-2 w-2 rounded-full bg-slate-800" />
             </div>
 
             {/* Screen Area: Native Citizen Mobile App Embedded Directly */}
-            <div className="relative h-[680px] w-full overflow-hidden rounded-[36px] bg-slate-950 pt-3">
-              <NativeCitizenApp />
+            <div
+              className={`relative h-[680px] w-full overflow-hidden rounded-[36px] pt-3 transition-colors duration-200 ${
+                isDark ? "bg-slate-950" : "bg-slate-50"
+              }`}
+            >
+              <NativeCitizenApp themeOverride={theme} />
             </div>
 
             {/* Bottom Home Indicator */}
-            <div className="absolute bottom-3 left-1/2 h-1 w-32 -translate-x-1/2 rounded-full bg-slate-600 pointer-events-none" />
+            <div
+              className={`absolute bottom-3 left-1/2 h-1 w-32 -translate-x-1/2 rounded-full pointer-events-none transition-colors ${
+                isDark ? "bg-slate-600" : "bg-slate-400"
+              }`}
+            />
           </div>
         </div>
 
@@ -48,7 +66,7 @@ export default function MobileDemo() {
                 <b>Lodge Grievance</b>: Select an institution (e.g. <i>Sahyadri Institute of Technology</i>), select <i>Infrastructure</i>, and write a description.
               </li>
               <li>
-                <b>Verifiable Evidence</b>: Capture a field photo (auto-embeds live GPS coordinates & physical address) and attach a document.
+                <b>Live Laptop Camera & Geotag</b>: Open the camera directly on your laptop to capture evidence with real-time GPS coordinates.
               </li>
               <li>
                 <b>Verify Live Intake</b>: Switch to the <b>Cases</b> tab or <b>Dashboard</b> on this portal to see your complaint registered immediately.
@@ -70,7 +88,7 @@ export default function MobileDemo() {
               </div>
               <div className="rounded-lg bg-raised p-2.5">
                 <span className="font-bold text-ink">Field Evidence</span>
-                <p className="text-muted mt-0.5">Device GPS & Reverse Geocoding</p>
+                <p className="text-muted mt-0.5">Laptop Webcam & Live Geocoding</p>
               </div>
               <div className="rounded-lg bg-raised p-2.5">
                 <span className="font-bold text-ink">Authentication</span>
