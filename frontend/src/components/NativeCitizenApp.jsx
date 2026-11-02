@@ -914,10 +914,6 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
         </div>
       </div>
 
-      {/* Footer Info */}
-      <div className={`pt-4 pb-2 text-center text-[10px] ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-        <span>{t("encryptedNotice")}</span>
-      </div>
     </div>
   );
 }
