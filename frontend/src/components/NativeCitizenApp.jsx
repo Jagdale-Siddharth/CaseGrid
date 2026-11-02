@@ -350,6 +350,61 @@ export const TRANSLATIONS = {
   },
 };
 
+export const CATEGORY_TRANSLATIONS = {
+  Infrastructure: {
+    en: "Infrastructure",
+    hi: "बुनियादी ढांचा (Infrastructure)",
+    mr: "पायाभूत सुविधा (Infrastructure)",
+  },
+  Faculty: {
+    en: "Faculty & Staff",
+    hi: "संकाय एवं शिक्षक वर्ग (Faculty)",
+    mr: "प्राध्यापक व शिक्षक वर्ग (Faculty)",
+  },
+  Fees: {
+    en: "Fees & Accounts",
+    hi: "शुल्क एवं वित्तीय (Fees)",
+    mr: "शुल्क व आर्थिक (Fees)",
+  },
+  Admissions: {
+    en: "Admissions",
+    hi: "प्रवेश प्रक्रिया (Admissions)",
+    mr: "प्रवेश प्रक्रिया (Admissions)",
+  },
+  Affiliation: {
+    en: "Affiliation & Approval",
+    hi: "संबद्धता एवं मान्यता (Affiliation)",
+    mr: "संलग्नता व मान्यता (Affiliation)",
+  },
+  "Academic Quality": {
+    en: "Academic Quality",
+    hi: "शैक्षणिक गुणवत्ता (Academic Quality)",
+    mr: "शैक्षणिक दर्जा (Academic Quality)",
+  },
+  Curriculum: {
+    en: "Curriculum & Syllabus",
+    hi: "पाठ्यक्रम (Curriculum)",
+    mr: "अभ्यासक्रम (Curriculum)",
+  },
+  Harassment: {
+    en: "Anti-Ragging & Harassment",
+    hi: "उत्पीड़न / रैगिंग (Anti-Ragging)",
+    mr: "छळवणूक / रॅगिंग विरोधी (Anti-Ragging)",
+  },
+  Other: {
+    en: "Other / General",
+    hi: "अन्य / सामान्य (Other)",
+    mr: "इतर / सर्वसाधारण (Other)",
+  },
+};
+
+export function getCategoryLabel(cat, lang = "en") {
+  if (!cat) return "";
+  const match = CATEGORY_TRANSLATIONS[cat];
+  if (match && match[lang]) return match[lang];
+  return cat;
+}
+
 export default function NativeCitizenApp({ themeOverride }) {
   const { theme: ctxTheme } = useTheme() || {};
   const currentTheme = themeOverride || ctxTheme || "light";
@@ -494,6 +549,7 @@ export default function NativeCitizenApp({ themeOverride }) {
                 onComplaintCreated={handleComplaintCreated}
                 isDark={isDark}
                 t={t}
+                lang={lang}
               />
             )}
             {activeTab === "my" && (
@@ -505,10 +561,11 @@ export default function NativeCitizenApp({ themeOverride }) {
                 }}
                 isDark={isDark}
                 t={t}
+                lang={lang}
               />
             )}
             {activeTab === "track" && (
-              <CitizenTrackCaseScreen initialCaseId={prefilledTrackCaseId} isDark={isDark} t={t} />
+              <CitizenTrackCaseScreen initialCaseId={prefilledTrackCaseId} isDark={isDark} t={t} lang={lang} />
             )}
             {activeTab === "profile" && (
               <CitizenProfileScreen
@@ -928,7 +985,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
 // -------------------------------------------------------------
 // 2. NEW COMPLAINT SCREEN (With Live Laptop Webcam Viewfinder)
 // -------------------------------------------------------------
-function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark, t }) {
+function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark, t, lang }) {
   const [institutions, setInstitutions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingMeta, setLoadingMeta] = useState(true);
@@ -1216,7 +1273,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark,
           >
             {categories.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {getCategoryLabel(c, lang)}
               </option>
             ))}
           </select>
@@ -1589,7 +1646,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark,
 // -------------------------------------------------------------
 // 3. MY COMPLAINTS SCREEN (With In-Phone Grievance Modal)
 // -------------------------------------------------------------
-function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark, t }) {
+function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark, t, lang }) {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCase, setSelectedCase] = useState(null);
@@ -1719,7 +1776,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark, t }) {
                 <span className={`font-mono text-xs font-bold ${isDark ? "text-sky-400" : "text-blue-600"}`}>
                   {selectedCase.case_id}
                 </span>
-                <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{selectedCase.category}</p>
+                <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{getCategoryLabel(selectedCase.category, lang)}</p>
               </div>
               <button
                 type="button"
@@ -1820,7 +1877,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark, t }) {
 // -------------------------------------------------------------
 // 4. TRACK ANY CASE SCREEN
 // -------------------------------------------------------------
-function CitizenTrackCaseScreen({ initialCaseId, isDark, t }) {
+function CitizenTrackCaseScreen({ initialCaseId, isDark, t, lang }) {
   const [caseRef, setCaseRef] = useState(initialCaseId || "");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -1907,7 +1964,7 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark, t }) {
               <span className={`font-mono text-sm font-bold ${isDark ? "text-sky-400" : "text-blue-600"}`}>
                 {data.case_id}
               </span>
-              <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{data.category}</p>
+              <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{getCategoryLabel(data.category, lang)}</p>
             </div>
             <span
               className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
