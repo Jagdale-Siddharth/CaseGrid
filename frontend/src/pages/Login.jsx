@@ -118,44 +118,6 @@ export default function Login({ initialTab = "citizen" }) {
         <Tricolor className="h-1" />
       </header>
 
-      {/* Sticky Blue Navigation Bar with the 2 Portal Options in the Top Right */}
-      <div className="sticky top-0 z-30 bg-nav text-white shadow-md">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-4 sm:px-8">
-          <div className="flex items-center gap-2 py-2.5 text-xs font-semibold text-white/80">
-            <span className="inline-block h-2 w-2 rounded-full bg-accent animate-pulse" />
-            <span className="hidden sm:inline">AICTE Grievance Redressal & Bureau Coordination Portal</span>
-            <span className="sm:hidden">AICTE Portal</span>
-          </div>
-
-          <nav aria-label="Portal Navigation" className="flex items-center gap-1.5 py-1.5">
-            <button
-              type="button"
-              onClick={() => handleTabChange("citizen")}
-              className={`flex items-center gap-2 rounded-md px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition ${
-                tab === "citizen"
-                  ? "bg-accent text-onaccent shadow-sm"
-                  : "text-white/80 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <Smartphone size={15} />
-              <span>Register a Complaint</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleTabChange("officer")}
-              className={`flex items-center gap-2 rounded-md px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition ${
-                tab === "officer"
-                  ? "bg-accent text-onaccent shadow-sm"
-                  : "text-white/80 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <ShieldCheck size={15} />
-              <span>Officer Sign In</span>
-            </button>
-          </nav>
-        </div>
-      </div>
-
       {/* Breadcrumb Bar */}
       <nav aria-label="Breadcrumb" className="border-b border-line bg-surface">
         <ol className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-1.5 px-4 py-2 text-xs text-muted sm:px-8">

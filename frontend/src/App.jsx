@@ -14,7 +14,6 @@ import Alerts from "./pages/Alerts";
 import Reports from "./pages/Reports";
 import Audit from "./pages/Audit";
 import Admin from "./pages/Admin";
-import MobileDemo from "./pages/MobileDemo";
 
 function Guard({ perm, children }) {
   const { user, ready, can } = useAuth();
@@ -39,8 +38,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login initialTab="officer" />} />
-      <Route path="/register-complaint" element={user ? <Navigate to="/mobile-app" replace /> : <Login initialTab="citizen" />} />
-      <Route path="/citizen" element={user ? <Navigate to="/mobile-app" replace /> : <Login initialTab="citizen" />} />
+      <Route path="/register-complaint" element={<Login initialTab="citizen" />} />
+      <Route path="/citizen" element={<Login initialTab="citizen" />} />
+      <Route path="/mobile-app" element={<Login initialTab="citizen" />} />
 
       {user ? (
         <Route element={<Guard><Layout /></Guard>}>
@@ -56,7 +56,6 @@ export default function App() {
           <Route path="reports" element={g("report:view", <Reports />)} />
           <Route path="audit" element={g("audit:read", <Audit />)} />
           <Route path="admin" element={g("user:manage", <Admin />)} />
-          <Route path="mobile-app" element={g("case:read", <MobileDemo />)} />
         </Route>
       ) : (
         <Route path="/" element={<Login initialTab="citizen" />} />

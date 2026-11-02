@@ -12,12 +12,7 @@ export default function MobileDemo() {
       <H
         title="Citizen Mobile App (Live Demo)"
         sub="Test the citizen grievance portal in real-time. Any complaint submitted here communicates with the live database and appears on the AICTE Dashboard."
-      >
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          Live Cloud Connected
-        </span>
-      </H>
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         {/* Left Side: Virtual Phone Container */}
