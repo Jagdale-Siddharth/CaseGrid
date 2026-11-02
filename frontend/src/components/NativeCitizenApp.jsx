@@ -25,6 +25,7 @@ import {
   ChevronRight,
   Sparkles,
   Video,
+  Languages,
 } from "lucide-react";
 import { useTheme } from "../theme";
 import {
@@ -41,11 +42,342 @@ import {
 
 const TOKEN_KEY = "@aicte_citizen_token";
 const USER_KEY = "@aicte_citizen_user";
+const LANG_KEY = "@aicte_citizen_lang";
+
+export const TRANSLATIONS = {
+  en: {
+    portalTitle: "AICTE Grievance Portal",
+    portalSubtitle: "Citizen & Student Mobile Access",
+    encryptedNotice: "AICTE Central Redressal System • 256-bit Encrypted",
+    tabFile: "File Grievance",
+    tabMyCases: "My Cases",
+    tabTrack: "Track Any",
+    tabAccount: "Account",
+    signInTitle: "Sign In / Authenticate",
+    signInSubtitle: "Enter your email address to receive a secure one-time verification code.",
+    emailLabel: "Email Address *",
+    emailPlaceholder: "e.g. rahul.sharma@example.com",
+    sendOtpBtn: "Send Verification Code",
+    sendingOtp: "Dispatching OTP...",
+    otpSentSuccess: "A 6-digit verification code has been dispatched to {email}. Check your inbox or spam.",
+    enterCodeTitle: "Enter 6-Digit Code",
+    codeSentTo: "Code sent to",
+    changeEmail: "Change",
+    otpLabel: "6-Digit OTP Code *",
+    otpPlaceholder: "123456",
+    nameLabel: "Full Name (Optional)",
+    namePlaceholder: "e.g. Rahul Sharma",
+    phoneLabel: "Mobile Phone (Optional)",
+    phonePlaceholder: "e.g. 9876543210",
+    verifyBtn: "Verify & Enter Portal",
+    verifying: "Authenticating...",
+    resendCode: "Resend Code",
+    validEmailError: "Please enter a valid email address.",
+    enter6Digits: "Please enter the 6-digit verification code.",
+    lodgeTitle: "Lodge Citizen Grievance",
+    registeredUnder: "Registered under citizen:",
+    instLabel: "AICTE Approved Institution *",
+    selectInstPlaceholder: "Select an institution...",
+    instCode: "Code:",
+    categoryLabel: "Grievance Category *",
+    subjectLabel: "Subject / Headline *",
+    subjectPlaceholder: "e.g. Inadequate lab equipment in Computer Center",
+    descLabel: "Detailed Grievance Description *",
+    descPlaceholder: "Describe the issue, dates, personnel involved and impact...",
+    urgentLabel: "Urgent Attention Needed",
+    urgentSub: "Escalates ticket directly to AICTE priority review",
+    fieldPhotoLabel: "Field Photo (With Geotag)",
+    takePhotoLaptop: "Take Photo with Laptop Camera",
+    uploadImageFile: "Or upload image from file",
+    readingGps: "Reading GPS coordinates...",
+    gpsAttached: "GPS attached",
+    removePhoto: "Remove",
+    docLabel: "Supporting Document (PDF / Doc)",
+    attachDoc: "Attach document evidence",
+    submitComplaint: "Submit Grievance to AICTE",
+    transmitting: "Transmitting Complaint...",
+    selectApprovedInst: "Please select an approved institution.",
+    selectCategory: "Please select a grievance category.",
+    validSubject: "Please provide a valid subject (at least 3 characters).",
+    validDesc: "Please describe your grievance in detail (at least 10 characters).",
+    cameraTitle: "Laptop Camera Viewfinder",
+    locatingGps: "Locating GPS...",
+    gpsActive: "GPS Active",
+    refreshGps: "Refresh GPS",
+    cancel: "Cancel",
+    uploadFile: "Upload File",
+    cameraError: "Camera access denied or webcam not available on this device.",
+    cameraHelp: "Please allow camera permission in your browser or upload an image file instead.",
+    retryCamera: "Retry Camera",
+    selectInstModalTitle: "Select Institution",
+    searchInstPlaceholder: "Search by college name or code...",
+    myGrievancesTitle: "My Grievances",
+    myGrievancesSub: "Complaints filed from this account",
+    refreshList: "Refresh List",
+    loadingGrievances: "Loading grievance records...",
+    noGrievances: "No complaints registered yet",
+    noGrievancesSub: "Use the \"File Grievance\" tab to lodge your first official issue.",
+    trackInDetail: "Track in Detail",
+    subjectModal: "Subject",
+    instModal: "Institution",
+    descModal: "Description",
+    geotagEvidence: "Geotag Evidence",
+    auditTrail: "Lifecycle Audit Trail",
+    loadingTimeline: "Loading case timeline...",
+    trackAnyTitle: "Track Any Grievance",
+    trackAnySub: "Public tracking via Case Reference ID",
+    trackPlaceholder: "e.g. CMP-2026-000001",
+    trackBtn: "Track",
+    assignedBureau: "Assigned Bureau",
+    activityTimeline: "Activity Timeline",
+    enterCaseRef: "Please enter a Case Reference ID (e.g. CMP-2026-000001)",
+    profileTitle: "Citizen Profile",
+    profileSub: "Session authentication & preferences",
+    languageSetting: "Language / भाषा",
+    verifiedCitizen: "Verified Citizen",
+    phone: "Phone",
+    notConfigured: "Not configured",
+    authProvider: "Auth Provider",
+    secureOtp: "Secure Email OTP",
+    status: "Status",
+    activeSession: "Active Session",
+    backendEndpoint: "Backend API Endpoint",
+    edit: "Edit",
+    saveEndpoint: "Save Endpoint",
+    logOut: "Log Out of Citizen Account",
+  },
+  hi: {
+    portalTitle: "एआईसीटीई शिकायत निवारण पोर्टल",
+    portalSubtitle: "नागरिक एवं छात्र मोबाइल सेवा",
+    encryptedNotice: "एआईसीटीई केंद्रीय निवारण प्रणाली • 256-बिट एन्क्रिप्टेड",
+    tabFile: "शिकायत दर्ज करें",
+    tabMyCases: "मेरी शिकायतें",
+    tabTrack: "ट्रैक करें",
+    tabAccount: "खाता",
+    signInTitle: "लॉग इन / प्रमाणीकरण",
+    signInSubtitle: "सुरक्षित वन-टाइम सत्यापन कोड प्राप्त करने के लिए अपना ईमेल दर्ज करें।",
+    emailLabel: "ईमेल पता *",
+    emailPlaceholder: "उदा. rahul.sharma@example.com",
+    sendOtpBtn: "सत्यापन कोड भेजें",
+    sendingOtp: "ओटीपी भेजा जा रहा है...",
+    otpSentSuccess: "{email} पर 6-अंकों का सत्यापन कोड भेज दिया गया है। अपना इनबॉक्स या स्पैम जांचें।",
+    enterCodeTitle: "6-अंकों का कोड दर्ज करें",
+    codeSentTo: "कोड भेजा गया:",
+    changeEmail: "बदलें",
+    otpLabel: "6-अंकीय ओटीपी कोड *",
+    otpPlaceholder: "123456",
+    nameLabel: "पूरा नाम (वैकल्पिक)",
+    namePlaceholder: "उदा. राहुल शर्मा",
+    phoneLabel: "मोबाइल नंबर (वैकल्पिक)",
+    phonePlaceholder: "उदा. 9876543210",
+    verifyBtn: "सत्यापित करें और प्रवेश करें",
+    verifying: "प्रमाणीकरण जारी...",
+    resendCode: "कोड पुनः भेजें",
+    validEmailError: "कृपया एक मान्य ईमेल पता दर्ज करें।",
+    enter6Digits: "कृपया 6-अंकों का सत्यापन कोड दर्ज करें।",
+    lodgeTitle: "नागरिक शिकायत दर्ज करें",
+    registeredUnder: "पंजीकृत नागरिक:",
+    instLabel: "एआईसीटीई अनुमोदित संस्थान *",
+    selectInstPlaceholder: "संस्थान चुनें...",
+    instCode: "कोड:",
+    categoryLabel: "शिकायत श्रेणी *",
+    subjectLabel: "विषय / शीर्षक *",
+    subjectPlaceholder: "उदा. कंप्यूटर लैब में उपकरणों की अनुपलब्धता",
+    descLabel: "शिकायत का विस्तृत विवरण *",
+    descPlaceholder: "मुद्दे, तारीख, संबंधित व्यक्तियों और प्रभाव का विवरण दें...",
+    urgentLabel: "अति आवश्यक ध्यान दें",
+    urgentSub: "शिकायत सीधे एआईसीटीई प्राथमिकता समीक्षा को भेजी जाएगी",
+    fieldPhotoLabel: "स्थल फोटो (जियोटैग सहित)",
+    takePhotoLaptop: "लैपटॉप कैमरे से फोटो लें",
+    uploadImageFile: "या फ़ाइल से छवि अपलोड करें",
+    readingGps: "जीपीएस निर्देशांक पढ़े जा रहे हैं...",
+    gpsAttached: "जीपीएस संलग्न",
+    removePhoto: "हटाएं",
+    docLabel: "सहायक दस्तावेज़ (PDF / Doc)",
+    attachDoc: "दस्तावेज़ साक्ष्य संलग्न करें",
+    submitComplaint: "एआईसीटीई को शिकायत सबमिट करें",
+    transmitting: "शिकायत प्रेषित हो रही है...",
+    selectApprovedInst: "कृपया एक अनुमोदित संस्थान चुनें।",
+    selectCategory: "कृपया एक शिकायत श्रेणी चुनें।",
+    validSubject: "कृपया एक मान्य विषय दर्ज करें (कम से कम 3 वर्ण)।",
+    validDesc: "कृपया विस्तृत विवरण दें (कम से कम 10 वर्ण)।",
+    cameraTitle: "लैपटॉप कैमरा दृश्य",
+    locatingGps: "जीपीएस खोज रहे हैं...",
+    gpsActive: "जीपीएस सक्रिय",
+    refreshGps: "जीपीएस ताज़ा करें",
+    cancel: "रद्द करें",
+    uploadFile: "फ़ाइल अपलोड करें",
+    cameraError: "कैमरा अनुमति अस्वीकृत या वेबकैम अनुपलब्ध है।",
+    cameraHelp: "कृपया ब्राउज़र में कैमरा अनुमति दें या फ़ाइल अपलोड करें।",
+    retryCamera: "पुनः प्रयास करें",
+    selectInstModalTitle: "संस्थान चुनें",
+    searchInstPlaceholder: "कॉलेज के नाम या कोड से खोजें...",
+    myGrievancesTitle: "मेरी शिकायतें",
+    myGrievancesSub: "इस खाते से दर्ज की गई शिकायतें",
+    refreshList: "सूची ताज़ा करें",
+    loadingGrievances: "शिकायत रिकॉर्ड लोड हो रहे हैं...",
+    noGrievances: "अभी तक कोई शिकायत दर्ज नहीं है",
+    noGrievancesSub: "अपनी पहली आधिकारिक शिकायत दर्ज करने के लिए \"शिकायत दर्ज करें\" का उपयोग करें।",
+    trackInDetail: "विस्तृत स्थिति ट्रैक करें",
+    subjectModal: "विषय",
+    instModal: "संस्थान",
+    descModal: "विवरण",
+    geotagEvidence: "जियोटैग साक्ष्य",
+    auditTrail: "जीवनचक्र ऑडिट ट्रेल",
+    loadingTimeline: "समयरेखा लोड हो रही है...",
+    trackAnyTitle: "किसी भी शिकायत को ट्रैक करें",
+    trackAnySub: "केस संदर्भ आईडी द्वारा सार्वजनिक ट्रैकिंग",
+    trackPlaceholder: "उदा. CMP-2026-000001",
+    trackBtn: "ट्रैक करें",
+    assignedBureau: "सौंपा गया ब्यूरो",
+    activityTimeline: "गतिविधि समयरेखा",
+    enterCaseRef: "कृपया केस संदर्भ आईडी दर्ज करें (उदा. CMP-2026-000001)",
+    profileTitle: "नागरिक प्रोफ़ाइल",
+    profileSub: "सत्र प्रमाणीकरण एवं प्राथमिकताएं",
+    languageSetting: "भाषा चुनें (Language)",
+    verifiedCitizen: "सत्यापित नागरिक",
+    phone: "फ़ोन",
+    notConfigured: "कॉन्फ़िगर नहीं",
+    authProvider: "प्रमाणीकरण प्रदाता",
+    secureOtp: "सुरक्षित ईमेल ओटीपी",
+    status: "स्थिति",
+    activeSession: "सक्रिय सत्र",
+    backendEndpoint: "बैकएंड एपीआई एंडपॉइंट",
+    edit: "संपादित करें",
+    saveEndpoint: "एंडपॉइंट सहेजें",
+    logOut: "नागरिक खाते से लॉग आउट करें",
+  },
+  mr: {
+    portalTitle: "एआयसीटीई तक्रार निवारण पोर्टल",
+    portalSubtitle: "नागरिक आणि विद्यार्थी मोबाइल सेवा",
+    encryptedNotice: "एआयसीटीई केंद्रीय निवारण प्रणाली • २५६-बिट एन्क्रिप्टेड",
+    tabFile: "तक्रार नोंदवा",
+    tabMyCases: "माझ्या तक्रारी",
+    tabTrack: "तक्रार शोधा",
+    tabAccount: "खाते",
+    signInTitle: "साइन इन / प्रमाणीकरण",
+    signInSubtitle: "सुरक्षित वन-टाइम व्हेरिफिकेशन कोड मिळवण्यासाठी आपला ईमेल प्रविष्ट करा.",
+    emailLabel: "ईमेल पत्ता *",
+    emailPlaceholder: "उदा. rahul.sharma@example.com",
+    sendOtpBtn: "व्हेरिफिकेशन कोड पाठवा",
+    sendingOtp: "ओटीपी पाठवला जात आहे...",
+    otpSentSuccess: "{email} वर ६-अंकी व्हेरिफिकेशन कोड पाठवला आहे. इनबॉक्स किंवा स्पॅम तपासा.",
+    enterCodeTitle: "६-अंकी कोड प्रविष्ट करा",
+    codeSentTo: "कोड पाठवला:",
+    changeEmail: "बदला",
+    otpLabel: "६-अंकी ओटीपी कोड *",
+    otpPlaceholder: "123456",
+    nameLabel: "पूर्ण नाव (पर्यायी)",
+    namePlaceholder: "उदा. राहुल शर्मा",
+    phoneLabel: "मोबाइल क्रमांक (पर्यायी)",
+    phonePlaceholder: "उदा. 9876543210",
+    verifyBtn: "सत्यापित करा आणि पुढे जा",
+    verifying: "प्रमाणीकरण सुरू आहे...",
+    resendCode: "कोड पुन्हा पाठवा",
+    validEmailError: "कृपया वैध ईमेल पत्ता प्रविष्ट करा.",
+    enter6Digits: "कृपया ६-अंकी व्हेरिफिकेशन कोड प्रविष्ट करा.",
+    lodgeTitle: "नागरिक तक्रार नोंदवा",
+    registeredUnder: "नोंदणीकृत नागरिक:",
+    instLabel: "एआयसीटीई मान्यताप्राप्त संस्था *",
+    selectInstPlaceholder: "संस्था निवडा...",
+    instCode: "संकेतांक:",
+    categoryLabel: "तक्रारीचा प्रकार *",
+    subjectLabel: "विषय / शीर्षक *",
+    subjectPlaceholder: "उदा. संगणक केंद्रात उपकरणांची अनुपलब्धता",
+    descLabel: "तक्रारीचे सविस्तर वर्णन *",
+    descPlaceholder: "समस्या, तारीख, संबंधित व्यक्ती आणि परिणामांचे वर्णन करा...",
+    urgentLabel: "तातडीचे लक्ष आवश्यक",
+    urgentSub: "तक्रार थेट एआयसीटीई प्राधान्य पुनरावलोकनासाठी पाठवली जाईल",
+    fieldPhotoLabel: "घटनास्थळाचे छायाचित्र (जिओटॅगसह)",
+    takePhotoLaptop: "लॅपटॉप कॅमेऱ्याने फोटो घ्या",
+    uploadImageFile: "किंवा फाईलमधून प्रतिमा अपलोड करा",
+    readingGps: "जीपीएस निर्देशांक मिळवत आहे...",
+    gpsAttached: "जीपीएस जोडले",
+    removePhoto: "काढून टाका",
+    docLabel: "पूरक कागदपत्रे (PDF / Doc)",
+    attachDoc: "कागदपत्र पुरावा जोडा",
+    submitComplaint: "एआयसीटीई कडे तक्रार सबमिट करा",
+    transmitting: "तक्रार पाठवली जात आहे...",
+    selectApprovedInst: "कृपया मान्यताप्राप्त संस्था निवडा.",
+    selectCategory: "कृपया तक्रारीचा प्रकार निवडा.",
+    validSubject: "कृपया वैध विषय प्रविष्ट करा (किमान ३ अक्षरे).",
+    validDesc: "कृपया सविस्तर वर्णन द्या (किमान १० अक्षरे).",
+    cameraTitle: "लॅपटॉप कॅमेरा दृश्य",
+    locatingGps: "जीपीएस शोधत आहे...",
+    gpsActive: "जीपीएस सक्रिय",
+    refreshGps: "जीपीएस रिफ्रेश करा",
+    cancel: "रद्द करा",
+    uploadFile: "फाईल अपलोड करा",
+    cameraError: "कॅमेरा परवानगी नाकारली किंवा वेबकॅम उपलब्ध नाही.",
+    cameraHelp: "कृपया ब्राउझरमध्ये कॅमेरा परवानगी द्या किंवा फाईल अपलोड करा.",
+    retryCamera: "पुन्हा प्रयत्न करा",
+    selectInstModalTitle: "संस्था निवडा",
+    searchInstPlaceholder: "कॉलेजचे नाव किंवा कोडद्वारे शोधा...",
+    myGrievancesTitle: "माझ्या तक्रारी",
+    myGrievancesSub: "या खात्यावरून नोंदवलेल्या तक्रारी",
+    refreshList: "सूची रिफ्रेश करा",
+    loadingGrievances: "तक्रार नोंदी लोड होत आहेत...",
+    noGrievances: "अद्याप कोणतीही तक्रार नोंदवलेली नाही",
+    noGrievancesSub: "पहिली तक्रार नोंदवण्यासाठी \"तक्रार नोंदवा\" टॅब वापरा.",
+    trackInDetail: "सविस्तर स्थिती ट्रॅक करा",
+    subjectModal: "विषय",
+    instModal: "संस्था",
+    descModal: "वर्णन",
+    geotagEvidence: "जिओटॅग पुरावा",
+    auditTrail: "जीवनचक्र ऑडिट ट्रेल",
+    loadingTimeline: "टाइमलाइन लोड होत आहे...",
+    trackAnyTitle: "कोणतीही तक्रार ट्रॅक करा",
+    trackAnySub: "केस संदर्भ आयडी द्वारे सार्वजनिक ट्रॅकिंग",
+    trackPlaceholder: "उदा. CMP-2026-000001",
+    trackBtn: "ट्रॅक करा",
+    assignedBureau: "नेमलेला विभाग",
+    activityTimeline: "कृती कालक्रम",
+    enterCaseRef: "कृपया केस संदर्भ आयडी प्रविष्ट करा (उदा. CMP-2026-000001)",
+    profileTitle: "नागरिक प्रोफाईल",
+    profileSub: "सत्र प्रमाणीकरण आणि प्राधान्ये",
+    languageSetting: "भाषा निवडा (Language)",
+    verifiedCitizen: "सत्यापित नागरिक",
+    phone: "फोन",
+    notConfigured: "कॉन्फिगर नाही",
+    authProvider: "प्रमाणीकरण प्रदाता",
+    secureOtp: "सुरक्षित ईमेल ओटीपी",
+    status: "स्थिती",
+    activeSession: "सक्रिय सत्र",
+    backendEndpoint: "बॅकएंड एपीआई एंडपॉईंट",
+    edit: "संपादित करा",
+    saveEndpoint: "एंडपॉईंट सेव्ह करा",
+    logOut: "नागरिक खात्यातून लॉग आउट व्हा",
+  },
+};
 
 export default function NativeCitizenApp({ themeOverride }) {
   const { theme: ctxTheme } = useTheme() || {};
   const currentTheme = themeOverride || ctxTheme || "light";
   const isDark = currentTheme === "dark";
+
+  // Language: 'en' (default) | 'hi' | 'mr'
+  const [lang, setLang] = useState(() => {
+    try {
+      return localStorage.getItem(LANG_KEY) || "en";
+    } catch {
+      return "en";
+    }
+  });
+
+  const handleLangChange = (newLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem(LANG_KEY, newLang);
+    } catch {}
+  };
+
+  const t = (key, params = {}) => {
+    let text = TRANSLATIONS[lang]?.[key] || TRANSLATIONS.en[key] || key;
+    for (const [k, v] of Object.entries(params)) {
+      text = text.replace(`{${k}}`, v);
+    }
+    return text;
+  };
 
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || null);
   const [citizen, setCitizen] = useState(() => {
@@ -87,13 +419,50 @@ export default function NativeCitizenApp({ themeOverride }) {
         isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
       }`}
     >
-      {/* Top Phone Status Bar Simulation */}
+      {/* Top Phone Status Bar Simulation with Mini Language Switcher */}
       <div
-        className={`flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-semibold tracking-wider transition-colors ${
+        className={`flex items-center justify-between px-5 pt-2.5 pb-1 text-[11px] font-semibold tracking-wider transition-colors ${
           isDark ? "text-slate-400" : "text-slate-600"
         }`}
       >
         <span>9:41</span>
+
+        {/* Header Language Switcher: EN | हिं | म */}
+        <div className={`flex items-center gap-0.5 rounded-full border p-0.5 text-[9px] shadow-xs ${
+          isDark ? "border-slate-800 bg-slate-900/90 text-slate-400" : "border-slate-300 bg-white text-slate-600"
+        }`}>
+          <button
+            type="button"
+            onClick={() => handleLangChange("en")}
+            className={`rounded-full px-1.5 py-0.5 font-bold transition ${
+              lang === "en" ? "bg-sky-600 text-white" : "hover:text-sky-500"
+            }`}
+            title="English"
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            onClick={() => handleLangChange("hi")}
+            className={`rounded-full px-1.5 py-0.5 font-bold transition ${
+              lang === "hi" ? "bg-sky-600 text-white" : "hover:text-sky-500"
+            }`}
+            title="हिंदी (Hindi)"
+          >
+            हिं
+          </button>
+          <button
+            type="button"
+            onClick={() => handleLangChange("mr")}
+            className={`rounded-full px-1.5 py-0.5 font-bold transition ${
+              lang === "mr" ? "bg-sky-600 text-white" : "hover:text-sky-500"
+            }`}
+            title="मराठी (Marathi)"
+          >
+            म
+          </button>
+        </div>
+
         <div className="flex items-center gap-1.5">
           <span className="text-[10px]">5G</span>
           <div className={`h-2.5 w-5 rounded-[3px] border p-0.5 ${isDark ? "border-slate-400" : "border-slate-500"}`}>
@@ -109,7 +478,13 @@ export default function NativeCitizenApp({ themeOverride }) {
         }`}
       >
         {!token || !citizen ? (
-          <CitizenAuthScreen onLoginSuccess={handleLoginSuccess} isDark={isDark} />
+          <CitizenAuthScreen
+            onLoginSuccess={handleLoginSuccess}
+            isDark={isDark}
+            t={t}
+            lang={lang}
+            onLangChange={handleLangChange}
+          />
         ) : (
           <>
             {activeTab === "new" && (
@@ -118,6 +493,7 @@ export default function NativeCitizenApp({ themeOverride }) {
                 citizen={citizen}
                 onComplaintCreated={handleComplaintCreated}
                 isDark={isDark}
+                t={t}
               />
             )}
             {activeTab === "my" && (
@@ -128,13 +504,21 @@ export default function NativeCitizenApp({ themeOverride }) {
                   setActiveTab("track");
                 }}
                 isDark={isDark}
+                t={t}
               />
             )}
             {activeTab === "track" && (
-              <CitizenTrackCaseScreen initialCaseId={prefilledTrackCaseId} isDark={isDark} />
+              <CitizenTrackCaseScreen initialCaseId={prefilledTrackCaseId} isDark={isDark} t={t} />
             )}
             {activeTab === "profile" && (
-              <CitizenProfileScreen citizen={citizen} onLogout={handleLogout} isDark={isDark} />
+              <CitizenProfileScreen
+                citizen={citizen}
+                onLogout={handleLogout}
+                isDark={isDark}
+                t={t}
+                lang={lang}
+                onLangChange={handleLangChange}
+              />
             )}
           </>
         )}
@@ -151,28 +535,28 @@ export default function NativeCitizenApp({ themeOverride }) {
             active={activeTab === "new"}
             onClick={() => setActiveTab("new")}
             icon={<PlusCircle size={20} />}
-            label="File Grievance"
+            label={t("tabFile")}
             isDark={isDark}
           />
           <TabButton
             active={activeTab === "my"}
             onClick={() => setActiveTab("my")}
             icon={<FolderOpen size={20} />}
-            label="My Cases"
+            label={t("tabMyCases")}
             isDark={isDark}
           />
           <TabButton
             active={activeTab === "track"}
             onClick={() => setActiveTab("track")}
             icon={<Search size={20} />}
-            label="Track Any"
+            label={t("tabTrack")}
             isDark={isDark}
           />
           <TabButton
             active={activeTab === "profile"}
             onClick={() => setActiveTab("profile")}
             icon={<UserRound size={20} />}
-            label="Account"
+            label={t("tabAccount")}
             isDark={isDark}
           />
         </nav>
@@ -197,7 +581,7 @@ function TabButton({ active, onClick, icon, label, isDark }) {
       }`}
     >
       <div className={`${active ? "scale-110" : "scale-100"} transition-transform`}>{icon}</div>
-      <span className="mt-1 text-[10px] tracking-tight">{label}</span>
+      <span className="mt-1 text-[10px] tracking-tight truncate max-w-[70px]">{label}</span>
     </button>
   );
 }
@@ -205,7 +589,7 @@ function TabButton({ active, onClick, icon, label, isDark }) {
 // -------------------------------------------------------------
 // 1. AUTH SCREEN (Email OTP)
 // -------------------------------------------------------------
-function CitizenAuthScreen({ onLoginSuccess, isDark }) {
+function CitizenAuthScreen({ onLoginSuccess, isDark, t }) {
   const [step, setStep] = useState("email"); // 'email' | 'otp'
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
@@ -219,7 +603,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
     if (!email.trim() || !email.includes("@")) {
-      setMsg({ type: "error", text: "Please enter a valid email address." });
+      setMsg({ type: "error", text: t("validEmailError") });
       return;
     }
     setLoading(true);
@@ -229,7 +613,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
       setStep("otp");
       setMsg({
         type: "success",
-        text: `A 6-digit verification code has been dispatched to ${email.trim()}. Check your inbox or spam.`,
+        text: t("otpSentSuccess", { email: email.trim() }),
       });
     } catch (err) {
       setMsg({ type: "error", text: err.message || "Failed to send code. Check server connection." });
@@ -241,7 +625,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
   const handleVerifyOtp = async (e) => {
     if (e) e.preventDefault();
     if (!otpCode.trim() || otpCode.trim().length < 6) {
-      setMsg({ type: "error", text: "Please enter the 6-digit verification code." });
+      setMsg({ type: "error", text: t("enter6Digits") });
       return;
     }
     setLoading(true);
@@ -281,10 +665,10 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
             </div>
             <div>
               <h2 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                AICTE Grievance Portal
+                {t("portalTitle")}
               </h2>
               <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                Citizen & Student Mobile Access
+                {t("portalSubtitle")}
               </p>
             </div>
           </div>
@@ -378,16 +762,16 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
                 <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  Sign In / Authenticate
+                  {t("signInTitle")}
                 </h3>
                 <p className={`mt-1 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  Enter your email address to receive a secure one-time verification code.
+                  {t("signInSubtitle")}
                 </p>
               </div>
 
               <div>
                 <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                  Email Address *
+                  {t("emailLabel")}
                 </label>
                 <div
                   className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
@@ -398,7 +782,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                   <input
                     type="email"
                     required
-                    placeholder="e.g. rahul.sharma@example.com"
+                    placeholder={t("emailPlaceholder")}
                     className={`ml-2.5 flex-1 bg-transparent text-xs outline-none ${
                       isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
                     }`}
@@ -415,7 +799,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50"
               >
                 {loading ? <RefreshCw size={14} className="animate-spin" /> : <ArrowRight size={14} />}
-                {loading ? "Dispatching OTP..." : "Send Verification Code"}
+                {loading ? t("sendingOtp") : t("sendOtpBtn")}
               </button>
             </form>
           ) : (
@@ -423,10 +807,10 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                    Enter 6-Digit Code
+                    {t("enterCodeTitle")}
                   </h3>
                   <p className={`mt-1 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                    Code sent to <span className={`font-semibold ${isDark ? "text-sky-400" : "text-blue-600"}`}>{email}</span>
+                    {t("codeSentTo")} <span className={`font-semibold ${isDark ? "text-sky-400" : "text-blue-600"}`}>{email}</span>
                   </p>
                 </div>
                 <button
@@ -434,13 +818,13 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                   onClick={() => setStep("email")}
                   className={`text-[11px] font-semibold hover:underline ${isDark ? "text-sky-400" : "text-blue-600"}`}
                 >
-                  Change
+                  {t("changeEmail")}
                 </button>
               </div>
 
               <div>
                 <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                  6-Digit OTP Code *
+                  {t("otpLabel")}
                 </label>
                 <div
                   className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
@@ -452,7 +836,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                     type="text"
                     maxLength={6}
                     required
-                    placeholder="123456"
+                    placeholder={t("otpPlaceholder")}
                     className={`ml-2.5 flex-1 bg-transparent text-sm font-mono tracking-widest outline-none ${
                       isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
                     }`}
@@ -465,7 +849,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
 
               <div>
                 <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                  Full Name (Optional)
+                  {t("nameLabel")}
                 </label>
                 <div
                   className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
@@ -475,7 +859,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                   <User size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
                   <input
                     type="text"
-                    placeholder="e.g. Rahul Sharma"
+                    placeholder={t("namePlaceholder")}
                     className={`ml-2.5 flex-1 bg-transparent text-xs outline-none ${
                       isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
                     }`}
@@ -488,7 +872,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
 
               <div>
                 <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                  Mobile Phone (Optional)
+                  {t("phoneLabel")}
                 </label>
                 <div
                   className={`mt-1.5 flex items-center rounded-xl border px-3 py-2 focus-within:border-sky-500 ${
@@ -498,7 +882,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                   <Phone size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
                   <input
                     type="tel"
-                    placeholder="e.g. 9876543210"
+                    placeholder={t("phonePlaceholder")}
                     className={`ml-2.5 flex-1 bg-transparent text-xs outline-none ${
                       isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
                     }`}
@@ -515,7 +899,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50"
               >
                 {loading ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-                {loading ? "Authenticating..." : "Verify & Enter Portal"}
+                {loading ? t("verifying") : t("verifyBtn")}
               </button>
 
               <div className="text-center pt-1">
@@ -525,7 +909,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
                   disabled={loading}
                   className={`text-[11px] font-semibold hover:underline ${isDark ? "text-sky-400" : "text-blue-600"}`}
                 >
-                  Resend Code
+                  {t("resendCode")}
                 </button>
               </div>
             </form>
@@ -535,7 +919,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
 
       {/* Footer Info */}
       <div className={`pt-4 pb-2 text-center text-[10px] ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-        <span>AICTE Central Redressal System • 256-bit Encrypted</span>
+        <span>{t("encryptedNotice")}</span>
       </div>
     </div>
   );
@@ -544,7 +928,7 @@ function CitizenAuthScreen({ onLoginSuccess, isDark }) {
 // -------------------------------------------------------------
 // 2. NEW COMPLAINT SCREEN (With Live Laptop Webcam Viewfinder)
 // -------------------------------------------------------------
-function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark }) {
+function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark, t }) {
   const [institutions, setInstitutions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingMeta, setLoadingMeta] = useState(true);
@@ -646,7 +1030,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
       }
     } catch (err) {
       console.error("Camera access error:", err);
-      setCameraError("Camera access denied or webcam not available on this device.");
+      setCameraError(t("cameraError"));
     }
   };
 
@@ -712,19 +1096,19 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedInst) {
-      setErrorMsg("Please select an approved institution.");
+      setErrorMsg(t("selectApprovedInst"));
       return;
     }
     if (!category) {
-      setErrorMsg("Please select a grievance category.");
+      setErrorMsg(t("selectCategory"));
       return;
     }
     if (subject.trim().length < 3) {
-      setErrorMsg("Please provide a valid subject (at least 3 characters).");
+      setErrorMsg(t("validSubject"));
       return;
     }
     if (description.trim().length < 10) {
-      setErrorMsg("Please describe your grievance in detail (at least 10 characters).");
+      setErrorMsg(t("validDesc"));
       return;
     }
 
@@ -765,10 +1149,10 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
       <div>
         <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
           <PlusCircle size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
-          Lodge Citizen Grievance
+          {t("lodgeTitle")}
         </h2>
         <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Registered under citizen: <span className={`font-semibold ${isDark ? "text-sky-400" : "text-blue-600"}`}>{citizen.email}</span>
+          {t("registeredUnder")} <span className={`font-semibold ${isDark ? "text-sky-400" : "text-blue-600"}`}>{citizen.email}</span>
         </p>
       </div>
 
@@ -790,7 +1174,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
         {/* Institution Selector */}
         <div>
           <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-            AICTE Approved Institution *
+            {t("instLabel")}
           </label>
           <button
             type="button"
@@ -805,11 +1189,11 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
               <Building2 size={16} className={isDark ? "text-sky-400 shrink-0" : "text-blue-600 shrink-0"} />
               <div className="truncate">
                 <p className={`font-semibold truncate ${isDark ? "text-white" : "text-slate-900"}`}>
-                  {selectedInst ? selectedInst.name : "Select an institution..."}
+                  {selectedInst ? selectedInst.name : t("selectInstPlaceholder")}
                 </p>
                 {selectedInst && (
                   <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                    Code: {selectedInst.code} • {selectedInst.city || "India"}
+                    {t("instCode")} {selectedInst.code} • {selectedInst.city || "India"}
                   </p>
                 )}
               </div>
@@ -821,7 +1205,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
         {/* Grievance Category */}
         <div>
           <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-            Grievance Category *
+            {t("categoryLabel")}
           </label>
           <select
             className={`mt-1.5 w-full rounded-xl border px-3 py-2 text-xs outline-none focus:border-sky-500 ${
@@ -841,12 +1225,12 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
         {/* Subject */}
         <div>
           <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-            Subject / Headline *
+            {t("subjectLabel")}
           </label>
           <input
             type="text"
             required
-            placeholder="e.g. Inadequate lab equipment in Computer Center"
+            placeholder={t("subjectPlaceholder")}
             className={`mt-1.5 w-full rounded-xl border px-3 py-2 text-xs outline-none focus:border-sky-500 ${
               isDark
                 ? "border-slate-800 bg-slate-950/80 text-white placeholder-slate-500"
@@ -860,12 +1244,12 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
         {/* Detailed Description */}
         <div>
           <label className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-            Detailed Grievance Description *
+            {t("descLabel")}
           </label>
           <textarea
             rows={3}
             required
-            placeholder="Describe the issue, dates, personnel involved and impact..."
+            placeholder={t("descPlaceholder")}
             className={`mt-1.5 w-full rounded-xl border px-3 py-2 text-xs outline-none focus:border-sky-500 resize-none ${
               isDark
                 ? "border-slate-800 bg-slate-950/80 text-white placeholder-slate-500"
@@ -883,9 +1267,9 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
           }`}
         >
           <div>
-            <span className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>Urgent Attention Needed</span>
+            <span className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t("urgentLabel")}</span>
             <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-              Escalates ticket directly to AICTE priority review
+              {t("urgentSub")}
             </p>
           </div>
           <input
@@ -896,7 +1280,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
           />
         </div>
 
-        {/* Field Evidence: Geotag Photo (With Laptop Camera Option) */}
+        {/* Field Evidence: Geotag Photo */}
         <div
           className={`rounded-xl border p-3 ${
             isDark ? "border-slate-800 bg-slate-950/60" : "border-slate-200 bg-white shadow-xs"
@@ -905,7 +1289,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
           <div className="flex items-center justify-between">
             <span className={`font-semibold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
               <Camera size={14} className={isDark ? "text-sky-400" : "text-blue-600"} />
-              Field Photo (With Geotag)
+              {t("fieldPhotoLabel")}
             </span>
             {photoBase64 && (
               <button
@@ -918,7 +1302,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
                 }}
                 className="text-[10px] text-rose-500 hover:underline font-semibold"
               >
-                Remove
+                {t("removePhoto")}
               </button>
             )}
           </div>
@@ -938,23 +1322,21 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
                 </p>
                 <p className={`text-[10px] flex items-center gap-1 mt-0.5 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                   <MapPin size={10} className="text-emerald-500 shrink-0" />
-                  {loadingLocation ? "Reading GPS coordinates..." : locationAddress || "GPS attached"}
+                  {loadingLocation ? t("readingGps") : locationAddress || t("gpsAttached")}
                 </p>
               </div>
             </div>
           ) : (
             <div className="mt-2.5 flex flex-col gap-2">
-              {/* Laptop Camera Button */}
               <button
                 type="button"
                 onClick={startCamera}
                 className="flex items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-sky-500 transition"
               >
                 <Video size={14} />
-                <span>Take Photo with Laptop Camera</span>
+                <span>{t("takePhotoLaptop")}</span>
               </button>
 
-              {/* Or File Upload */}
               <label
                 className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed p-2 text-center transition ${
                   isDark
@@ -963,7 +1345,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
                 }`}
               >
                 <UploadCloud size={14} />
-                <span className="text-[11px]">Or upload image from file</span>
+                <span className="text-[11px]">{t("uploadImageFile")}</span>
                 <input type="file" accept="image/*" onChange={handleCapturePhoto} className="hidden" />
               </label>
             </div>
@@ -979,7 +1361,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
           <div className="flex items-center justify-between">
             <span className={`font-semibold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
               <FileText size={14} className={isDark ? "text-sky-400" : "text-blue-600"} />
-              Supporting Document (PDF / Doc)
+              {t("docLabel")}
             </span>
             {docName && (
               <button
@@ -990,7 +1372,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
                 }}
                 className="text-[10px] text-rose-500 hover:underline font-semibold"
               >
-                Remove
+                {t("removePhoto")}
               </button>
             )}
           </div>
@@ -1011,7 +1393,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
               }`}
             >
               <UploadCloud size={14} />
-              <span className="text-[11px]">Attach document evidence</span>
+              <span className="text-[11px]">{t("attachDoc")}</span>
               <input type="file" accept=".pdf,.doc,.docx" onChange={handleAttachDocument} className="hidden" />
             </label>
           )}
@@ -1024,7 +1406,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-3 text-xs font-bold text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 disabled:opacity-50 transition"
         >
           {submitting ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          {submitting ? "Transmitting Complaint..." : "Submit Grievance to AICTE"}
+          {submitting ? t("transmitting") : t("submitComplaint")}
         </button>
       </form>
 
@@ -1035,7 +1417,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div className="flex items-center gap-1.5">
               <Camera size={16} className="text-sky-400" />
-              <span className="text-xs font-bold text-white">Laptop Camera Viewfinder</span>
+              <span className="text-xs font-bold text-white">{t("cameraTitle")}</span>
             </div>
             <button
               type="button"
@@ -1050,14 +1432,14 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
           <div className="my-2 flex items-center justify-between rounded-lg bg-slate-900/90 px-2.5 py-1 text-[11px] text-emerald-400 border border-emerald-500/30">
             <div className="flex items-center gap-1 truncate">
               <MapPin size={12} className="shrink-0 animate-pulse" />
-              <span className="truncate">{loadingLocation ? "Locating GPS..." : locationAddress || "GPS Active"}</span>
+              <span className="truncate">{loadingLocation ? t("locatingGps") : locationAddress || t("gpsActive")}</span>
             </div>
             <button
               type="button"
               onClick={fetchCurrentGps}
               className="text-[10px] text-sky-400 underline ml-2 shrink-0"
             >
-              Refresh GPS
+              {t("refreshGps")}
             </button>
           </div>
 
@@ -1068,14 +1450,14 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
                 <AlertTriangle size={32} className="mx-auto text-amber-400 mb-2" />
                 <p className="text-xs text-rose-300 font-semibold">{cameraError}</p>
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Please allow camera permission in your browser or upload an image file instead.
+                  {t("cameraHelp")}
                 </p>
                 <button
                   type="button"
                   onClick={startCamera}
                   className="mt-3 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white"
                 >
-                  Retry Camera
+                  {t("retryCamera")}
                 </button>
               </div>
             ) : (
@@ -1087,7 +1469,6 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
                   muted
                   className="h-full w-full object-cover"
                 />
-                {/* Visual target reticle */}
                 <div className="pointer-events-none absolute inset-4 border border-dashed border-white/30 rounded-xl" />
               </>
             )}
@@ -1100,7 +1481,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
               onClick={stopCamera}
               className="text-xs text-slate-400 hover:text-white"
             >
-              Cancel
+              {t("cancel")}
             </button>
 
             {!cameraError && (
@@ -1115,7 +1496,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
             )}
 
             <label className="text-xs text-sky-400 hover:underline cursor-pointer">
-              Upload File
+              {t("uploadFile")}
               <input
                 type="file"
                 accept="image/*"
@@ -1139,7 +1520,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
             }`}
           >
             <div className={`flex items-center justify-between pb-3 border-b ${isDark ? "border-slate-800" : "border-slate-200"}`}>
-              <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Select Institution</h4>
+              <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{t("selectInstModalTitle")}</h4>
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
@@ -1156,7 +1537,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
               <Search size={14} className={isDark ? "text-slate-400" : "text-slate-500"} />
               <input
                 type="text"
-                placeholder="Search by college name or code..."
+                placeholder={t("searchInstPlaceholder")}
                 className={`ml-2 flex-1 bg-transparent text-xs outline-none ${
                   isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"
                 }`}
@@ -1192,7 +1573,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
                         {inst.name}
                       </p>
                       <p className={`text-[10px] mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                        Code: {inst.code} • {inst.city || "India"}
+                        {t("instCode")} {inst.code} • {inst.city || "India"}
                       </p>
                     </div>
                   </button>
@@ -1208,7 +1589,7 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark 
 // -------------------------------------------------------------
 // 3. MY COMPLAINTS SCREEN (With In-Phone Grievance Modal)
 // -------------------------------------------------------------
-function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
+function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark, t }) {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCase, setSelectedCase] = useState(null);
@@ -1250,9 +1631,9 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
         <div>
           <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
             <FolderOpen size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
-            My Grievances
+            {t("myGrievancesTitle")}
           </h2>
-          <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Complaints filed from this account</p>
+          <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{t("myGrievancesSub")}</p>
         </div>
         <button
           type="button"
@@ -1262,7 +1643,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
               ? "border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
               : "border-slate-300 bg-white text-slate-600 hover:text-slate-900 shadow-xs"
           }`}
-          title="Refresh List"
+          title={t("refreshList")}
         >
           <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
         </button>
@@ -1271,7 +1652,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
       {loading ? (
         <div className="py-12 text-center">
           <RefreshCw size={24} className={`mx-auto animate-spin ${isDark ? "text-sky-400" : "text-blue-600"}`} />
-          <p className={`mt-2 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Loading grievance records...</p>
+          <p className={`mt-2 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>{t("loadingGrievances")}</p>
         </div>
       ) : complaints.length === 0 ? (
         <div
@@ -1280,8 +1661,8 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
           }`}
         >
           <FolderOpen size={32} className="mx-auto mb-2 opacity-50" />
-          <p className="text-xs font-semibold">No complaints registered yet</p>
-          <p className="mt-1 text-[10px]">Use the "File Grievance" tab to lodge your first official issue.</p>
+          <p className="text-xs font-semibold">{t("noGrievances")}</p>
+          <p className="mt-1 text-[10px]">{t("noGrievancesSub")}</p>
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -1353,14 +1734,14 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
             <div className="flex-1 overflow-y-auto space-y-3 py-3 text-xs pr-1 scrollbar-thin">
               <div>
                 <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  Subject
+                  {t("subjectModal")}
                 </span>
                 <p className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{selectedCase.subject}</p>
               </div>
 
               <div>
                 <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  Institution
+                  {t("instModal")}
                 </span>
                 <p className={isDark ? "text-slate-200" : "text-slate-700"}>
                   {selectedCase.institution_name} ({selectedCase.institution_code})
@@ -1369,7 +1750,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
 
               <div>
                 <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  Description
+                  {t("descModal")}
                 </span>
                 <p className={`whitespace-pre-wrap leading-relaxed mt-0.5 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                   {selectedCase.description}
@@ -1379,7 +1760,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
               {selectedCase.geo_address && (
                 <div>
                   <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                    Geotag Evidence
+                    {t("geotagEvidence")}
                   </span>
                   <p className="text-emerald-500 flex items-center gap-1 mt-0.5 font-medium">
                     <MapPin size={12} className="shrink-0" /> {selectedCase.geo_address}
@@ -1391,12 +1772,12 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
               {loadingDetail ? (
                 <div className="py-4 text-center">
                   <RefreshCw size={16} className={`mx-auto animate-spin ${isDark ? "text-sky-400" : "text-blue-600"}`} />
-                  <p className={`mt-1 text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Loading case timeline...</p>
+                  <p className={`mt-1 text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{t("loadingTimeline")}</p>
                 </div>
               ) : caseDetails?.history && (
                 <div className={`pt-2 border-t ${isDark ? "border-slate-800" : "border-slate-200"}`}>
                   <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                    Lifecycle Audit Trail
+                    {t("auditTrail")}
                   </span>
                   <div className="mt-2 space-y-2">
                     {caseDetails.history.map((h, idx) => (
@@ -1426,7 +1807,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
                 }}
                 className="w-full rounded-xl bg-sky-600 py-2.5 text-center text-xs font-bold text-white hover:bg-sky-500 shadow-sm"
               >
-                Track in Detail
+                {t("trackInDetail")}
               </button>
             </div>
           </div>
@@ -1439,7 +1820,7 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark }) {
 // -------------------------------------------------------------
 // 4. TRACK ANY CASE SCREEN
 // -------------------------------------------------------------
-function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
+function CitizenTrackCaseScreen({ initialCaseId, isDark, t }) {
   const [caseRef, setCaseRef] = useState(initialCaseId || "");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -1455,7 +1836,7 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
   const handleTrack = async (overrideRef) => {
     const target = (overrideRef || caseRef).trim();
     if (!target) {
-      setErrorMsg("Please enter a Case Reference ID (e.g. CMP-2026-000001)");
+      setErrorMsg(t("enterCaseRef"));
       return;
     }
     setLoading(true);
@@ -1476,15 +1857,15 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
       <div>
         <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
           <Search size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
-          Track Any Grievance
+          {t("trackAnyTitle")}
         </h2>
-        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Public tracking via Case Reference ID</p>
+        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{t("trackAnySub")}</p>
       </div>
 
       <div className="flex gap-2">
         <input
           type="text"
-          placeholder="e.g. CMP-2026-000001"
+          placeholder={t("trackPlaceholder")}
           className={`flex-1 rounded-xl border px-3 py-2 text-xs font-mono uppercase outline-none focus:border-sky-500 ${
             isDark
               ? "border-slate-800 bg-slate-950 text-white placeholder-slate-500"
@@ -1500,7 +1881,7 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
           onClick={() => handleTrack()}
           className="rounded-xl bg-sky-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-sky-500 disabled:opacity-50 shadow-sm"
         >
-          {loading ? <RefreshCw size={14} className="animate-spin" /> : "Track"}
+          {loading ? <RefreshCw size={14} className="animate-spin" /> : t("trackBtn")}
         </button>
       </div>
 
@@ -1545,14 +1926,14 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
 
           <div>
             <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-              Subject
+              {t("subjectModal")}
             </span>
             <p className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{data.subject}</p>
           </div>
 
           <div>
             <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-              Institution
+              {t("instModal")}
             </span>
             <p className={isDark ? "text-slate-200" : "text-slate-700"}>
               {data.institution_name} ({data.institution_code})
@@ -1561,7 +1942,7 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
 
           <div>
             <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-              Assigned Bureau
+              {t("assignedBureau")}
             </span>
             <p className={isDark ? "text-slate-300" : "text-slate-700"}>{data.bureau || "Central Review Bureau"}</p>
           </div>
@@ -1570,7 +1951,7 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
           {data.history && data.history.length > 0 && (
             <div className={`pt-2 border-t ${isDark ? "border-slate-800" : "border-slate-200"}`}>
               <span className={`text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                Activity Timeline
+                {t("activityTimeline")}
               </span>
               <div className={`mt-2.5 space-y-2 border-l pl-3 ml-1 ${isDark ? "border-slate-800" : "border-slate-300"}`}>
                 {data.history.map((h, i) => (
@@ -1594,7 +1975,7 @@ function CitizenTrackCaseScreen({ initialCaseId, isDark }) {
 // -------------------------------------------------------------
 // 5. PROFILE & SETTINGS SCREEN
 // -------------------------------------------------------------
-function CitizenProfileScreen({ citizen, onLogout, isDark }) {
+function CitizenProfileScreen({ citizen, onLogout, isDark, t, lang, onLangChange }) {
   const [serverUrl, setServerUrl] = useState(getCitizenBaseUrl());
   const [editingUrl, setEditingUrl] = useState(false);
   const [tempUrl, setTempUrl] = useState(serverUrl);
@@ -1613,9 +1994,9 @@ function CitizenProfileScreen({ citizen, onLogout, isDark }) {
       <div>
         <h2 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
           <UserRound size={18} className={isDark ? "text-sky-400" : "text-blue-600"} />
-          Citizen Profile
+          {t("profileTitle")}
         </h2>
-        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Session authentication & preferences</p>
+        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{t("profileSub")}</p>
       </div>
 
       {saveToast && (
@@ -1641,7 +2022,7 @@ function CitizenProfileScreen({ citizen, onLogout, isDark }) {
           </div>
           <div>
             <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-              {citizen.full_name || "Verified Citizen"}
+              {citizen.full_name || t("verifiedCitizen")}
             </h3>
             <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>{citizen.email}</p>
           </div>
@@ -1649,19 +2030,72 @@ function CitizenProfileScreen({ citizen, onLogout, isDark }) {
 
         <div className={`space-y-1.5 pt-2 border-t text-xs ${isDark ? "border-slate-800 text-slate-300" : "border-slate-200 text-slate-700"}`}>
           <div className="flex justify-between">
-            <span className={isDark ? "text-slate-500" : "text-slate-400"}>Phone</span>
-            <span>{citizen.phone || "Not configured"}</span>
+            <span className={isDark ? "text-slate-500" : "text-slate-400"}>{t("phone")}</span>
+            <span>{citizen.phone || t("notConfigured")}</span>
           </div>
           <div className="flex justify-between">
-            <span className={isDark ? "text-slate-500" : "text-slate-400"}>Auth Provider</span>
-            <span>Secure Email OTP</span>
+            <span className={isDark ? "text-slate-500" : "text-slate-400"}>{t("authProvider")}</span>
+            <span>{t("secureOtp")}</span>
           </div>
           <div className="flex justify-between">
-            <span className={isDark ? "text-slate-500" : "text-slate-400"}>Status</span>
+            <span className={isDark ? "text-slate-500" : "text-slate-400"}>{t("status")}</span>
             <span className="font-semibold text-emerald-500 flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Active Session
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {t("activeSession")}
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Language Selector Card */}
+      <div
+        className={`rounded-2xl border p-4 space-y-2.5 ${
+          isDark ? "border-slate-800 bg-slate-900/90 text-white" : "border-slate-200 bg-white text-slate-900 shadow-xs"
+        }`}
+      >
+        <div className="flex items-center gap-1.5">
+          <Languages size={16} className={isDark ? "text-sky-400" : "text-blue-600"} />
+          <span className="font-semibold text-xs">{t("languageSetting")}</span>
+        </div>
+        <div className="grid grid-cols-3 gap-1.5 pt-1">
+          <button
+            type="button"
+            onClick={() => onLangChange("en")}
+            className={`rounded-xl border py-2 px-1 text-xs font-bold transition text-center ${
+              lang === "en"
+                ? "border-sky-500 bg-sky-600 text-white shadow-sm"
+                : isDark
+                ? "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
+                : "border-slate-300 bg-slate-50 text-slate-700 hover:border-blue-400"
+            }`}
+          >
+            English
+          </button>
+          <button
+            type="button"
+            onClick={() => onLangChange("hi")}
+            className={`rounded-xl border py-2 px-1 text-xs font-bold transition text-center ${
+              lang === "hi"
+                ? "border-sky-500 bg-sky-600 text-white shadow-sm"
+                : isDark
+                ? "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
+                : "border-slate-300 bg-slate-50 text-slate-700 hover:border-blue-400"
+            }`}
+          >
+            हिंदी
+          </button>
+          <button
+            type="button"
+            onClick={() => onLangChange("mr")}
+            className={`rounded-xl border py-2 px-1 text-xs font-bold transition text-center ${
+              lang === "mr"
+                ? "border-sky-500 bg-sky-600 text-white shadow-sm"
+                : isDark
+                ? "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
+                : "border-slate-300 bg-slate-50 text-slate-700 hover:border-blue-400"
+            }`}
+          >
+            मराठी
+          </button>
         </div>
       </div>
 
@@ -1674,7 +2108,7 @@ function CitizenProfileScreen({ citizen, onLogout, isDark }) {
         <div className="flex items-center justify-between">
           <span className={`font-semibold text-xs flex items-center gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
             <Server size={14} className={isDark ? "text-sky-400" : "text-blue-600"} />
-            Backend API Endpoint
+            {t("backendEndpoint")}
           </span>
           {!editingUrl ? (
             <button
@@ -1685,7 +2119,7 @@ function CitizenProfileScreen({ citizen, onLogout, isDark }) {
               }}
               className={`text-[10px] font-semibold hover:underline ${isDark ? "text-sky-400" : "text-blue-600"}`}
             >
-              Edit
+              {t("edit")}
             </button>
           ) : (
             <button
@@ -1716,7 +2150,7 @@ function CitizenProfileScreen({ citizen, onLogout, isDark }) {
                 onClick={handleSave}
                 className="rounded-lg bg-sky-600 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-500"
               >
-                Save Endpoint
+                {t("saveEndpoint")}
               </button>
             </div>
           </div>
@@ -1730,7 +2164,7 @@ function CitizenProfileScreen({ citizen, onLogout, isDark }) {
         className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 py-2.5 text-xs font-bold text-rose-500 transition hover:bg-rose-500 hover:text-white"
       >
         <LogOut size={14} />
-        <span>Log Out of Citizen Account</span>
+        <span>{t("logOut")}</span>
       </button>
     </div>
   );
