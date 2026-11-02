@@ -1,21 +1,8 @@
-import { useState } from "react";
-import { ExternalLink, Info, QrCode, RefreshCw, Smartphone } from "lucide-react";
-import { Card, H, Tag } from "../ui";
+import { Info, QrCode } from "lucide-react";
+import { Card, H } from "../ui";
+import NativeCitizenApp from "../components/NativeCitizenApp";
 
 export default function MobileDemo() {
-  const defaultAppetize = "https://appetize.io/embed/ykacqpc5al7fdtsaqoflpkhefi?device=pixel7&osVersion=13.0&scale=75";
-  const [appetizeUrl, setAppetizeUrl] = useState(
-    import.meta.env.VITE_APPETIZE_URL || defaultAppetize
-  );
-  const [inputUrl, setInputUrl] = useState("");
-
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    if (inputUrl.trim()) {
-      setAppetizeUrl(inputUrl.trim());
-    }
-  };
-
   return (
     <>
       <H
@@ -37,45 +24,13 @@ export default function MobileDemo() {
               <span className="h-2 w-2 rounded-full bg-slate-800" />
             </div>
 
-            {/* Screen Area */}
-            <div className="relative h-[680px] w-full overflow-hidden rounded-[36px] bg-slate-950">
-              {appetizeUrl ? (
-                <iframe
-                  src={appetizeUrl}
-                  title="Appetize Virtual Mobile Simulator"
-                  className="h-full w-full border-0"
-                  allow="geolocation; camera"
-                />
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center p-6 text-center text-slate-300">
-                  <div className="mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-brand text-onbrand shadow-lg">
-                    <Smartphone size={32} />
-                  </div>
-                  <h3 className="font-display text-xl font-bold text-white">
-                    Appetize.io Virtual Phone
-                  </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-400">
-                    Upload your built APK to <b>Appetize.io</b>, then paste your embed URL or public key below to stream the interactive phone directly inside this portal.
-                  </p>
-
-                  <form onSubmit={handleUpdate} className="mt-6 w-full space-y-2">
-                    <input
-                      type="url"
-                      placeholder="Paste Appetize embed URL"
-                      className="field text-xs bg-slate-900 text-white border-slate-700"
-                      value={inputUrl}
-                      onChange={(e) => setInputUrl(e.target.value)}
-                    />
-                    <button type="submit" className="btn btn-primary w-full text-xs">
-                      Load Virtual Phone
-                    </button>
-                  </form>
-                </div>
-              )}
+            {/* Screen Area: Native Citizen Mobile App Embedded Directly */}
+            <div className="relative h-[680px] w-full overflow-hidden rounded-[36px] bg-slate-950 pt-3">
+              <NativeCitizenApp />
             </div>
 
             {/* Bottom Home Indicator */}
-            <div className="absolute bottom-3 left-1/2 h-1 w-32 -translate-x-1/2 rounded-full bg-slate-600" />
+            <div className="absolute bottom-3 left-1/2 h-1 w-32 -translate-x-1/2 rounded-full bg-slate-600 pointer-events-none" />
           </div>
         </div>
 
@@ -87,7 +42,7 @@ export default function MobileDemo() {
             </h3>
             <ol className="list-decimal space-y-2 pl-4 text-sm text-ink/80">
               <li>
-                <b>Passwordless OTP Login</b>: Enter any valid email. Receive the 6-digit OTP in your inbox (or via preview) to verify identity.
+                <b>Passwordless OTP Login</b>: Enter any valid email. Receive the 6-digit OTP in your inbox to verify identity.
               </li>
               <li>
                 <b>Lodge Grievance</b>: Select an institution (e.g. <i>Sahyadri Institute of Technology</i>), select <i>Infrastructure</i>, and write a description.
@@ -99,7 +54,7 @@ export default function MobileDemo() {
                 <b>Verify Live Intake</b>: Switch to the <b>Cases</b> tab or <b>Dashboard</b> on this portal to see your complaint registered immediately.
               </li>
               <li>
-                <b>Track Grievance</b>: Use the <i>Track Complaint</i> tab on the mobile app to verify real-time status and timeline tracking.
+                <b>Track Grievance</b>: Use the <i>Track Any</i> tab on the mobile app to verify real-time status and timeline tracking.
               </li>
             </ol>
           </Card>
@@ -119,23 +74,12 @@ export default function MobileDemo() {
               </div>
               <div className="rounded-lg bg-raised p-2.5">
                 <span className="font-bold text-ink">Authentication</span>
-                <p className="text-muted mt-0.5">Secure Email OTP (Resend / SMTP)</p>
+                <p className="text-muted mt-0.5">Secure Email OTP (Apps Script / Brevo)</p>
               </div>
               <div className="rounded-lg bg-raised p-2.5">
                 <span className="font-bold text-ink">Data Integrity</span>
                 <p className="text-muted mt-0.5">Clean citizen-to-bureau provenance</p>
               </div>
-            </div>
-
-            <div className="mt-4 border-t border-line pt-3">
-              <a
-                href="https://expo.dev/artifacts/eas/M2QB8tdjin4oMU3jRKieVeEdECBOH1syhuZSKk_ogq0.apk"
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-primary w-full text-center text-xs flex items-center justify-center gap-2"
-              >
-                <ExternalLink size={14} /> Download Standalone Android APK
-              </a>
             </div>
           </Card>
         </div>

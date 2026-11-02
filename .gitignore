@@ -36,3 +36,4 @@ backend/models_cache/
 .idea/
 .DS_Store
 Thumbs.db
+*.apk
