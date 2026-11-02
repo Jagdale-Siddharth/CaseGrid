@@ -1,143 +1,144 @@
-# AICTE Integrated Complaint Monitoring Dashboard (PS 26264)
+# AICTE Integrated Complaint Monitoring & Coordination Platform (PS 26264)
 
-One institution-wise view of complaint cases across AICTE bureaus and cells, with role-based access,
-configurable routing, explainable overlap detection, deadline alerts, audit trail, dashboards and exports,
-plus an Expo mobile app for citizens to lodge and track grievances. **All demo data is synthetic.**
+An end-to-end, institution-wise grievance redressal and complaint monitoring platform across AICTE bureaus and cells. Features role-based officer access, configurable routing rules, explainable duplicate/overlap detection, deadline tracking with SLA escalation, audit trails, analytics dashboards, and an integrated multilingual citizen mobile application with geotagged evidence capture.
 
-| Layer | Technology |
+> **Note**: All demonstration data is synthetic and designed for prototype evaluation.
+
+---
+
+## 📸 Application UI Gallery
+
+### 1. Officer Monitoring & Coordination Dashboard
+Full bureau-level visibility into open cases, SLA deadlines, overdue escalations, and automated review queues.
+![Officer Monitoring Dashboard](docs/screenshots/officer-dashboard.png)
+
+### 2. Citizen Mobile Grievance Portal (Live In-Browser Demo & Expo App)
+Citizens and students can seamlessly lodge complaints, search AICTE-approved institutions, and track grievances in real-time. Includes full 3-language support (**English**, **हिंदी**, and **मराठी**).
+![Citizen Mobile Portal](docs/screenshots/citizen-mobile-app.png)
+
+### 3. Passwordless Email OTP Verification
+Secure identity verification using one-time verification codes sent via email, with instant dev preview fallback for presentations.
+![Mobile OTP Verification](docs/screenshots/mobile-auth-otp.png)
+
+### 4. Geotagged Field Evidence & In-Portal Document Previewer
+Officers can view reverse-geocoded location addresses, GPS coordinates with one-click Google Maps navigation, captured site photos with watermarks, and preview supporting PDFs/documents directly in the portal.
+![Case Detail & Evidence Preview](docs/screenshots/case-detail-evidence.png)
+
+---
+
+## 🌟 Key Platform Capabilities
+
+| Capability | Description |
 |---|---|
-| Web Frontend | React 18, React Router 6, Tailwind CSS 3, Recharts, Vite |
-| Mobile App | React Native, Expo, Expo Location, Image Picker, Document Picker |
-| Backend | Python, FastAPI, Pydantic v2, SQLAlchemy 2, JWT, bcrypt, SMTP / Resend email |
-| Database | SQLite (default) / PostgreSQL 16 |
-| Overlap detection | Rules + TF-IDF + optional multilingual sentence embeddings |
+| **Unified Portal Entry** | Quick navbar access to both Officer Sign-In and Citizen Grievance Portal. |
+| **Multilingual Citizen App** | Native support for English (default), Hindi (हिंदी), and Marathi (मराठी). |
+| **Geotagged Evidence Capture** | Laptop webcam or smartphone camera integration with auto-embedded timestamps and live GPS coordinates. |
+| **Document Previewer** | Instant inline viewer for PDFs and image attachments directly in the officer console. |
+| **Intelligent Case Routing** | Rules engine automatically assigns incoming grievances to the appropriate AICTE bureau. |
+| **Overlap & Duplicate Detection** | Natural language processing (TF-IDF + semantic embeddings) flags related or duplicate complaints across institutions. |
+| **SLA Tracking & Escalations** | Color-coded deadline status (`On Track`, `Due Soon`, `Overdue`, `Escalated`) with automated supervisor alerts. |
+| **Fast Cloud Response & Keep-Alive** | Built-in in-memory configuration caching, joined database queries, and automatic background pre-warming. |
 
-## Prerequisites
-- Python 3.10+
-- Node.js 18+ and npm
-- Expo Go app on your phone (for the mobile app)
-- A Gmail account with 2-Step Verification (for OTP emails)
+---
 
-## 1. Clone
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| **Web Frontend** | React 18, React Router 6, Tailwind CSS 3, Recharts, Lucide Icons, Vite |
+| **Mobile Application** | React Native, Expo SDK 58, Expo Location, HTML5 Webcam / Geolocation API |
+| **Backend API** | Python 3.10+, FastAPI, Pydantic v2, SQLAlchemy 2, Passlib (bcrypt), JWT |
+| **Database** | SQLite (development) / PostgreSQL 16 (production) |
+| **Email Delivery** | SMTP / Gmail App Passwords / Resend API |
+| **Duplicate Detection** | Rule Engine + TF-IDF Vectorizer + Multilingual Sentence Transformers |
+
+---
+
+## 🚀 Quick Start Guide
+
+### Prerequisites
+- **Python 3.10+**
+- **Node.js 18+** and **npm**
+- *(Optional)* **Expo Go** on mobile for physical device testing
+
+### 1. Clone Repository
 ```bash
-git clone <your-repo-url>
-cd aicte-complaint-platform
+git clone https://github.com/Jagdale-Siddharth/CaseGrid.git
+cd CaseGrid
 ```
 
-## 2. Backend
+### 2. Backend Setup
 ```powershell
 cd backend
 python -m venv .venv
 
-# Windows PowerShell
+# Windows PowerShell:
 .\.venv\Scripts\Activate.ps1
-# Mac / Linux
+# Mac / Linux:
 # source .venv/bin/activate
 
 pip install -r requirements.txt
 copy .env.example .env          # Mac/Linux: cp .env.example .env
-```
 
-Edit `backend/.env` (see section 5 for the email settings), then:
+# Initialize synthetic database and seed data:
+python -m app.seed --reset
 
-```powershell
-python -m app.seed --reset                  # creates demo data
-python -m scripts.download_model            # optional: downloads the ~220 MB model once
+# Run backend API server:
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app
 ```
-- API docs: http://localhost:8000/docs
-- `--host 0.0.0.0` is required so a physical phone can reach the backend.
-- Restart the backend after any change to `.env`.
+- API Swagger Documentation: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-## 3. Web dashboard (new terminal)
+### 3. Frontend Dashboard Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Open http://localhost:5173
+- Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-Demo accounts (password `Demo@1234`):
+---
 
-| Username | Role |
-|---|---|
-| `admin` | Admin |
-| `supervisor` | Supervisor |
-| `kulkarni`, `patil` | Technical Bureau officers |
-| `deshmukh` | Approval Bureau officer |
-| `iyer` | Student Grievance Cell officer |
-| `management` | Management (read-only) |
+## 👥 Demo Officer Accounts
 
-## 4. Mobile app (new terminal)
+All demo accounts use password: `Demo@1234`
+
+| Username | Role | Scope |
+|---|---|---|
+| `admin` | Admin | Full platform administration, routing rules, configuration, and user management |
+| `supervisor` | Supervisor | Cross-bureau oversight, case reassignment, and supervisor escalation review |
+| `kulkarni` | Officer | Technical Bureau cases and evaluations |
+| `deshmukh` | Officer | Approval Bureau cases and institutional reviews |
+| `iyer` | Officer | Student Grievance Cell cases and student welfare matters |
+| `management` | Management | High-level analytics, compliance reports, and CSV/PDF data exports |
+
+---
+
+## 📱 Mobile Grievance Testing
+
+1. Navigate to the **Register a Complaint** tab on the main navbar.
+2. Enter any valid email (e.g. `student@example.edu`) to receive a 6-digit OTP (or use the instant preview code).
+3. Select an AICTE-approved institution from the searchable database.
+4. Pick a grievance category, enter a subject, and write your description.
+5. Capture a geotagged photo via laptop webcam/camera and attach supporting documents.
+6. Submit and track the assigned **Case ID** (`CMP-YYYY-XXXXXX`) in real time across the portal!
+
+---
+
+## 🧪 Testing & Linting
+
 ```bash
-cd mobile
-npm install
-npx expo start -c
-```
-Scan the QR code with **Expo Go**. Your phone and computer must be on the **same Wi-Fi**.
+# Run root linting (Frontend ESLint + Backend Flake8):
+npm run lint
 
-Set the backend address the phone should use:
-1. Find your computer's Wi-Fi IP: run `ipconfig` (Windows) or `ifconfig` (Mac/Linux) and copy the IPv4 address.
-2. In the app, tap the gear icon, enter `http://YOUR_IP:8000` and tap **Save URL**.
-3. Check from the phone's browser: `http://YOUR_IP:8000/docs` should load.
+# Run frontend build verification:
+npm --prefix frontend run build
 
-Windows only, if the phone can't connect, run once in PowerShell **as Administrator**:
-```powershell
-New-NetFirewallRule -DisplayName "AICTE API 8000" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow
-New-NetFirewallRule -DisplayName "Expo 8081" -Direction Inbound -Protocol TCP -LocalPort 8081 -Action Allow
-```
-
-## 5. Email OTP setup (mobile login)
-The OTP is emailed to whatever address the user enters. The account in `.env` is only the **sender**.
-
-1. Sign in to the Gmail account you want to send from.
-2. Turn on 2-Step Verification: https://myaccount.google.com/security
-3. Create an App Password: https://myaccount.google.com/apppasswords
-4. Put this in `backend/.env` (no spaces, no quotes):
-```
-DATABASE_URL=sqlite:///./aicte.db
-SECRET_KEY=any-long-random-string
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-FIXED_TODAY=2026-10-23
-ENABLE_SCHEDULER=false
-
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-account@gmail.com
-SMTP_PASSWORD=your16characterapppassword
-SMTP_FROM_EMAIL=your-account@gmail.com
-
-# Dev only: show the OTP in the app if email sending fails
-OTP_DEBUG_FALLBACK=false
-```
-If no SMTP or Resend settings are present, the OTP is printed in the backend terminal for local testing.
-**Never commit `.env` or share your App Password.**
-
-## Run everything with Docker (alternative)
-```bash
-docker compose up --build
-```
-Web: http://localhost:5173 , API docs: http://localhost:8000/docs
-
-## Tests
-```bash
+# Run backend test suite:
 cd backend
 pytest
-python -m scripts.eval_overlap
 ```
 
-## Project layout
-```
-backend/    FastAPI app (app/), tests, scripts
-frontend/   React web dashboard
-mobile/     Expo mobile app for citizens
-docs/       Traceability, demo scripts, mobile guide
-```
+---
 
-## Troubleshooting
-| Problem | Fix |
-|---|---|
-| App says "Cannot reach server" | Backend must run with `--host 0.0.0.0`; check the IP, same Wi-Fi, firewall |
-| "Could not send the verification email" | Check the `[SMTP ERROR]` line in the backend terminal; verify `SMTP_USER` and App Password belong to the same Gmail account; restart the backend |
-| `npx expo start --tunnel` asks for login | Use `npx expo start` (LAN) instead |
-| PowerShell blocks activating the venv | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+## 📄 License
+Developed for AICTE Complaint Monitoring & Redressal Coordination. Synthetic demo prototype for technical review.
