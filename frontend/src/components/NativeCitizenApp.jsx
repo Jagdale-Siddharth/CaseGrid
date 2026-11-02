@@ -1179,19 +1179,25 @@ function CitizenNewComplaintScreen({ token, citizen, onComplaintCreated, isDark,
         description: description.trim(),
         is_urgent: isUrgent,
         geo_address: locationAddress || null,
-        geo_lat: locationCoords?.latitude || null,
-        geo_lng: locationCoords?.longitude || null,
+        geo_latitude: locationCoords?.latitude ?? null,
+        geo_longitude: locationCoords?.longitude ?? null,
+        geo_lat: locationCoords?.latitude ?? null,
+        geo_lng: locationCoords?.longitude ?? null,
+        photo_name: photoName || null,
         photo_filename: photoName || null,
         photo_base64: photoBase64 || null,
+        document_name: docName || null,
         doc_filename: docName || null,
+        document_base64: docBase64 || null,
         doc_base64: docBase64 || null,
       };
 
       const res = await fileComplaint(token, payload);
-      if (res && res.complaint && res.complaint.case_id) {
-        onComplaintCreated(res.complaint.case_id);
+      const caseId = res?.case_id || res?.complaint?.case_id || res?.data?.case_id || res?.id;
+      if (caseId) {
+        onComplaintCreated(typeof caseId === "string" ? caseId : `CMP-${caseId}`);
       } else {
-        throw new Error("Unable to create complaint. Server did not return a valid Case ID.");
+        throw new Error(res?.message || res?.detail || "Unable to create complaint. Server did not return a valid Case ID.");
       }
     } catch (err) {
       setErrorMsg(err.message || "Failed to lodge complaint. Please try again.");
@@ -1657,7 +1663,8 @@ function CitizenMyComplaintsScreen({ token, onTrackExternal, isDark, t, lang }) 
     setLoading(true);
     try {
       const res = await getMyComplaints(token);
-      setComplaints(res.complaints || []);
+      const list = Array.isArray(res) ? res : (res?.complaints || res?.items || []);
+      setComplaints(list);
     } catch (err) {
       console.warn("Failed to load complaints", err);
     } finally {

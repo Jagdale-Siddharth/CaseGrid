@@ -52,6 +52,12 @@ class CitizenComplaintIn(BaseModel):
     photo_name: str | None = None
     document_base64: str | None = None
     document_name: str | None = None
+    # Aliases
+    geo_lat: float | None = None
+    geo_lng: float | None = None
+    photo_filename: str | None = None
+    doc_base64: str | None = None
+    doc_filename: str | None = None
 
 
 # --- Authentication Endpoints ---
@@ -234,6 +240,13 @@ def create_complaint(
     priority = "High" if req.is_urgent else "Medium"
     due = sla.due_date_for(db, reg, priority)
 
+    resolved_lat = req.geo_latitude if req.geo_latitude is not None else req.geo_lat
+    resolved_lng = req.geo_longitude if req.geo_longitude is not None else req.geo_lng
+    resolved_photo_b64 = req.photo_base64 or None
+    resolved_photo_name = req.photo_name or req.photo_filename or "photo.jpg"
+    resolved_doc_b64 = req.document_base64 or req.doc_base64 or None
+    resolved_doc_name = req.document_name or req.doc_filename or "document.pdf"
+
     c = Complaint(
         case_id=case_id,
         institution_id=inst.id,
@@ -252,8 +265,8 @@ def create_complaint(
         complainant_name=citizen.full_name,
         complainant_phone=citizen.phone,
         is_urgent=bool(req.is_urgent),
-        geo_latitude=req.geo_latitude,
-        geo_longitude=req.geo_longitude,
+        geo_latitude=resolved_lat,
+        geo_longitude=resolved_lng,
         geo_address=(req.geo_address or "").strip()[:250] if req.geo_address else None,
     )
 
@@ -288,13 +301,13 @@ def create_complaint(
     os.makedirs(settings.upload_dir, exist_ok=True)
 
     # Save optional geotag photo from base64
-    if req.photo_base64:
-        raw_name = req.photo_name or "photo.jpg"
+    if resolved_photo_b64:
+        raw_name = resolved_photo_name
         ext = raw_name.rsplit(".", 1)[-1].lower() if "." in raw_name else "jpg"
         if ext not in ALLOWED_PHOTO_EXT:
             ext = "jpg"
         try:
-            b64_str = req.photo_base64
+            b64_str = resolved_photo_b64
             if "," in b64_str:
                 b64_str = b64_str.split(",", 1)[1]
             data = base64.b64decode(b64_str)
@@ -323,12 +336,12 @@ def create_complaint(
             print(f"Error saving base64 photo: {e}")
 
     # Save optional supporting document from base64
-    if req.document_base64:
-        raw_name = req.document_name or "document.pdf"
+    if resolved_doc_b64:
+        raw_name = resolved_doc_name
         clean_name = re.sub(r"[^A-Za-z0-9._ -]", "_", raw_name)[:120]
         ext = clean_name.rsplit(".", 1)[-1].lower() if "." in clean_name else "pdf"
         try:
-            b64_str = req.document_base64
+            b64_str = resolved_doc_b64
             if "," in b64_str:
                 b64_str = b64_str.split(",", 1)[1]
             data = base64.b64decode(b64_str)
@@ -372,6 +385,16 @@ def create_complaint(
         "due_date": c.due_date.isoformat(),
         "priority": c.priority,
         "is_urgent": c.is_urgent,
+        "complaint": {
+            "case_id": c.case_id,
+            "id": c.id,
+            "status": c.status,
+            "bureau": c.bureau.name,
+            "registered_on": c.registered_on.isoformat(),
+            "due_date": c.due_date.isoformat(),
+            "priority": c.priority,
+            "is_urgent": c.is_urgent,
+        },
         "message": f"Complaint successfully filed with Case ID {c.case_id}"
     }
 
