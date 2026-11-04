@@ -35,6 +35,19 @@ def _load() -> None:
     """Runs in a background thread."""
     try:
         from fastembed import TextEmbedding  # optional dependency
+        if settings.embedding_model == "intfloat/multilingual-e5-small":
+            try:
+                from fastembed.common.model_description import ModelSource, PoolingType
+                TextEmbedding.add_custom_model(
+                    model="intfloat/multilingual-e5-small",
+                    pooling=PoolingType.MEAN,
+                    normalization=True,
+                    sources=ModelSource(hf="intfloat/multilingual-e5-small"),
+                    dim=384,
+                    model_file="onnx/model.onnx",
+                )
+            except Exception:
+                pass
         model = TextEmbedding(model_name=settings.embedding_model, cache_dir=settings.model_cache_dir, threads=1)
         list(model.embed(["warm-up"]))  # first call initialises the ONNX session
         with _lock:
