@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # Multilingual meaning-based matching (English, Hindi, Marathi and 50+ other languages).
     # Small local ONNX model: no API key, no per-request network call, never blocks a request.
     semantic_enabled: bool = True
-    embedding_model: str = "BAAI/bge-small-en-v1.5"
+    embedding_model: str = "intfloat/multilingual-e5-small"
     model_cache_dir: str = "models_cache"
     semantic_retry_minutes: int = 15   # after a failed model load, wait this long before trying again
     semantic_floor: float = 0.30       # cosine at/below this counts as "unrelated"

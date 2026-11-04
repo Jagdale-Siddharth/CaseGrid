@@ -49,7 +49,7 @@ def _load() -> None:
             except Exception:
                 pass
         model = TextEmbedding(model_name=settings.embedding_model, cache_dir=settings.model_cache_dir, threads=1)
-        list(model.embed(["warm-up"]))  # first call initialises the ONNX session
+        list(model.embed(["passage: warm-up" if "e5" in settings.embedding_model.lower() else "warm-up"]))  # first call initialises the ONNX session
         with _lock:
             _state.update(status="ready", model=model, error="", loaded_at=time.time())
         log.info("Multilingual model ready: %s", settings.embedding_model)
@@ -94,7 +94,13 @@ def embed(texts: list[str]) -> list[list[float]] | None:
         return None
     try:
         out = []
-        for v in _state["model"].embed([t[:MAX_CHARS] for t in texts]):
+        prepared = []
+        for t in texts:
+            clean = t[:MAX_CHARS]
+            if "e5" in settings.embedding_model.lower() and not clean.startswith(("query:", "passage:")):
+                clean = f"passage: {clean}"
+            prepared.append(clean)
+        for v in _state["model"].embed(prepared):
             v = [float(x) for x in v]
             n = math.sqrt(sum(x * x for x in v)) or 1.0
             out.append([x / n for x in v])
