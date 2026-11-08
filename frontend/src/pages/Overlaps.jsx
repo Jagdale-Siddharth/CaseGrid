@@ -44,10 +44,10 @@ export default function Overlaps() {
         {can("overlap:scan") && <button className="btn" onClick={async () => { const r = await api.post("/overlaps/scan"); toast(`${r.data.new_suggestions} new suggestion(s)`); load(); }}>Scan all cases</button>}
       </H>
       {engine && (
-        <div className={`mb-4 flex items-start gap-3 rounded-lg border px-4 py-2.5 text-sm ${engine.engine === "multilingual-ai" ? "border-good/40 bg-good/10" : "border-accent/60 bg-accent/10"}`}>
-          <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${engine.engine === "multilingual-ai" ? "bg-good" : "bg-accent"}`} aria-hidden />
-          <p><b>Matching engine: {engine.engine === "multilingual-ai" ? "AI language model (active)" : "basic word matching"}.</b> {engine.languages}.
-            {engine.engine !== "multilingual-ai" && <span className="text-muted"> {engine.state === "loading" ? "The multilingual model is loading and will switch on automatically." : "The multilingual model is not available on this server yet, so complaints in different languages may not be linked."}</span>}</p>
+        <div className={`mb-4 flex items-start gap-3 rounded-lg border px-4 py-2.5 text-sm ${engine.engine === "multilingual-ai" ? "border-good/40 bg-good/10" : "border-brand/40 bg-brand/5"}`}>
+          <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${engine.engine === "multilingual-ai" ? "bg-good" : "bg-brand"}`} aria-hidden />
+          <p><b>Matching engine: {engine.engine === "multilingual-ai" ? "AI language model (active)" : "Rules & keyword matching (active)"}.</b> {engine.languages}.
+            {engine.engine === "multilingual-ai" && <span className="text-muted"> Powered by Google Gemini cloud embeddings.</span>}</p>
         </div>)}
       <div className="mb-5 flex flex-wrap gap-2" role="tablist">{TABS.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`rounded-full border px-4 py-1.5 text-sm font-semibold ${tab === k ? "border-transparent bg-brand text-onbrand" : "border-line hover:border-brand"}`}>{l}</button>)}</div>
       {tab === "suggested" && items && items.length > 0 && (

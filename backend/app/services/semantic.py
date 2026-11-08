@@ -1,23 +1,14 @@
 """Multilingual meaning-based matching for complaint text.
 
-Why this exists: officers receive complaints written in English, Hindi or Marathi. Matching them by
-hand-written keyword lists only works for one language. Instead a small multilingual sentence model
-turns each complaint into a vector of "meaning", so "Lab machines are broken" and
-"प्रयोगशाला की मशीनें खराब हैं" land close together without any language-specific rules.
-
-Design goals (so it can never hurt the website):
-  * Local ONNX model via fastembed (about 220 MB on disk, runs on CPU, no GPU, no PyTorch, no API key).
-  * Loaded ONCE in a background thread. Requests never wait for it: if it is not ready, the caller
-    gets None and the basic text matcher is used for that request.
-  * A failed load is remembered and retried only every few minutes, never on every request.
-  * Every complaint is embedded once and cached in the database (ComplaintEmbedding).
-  * Nothing here can raise into a request: all failures degrade to None.
+Cloud-based inference using Google Gemini Embeddings (text-embedding-004):
+  * Zero RAM footprint on the server (no heavy local ONNX/PyTorch models).
+  * High-quality multilingual embeddings across English, Hindi, Marathi, and 100+ languages.
+  * Embeddings are cached in the database (ComplaintEmbedding) so each complaint is only embedded once.
+  * If GEMINI_API_KEY is not set or network fails, gracefully falls back to pure Python TF-IDF rules.
 """
 import hashlib
 import logging
 import math
-import threading
-import time
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -25,88 +16,70 @@ from sqlalchemy.orm import Session
 from ..config import settings
 
 log = logging.getLogger("aicte.semantic")
-MAX_CHARS = 1000  # the model only reads the first ~128 tokens anyway
-
-_lock = threading.Lock()
-_state = {"status": "idle", "model": None, "error": "", "retry_at": 0.0, "loaded_at": None}
-
-
-def _load() -> None:
-    """Runs in a background thread."""
-    try:
-        from fastembed import TextEmbedding  # optional dependency
-        if settings.embedding_model == "intfloat/multilingual-e5-small":
-            try:
-                from fastembed.common.model_description import ModelSource, PoolingType
-                TextEmbedding.add_custom_model(
-                    model="intfloat/multilingual-e5-small",
-                    pooling=PoolingType.MEAN,
-                    normalization=True,
-                    sources=ModelSource(hf="intfloat/multilingual-e5-small"),
-                    dim=384,
-                    model_file="onnx/model.onnx",
-                )
-            except Exception:
-                pass
-        model = TextEmbedding(model_name=settings.embedding_model, cache_dir=settings.model_cache_dir, threads=1)
-        list(model.embed(["passage: warm-up" if "e5" in settings.embedding_model.lower() else "warm-up"]))  # first call initialises the ONNX session
-        with _lock:
-            _state.update(status="ready", model=model, error="", loaded_at=time.time())
-        log.info("Multilingual model ready: %s", settings.embedding_model)
-    except Exception as e:  # noqa: BLE001 - any failure means "use the basic matcher"
-        with _lock:
-            _state.update(status="unavailable", model=None, error=f"{type(e).__name__}: {e}"[:300],
-                          retry_at=time.time() + settings.semantic_retry_minutes * 60)
-        log.warning("Multilingual model unavailable, using basic matching: %s", e)
+MAX_CHARS = 1000
+GEMINI_MODEL = "gemini-text-embedding-004"
 
 
 def warm_up() -> None:
-    """Start loading in the background if not already loaded / loading / cooling down."""
-    if not settings.semantic_enabled:
-        return
-    with _lock:
-        st = _state["status"]
-        if st in ("loading", "ready") or (st == "unavailable" and time.time() < _state["retry_at"]):
-            return
-        _state["status"] = "loading"
-    threading.Thread(target=_load, name="semantic-loader", daemon=True).start()
+    """No local model download required when using cloud API."""
+    pass
 
 
 def ready() -> bool:
-    return settings.semantic_enabled and _state["status"] == "ready"
+    """Ready when semantic matching is enabled and a Gemini API key is configured."""
+    return bool(settings.semantic_enabled and settings.gemini_api_key)
 
 
 def status() -> dict:
     if not settings.semantic_enabled:
-        return {"engine": "basic", "state": "disabled", "model": None, "detail": "Multilingual matching is switched off in settings."}
-    st = _state["status"]
-    if st == "ready":
-        return {"engine": "multilingual-ai", "state": "ready", "model": settings.embedding_model, "detail": ""}
-    return {"engine": "basic", "state": st, "model": settings.embedding_model, "detail": _state["error"]}
+        return {
+            "engine": "basic",
+            "state": "disabled",
+            "model": None,
+            "detail": "Semantic matching is disabled in settings."
+        }
+    if settings.gemini_api_key:
+        return {
+            "engine": "multilingual-ai",
+            "state": "ready",
+            "model": "Google Gemini (text-embedding-004)",
+            "detail": ""
+        }
+    return {
+        "engine": "rules+tfidf",
+        "state": "ready",
+        "model": "Rule & Keyword Matching",
+        "detail": "Zero-RAM rule matching active. Add GEMINI_API_KEY for multilingual AI embeddings."
+    }
 
 
 def embed(texts: list[str]) -> list[list[float]] | None:
-    """Unit-length vectors for the texts, or None when the model is not ready (never raises, never waits)."""
-    if not settings.semantic_enabled or not texts:
-        return None
-    if _state["status"] != "ready":
-        warm_up()  # kicks off (or retries) the background load; this request uses the basic matcher
+    """Unit-length vectors using Google Gemini text-embedding-004 API."""
+    if not settings.semantic_enabled or not settings.gemini_api_key or not texts:
         return None
     try:
-        out = []
-        prepared = []
-        for t in texts:
-            clean = t[:MAX_CHARS]
-            if "e5" in settings.embedding_model.lower() and not clean.startswith(("query:", "passage:")):
-                clean = f"passage: {clean}"
-            prepared.append(clean)
-        for v in _state["model"].embed(prepared):
-            v = [float(x) for x in v]
-            n = math.sqrt(sum(x * x for x in v)) or 1.0
-            out.append([x / n for x in v])
-        return out
-    except Exception as e:  # noqa: BLE001
-        log.warning("Embedding failed, using basic matching for this request: %s", e)
+        import httpx
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents?key={settings.gemini_api_key}"
+        requests_payload = [
+            {
+                "model": "models/text-embedding-004",
+                "content": {"parts": [{"text": t[:MAX_CHARS]}]}
+            }
+            for t in texts
+        ]
+        resp = httpx.post(url, json={"requests": requests_payload}, timeout=12.0)
+        if resp.status_code == 200:
+            data = resp.json()
+            out = []
+            for item in data.get("embeddings", []):
+                v = [float(x) for x in item.get("values", [])]
+                n = math.sqrt(sum(x * x for x in v)) or 1.0
+                out.append([x / n for x in v])
+            return out
+        log.warning("Gemini API error %s: %s", resp.status_code, resp.text[:200])
+        return None
+    except Exception as e:
+        log.warning("Gemini embedding call failed: %s", e)
         return None
 
 
@@ -115,7 +88,7 @@ def cosine(a: list[float], b: list[float]) -> float:
 
 
 def strength(cos: float) -> float:
-    """Map a raw cosine to 0..1 'how likely the same issue'. Unrelated text sits near/below the floor."""
+    """Map a raw cosine to 0..1 'how likely the same issue'."""
     lo, hi = settings.semantic_floor, settings.semantic_ceiling
     return max(0.0, min(1.0, (cos - lo) / (hi - lo)))
 
@@ -125,8 +98,7 @@ def _text_of(c) -> str:
 
 
 def vectors_for(db: Session, complaints: list) -> dict[int, list[float]]:
-    """{complaint_id: vector} for every complaint, embedding and caching any that are missing.
-    Returns {} if the model is not ready, so callers fall back to basic matching."""
+    """{complaint_id: vector} for complaints, embedding and caching via Gemini API."""
     from ..models import ComplaintEmbedding
     if not complaints or not ready():
         return {}
@@ -137,20 +109,20 @@ def vectors_for(db: Session, complaints: list) -> dict[int, list[float]]:
         text = _text_of(c)
         h = hashlib.sha1(text.encode("utf-8")).hexdigest()
         e = cached.get(c.id)
-        if e and e.text_hash == h and e.model == settings.embedding_model:
+        if e and e.text_hash == h and e.model == GEMINI_MODEL:
             result[c.id] = e.vector
         else:
             todo.append((c, text, h))
     if todo:
         vecs = embed([t for _, t, _ in todo])
         if vecs is None:
-            return {}  # model went away mid-way: basic matcher for this request
+            return {}  # Fall back to basic matcher for this request
         for (c, _, h), v in zip(todo, vecs):
             row = cached.get(c.id)
             if row:
-                row.model, row.text_hash, row.vector = settings.embedding_model, h, v
+                row.model, row.text_hash, row.vector = GEMINI_MODEL, h, v
             else:
-                db.add(ComplaintEmbedding(complaint_id=c.id, model=settings.embedding_model, text_hash=h, vector=v))
+                db.add(ComplaintEmbedding(complaint_id=c.id, model=GEMINI_MODEL, text_hash=h, vector=v))
             result[c.id] = v
         db.flush()
     return result
